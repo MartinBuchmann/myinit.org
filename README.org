@@ -2,12 +2,12 @@
 #+TITLE: README.org
 #+AUTHOR: Martin Buchmann
 #+STARTUP: showall
-# Time-stamp: <2017-02-09 21:18:29 Martin>
+# Time-stamp: <2017-02-09 21:31:58 Martin>
 
-* Martins Emacs customization
+* Martin's Emacs customization
 
 This is my Emacs customization using [[https://www.gnu.org/software/emacs/][GNU Emacs]]. I used [[http://aquamacs.org][Aquamacs]] in the past as
-a basic setup but found it too cumbersome to customized it back to the pure
+a basic setup but found it too cumbersome to customize it back to the pure
 Emacs' behaviour.
 
 I found some inspiration in [[http://cestlaz.github.io/stories/emacs][Mike's blog]] and [[https://gitlab.com/buildfunthings/emacs-config/blob/master/loader.org][Arjen's work]] but created mostly my
