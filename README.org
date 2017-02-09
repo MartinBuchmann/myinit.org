@@ -1,0 +1,17 @@
+#+TITLE: README.org
+#+AUTHOR: Martin Buchmann
+# Time-stamp: <2017-02-06 21:09:31 Martin>
+
+* Martins Emacs customization
+
+This is my Emacs customization using [[http://aquamacs.org][Aquamacs]][fn:aquamacs] as a basic setup.  I
+found some inspiration in [[http://cestlaz.github.io/stories/emacs][Mike's blog]] and [[https://gitlab.com/buildfunthings/emacs-config/blob/master/loader.org][Arjen's work]] but created mostly my
+own way.  Things will certainly change with time, e.g. I have not done a lot of
+LaTeX recently and am not using flyspell, which could certainly change.
+
+I basically use Emacs for playing around with Common Lisp using [[https://common-lisp.net/project/slime/][Slime]].
+
+* Footnotes
+
+[fn:aquamacs] Aquamacs 3.3  GNU Emacs 25.1.1 (x86_64-apple-darwin14.1.0, NS appkit-1344.72 Version 10.10.2 (Build 14C109))
+
