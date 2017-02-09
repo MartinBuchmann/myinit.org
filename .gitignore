@@ -1,0 +1,17 @@
+/.DS_Store
+/ac-comphist.dat
+*.1
+/SessionDesktop.el
+*.2
+*.3
+*.fire
+/emacs.bmk
+*.add
+/history
+/myinit.el
+/places
+/recentf
+/auto-save-list/.saves-11694-iBuchi.fritz.box~
+.DS_Store
+elpa/*
+/elisp/my_exten.elc

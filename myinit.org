@@ -1,0 +1,481 @@
+#+TITLE: My Emacs Customization
+#+AUTHOR: Martin Buchmann
+#+STARTUP: overview
+# Time-stamp: <2017-02-09 20:55:52 Martin>
+
+* Allgemeines
+** Mein eigener Pfad für Erweiterungen
+#+BEGIN_SRC emacs-lisp
+    (setq load-path
+          (mapcar 'expand-file-name
+                  (append '("~/.emacs.d/elisp"
+                            "~/.emacs.d/elisp/redshank")
+                          load-path)))
+#+END_SRC
+
+** Meine Erweiterung werden geladen
+#+BEGIN_SRC emacs-lisp
+(message "Lade Martins Erweiterungen...")
+(require 'my_exten)
+#+END_SRC
+   
+** Sicherheit
+   [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][Your editor is malware]]
+#+BEGIN_SRC emacs-lisp
+  (require 'cl)
+  (setq tls-checktrust t)
+
+  (setq python "/opt/local/bin/python")
+
+  (let ((trustfile
+         (replace-regexp-in-string
+          "\\\\" "/"
+          (replace-regexp-in-string
+           "\n" ""
+           (shell-command-to-string (concat python " -m certifi"))))))
+    (setq tls-program
+          (list
+           (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
+                   (if (eq window-system 'w32) ".exe" "") trustfile)))
+    (setq gnutls-verify-error t)
+    (setq gnutls-trustfiles (list trustfile)))
+#+END_SRC
+** Grundlegende Pakete
+*** Command log mode
+#+BEGIN_SRC emacs-lisp
+  (use-package command-log-mode
+    :ensure t)
+#+END_SRC
+*** Try und which-key
+#+BEGIN_SRC emacs-lisp
+  (use-package try
+          :ensure t)
+
+  (use-package which-key
+          :ensure t 
+          :diminish which-key-mode
+          :config
+          (which-key-mode))
+#+END_SRC
+
+*** Farbige Lesezeichen im Buffer
+#+BEGIN_SRC emacs-lisp
+  ;; Make sure the repository is loaded as early as possible
+  (setq bm-restore-repository-on-load t)
+  (use-package bm
+    :ensure t
+    :bind
+    (("<M-f4>" . bm-toggle)
+     ("<f4>" . bm-next)
+     ("<S-f4>" . bm-previous)
+     ("<M-S-f4>" . bm-bookmark-annotate))
+    :config
+    (progn
+      ;; make bookmarks persistent as default
+      (setq-default bm-buffer-persistence t)
+      ;; Loading the repository from file when on start up.
+      (add-hook' after-init-hook 'bm-repository-load)
+      ;; Restoring bookmarks when on file find.
+      (add-hook 'find-file-hooks 'bm-buffer-restore)
+      ;; Saving bookmark data on killing a buffer
+      (add-hook 'kill-buffer-hook 'bm-buffer-save)
+      ;; Saving the repository to file when on exit.
+      ;; kill-buffer-hook is not called when emacs is killed, so we
+      ;; must save all bookmarks first.
+      (add-hook 'kill-emacs-hook '(lambda nil
+                                    (bm-buffer-save-all)
+                                    (bm-repository-save)))
+      ;; Update bookmark repository when saving the file.
+      (add-hook 'after-save-hook 'bm-buffer-save)
+      ;; Restore bookmarks when buffer is reverted.
+      (add-hook 'after-revert-hook 'bm-buffer-restore)
+      ;; make sure bookmarks is saved before check-in (and revert-buffer)
+      (add-hook 'vc-before-checkin-hook 'bm-buffer-save)))
+#+END_SRC
+
+*** ido-mode, etc.
+#+BEGIN_SRC emacs-lisp
+  ;; (setq ido-show-dot-for-dired t)
+  ;; (setq ido-enable-flex-matching t)
+  ;; (setq ido-everywhere t)
+  ;; (ido-mode 1)
+
+  ;; (smex-initialize)
+#+END_SRC
+    
+*** counsel/ivy/swiper
+#+BEGIN_SRC emacs-lisp
+  ;; http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/
+  (use-package counsel
+    :ensure t
+    :bind
+    (("M-x" . counsel-M-x)
+     ("M-y" . counsel-yank-pop)
+     ("C-x C-f" . counsel-find-file)
+     (("C-c g") . counsel-git)
+     ("C-c j" . counsel-git-grep)))
+
+  (use-package ivy
+    :ensure t
+    :diminish ivy-mode
+    :bind
+    (("C-c C-r" . ivy-resume)
+     ("C-s" . swiper)
+     ("C-r" . swiper)
+     ("C-x b" . ivy-switch-buffer))
+    :config
+    (progn
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
+
+  (use-package ivy-hydra
+    :ensure t)
+#+END_SRC
+*** dired
+#+BEGIN_SRC emacs-lisp
+  (setq insert-directory-program "/opt/local/bin/gls")
+  (setq dired-listing-switches "-aBhl --group-directories-first")
+#+END_SRC
+
+*** Auto-complete mode
+#+BEGIN_SRC emacs-lisp
+  (require 'auto-complete)
+  (global-auto-complete-mode t)
+#+END_SRC
+
+*** org-mode
+    http://orgmode.org
+    https://github.com/zamansky/using-emacs/tree/lesson-2-org
+
+    http://orgmode.org/manual/Capture.html#Capture
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+  (setq org-directory "~/Dropbox/org")
+  (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+  (setq org-default-notes-file (concat org-directory "/notes.org"))
+  (define-key global-map "\C-cc" 'org-capture)
+
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/Dropbox/org/gtd.org" "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("j" "Journal" entry (file+datetree "~/Dropbox/org/journal.org")
+           "* %?\nEntered on %U\n  %i\n  %a")))
+
+  (define-key global-map "\C-cx"
+          (lambda () (interactive) (org-capture nil "x")))
+#+END_SRC
+
+*** Magit
+#+BEGIN_SRC emacs-lisp
+   (global-magit-file-mode t)
+   (global-set-key (kbd "C-x g") 'magit-status)
+   (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
+#+END_SRC
+   
+*** Avy
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind
+    (("C-:" . avy-goto-char)))
+#+END_SRC
+** Meine Makros werden geladen
+#+BEGIN_SRC emacs-lisp
+(message "Lade Makros...")
+(load "~/Library/Application Support/Aquamacs Emacs/emacs_mac")
+#+END_SRC
+
+
+* Einstellungen
+** Umgebungsvariablen, Mac-Spezifika, etc
+   Zurück zur Standardtastenbelegung
+   https://www.emacswiki.org/emacs/AquamacsEmacsCompatibilitySettings
+   https://github.com/purcell/exec-path-from-shell
+#+BEGIN_SRC emacs-lisp
+  (when (memq window-system '(mac ns))
+    (exec-path-from-shell-initialize))
+
+  ;(osx-key-mode -1)  ; no Mac-specific key bindings
+
+  (unless window-system   ;; in TTY (terminal) mode
+    (normal-erase-is-backspace-mode nil)
+    (set-face-inverse-video-p 'mode-line-inactive t)
+    (define-key osx-key-mode-map "\C-z" 'suspend-emacs))
+  (setq
+   ns-command-modifier 'meta         ; Apple/Command key is Meta
+   ns-alternate-modifier nil         ; Option is the Mac Option key
+   ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
+   )
+
+  ;; exchanging clipboard content with other applications
+  (setq select-enable-clipboard t)
+  ;; Persistency and modes:
+  (setq
+   aquamacs-scratch-file nil               ; do not save scratch file across sessions
+   initial-major-mode 'emacs-lisp-mode     ; *scratch* shows up in emacs-lisp-mode
+   aquamacs-default-major-mode 'lisp-mode  ; new buffers open in lisp-mode
+   )
+
+  (fset 'yes-or-no-p 'y-or-n-p)           ; replace y-e-s by y
+  (defconst use-backup-dir t)             ; use backup directory
+  (setq cursor-type (quote (box)))        ; box cursor
+  (put 'downcase-region 'disabled nil)    ; Erlaubt up/downcase Befehle
+  (put 'upcase-region 'disabled nil)
+  (put 'scroll-left 'disabled nil)        ; Erlaubt horizontales Scrollen
+  (put 'narrow-to-region 'disabled nil)   ; Erlaubt narrow/wide
+
+  (setq delete-by-moving-to-trash t
+        trash-directory "~/.Trash/emacs")
+
+  (setq-default fill-column 79)           ; Zeilenlänge auf 79 Spalten setzen
+
+  (setq shell-file-name           "bash")
+  (setq sh-shell-file             "/bin/bash")
+  (setq tex-shell-file-name       "bash")
+
+  (setq user-full-name "Martin Buchmann")
+  (setq user-login-name "Martin")
+  (setq user-mail-adress "Martin.Buchmann@gmail.com")
+
+  (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
+#+END_SRC 
+ 
+** Appearance
+*** Frame and window management
+#+BEGIN_SRC emacs-lisp
+  (when window-system
+    ;; I like this this way.
+    (set-frame-size (selected-frame) 220 70)
+    (set-frame-position (selected-frame) 165 35)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1))
+
+  (defalias 'list-buffers 'ibuffer-other-window)
+
+  (winner-mode)
+
+  (setq pop-up-frame-function (lambda () (split-window-right)))
+  (setq split-height-threshold 1400)
+  (setq split-width-treshold 1500)
+
+  (global-linum-mode t)
+  (setq linum-format " %4i ")
+
+  (global-hl-line-mode t)
+
+  (use-package mode-icons
+    :ensure t
+    :config
+    (mode-icons-mode t))
+
+  (use-package beacon
+    :ensure t
+    :config
+    (progn
+      (beacon-mode 1)
+      (setq beacon-push-mark 35)
+      (setq beacon-color "#666600")))
+
+  (use-package powerline
+    :ensure t
+    :config
+    (powerline-default-theme))
+#+END_SRC
+
+*** Color-Theme
+    http://stackoverflow.com/questions/21988671/how-to-make-aquamacs-color-theme-stick
+    https://www.emacswiki.org/emacs/AquamacsFAQ#toc21
+#+BEGIN_SRC emacs-lisp
+  (global-prettify-symbols-mode)
+#+END_SRC
+*** Editing
+    Die Flyspell-Einstellung werden noch wachsen...
+#+BEGIN_SRC emacs-lisp
+  ;; Ich arbeite in einer deutschen Umgebung
+  (set-language-environment       'German)
+
+  (set-buffer-file-coding-system  'utf-8-unix)
+  (prefer-coding-system           'utf-8-unix)
+  (set-default buffer-file-coding-system  'utf-8-unix)
+  (set-terminal-coding-system 'utf-8)
+
+  (dolist (hook '(text-mode-hook))
+    (add-hook hook (lambda () (flyspell-mode 1))))
+
+  (add-hook 'before-save-hook 'time-stamp) ; Aktiviert die Time-stamp-Funktion
+
+  ;; zap-up-up-char
+  (autoload 'zap-up-to-char "misc"
+      "Kill up to, but not including ARGth occurrence of CHAR.
+    
+    \(fn arg char)"
+      'interactive)
+
+  (global-set-key "\M-z" 'zap-up-to-char)
+  (global-set-key "\M-Z" 'zap-up-char)
+
+  ; expand the marked region in semantic increments (negative prefix to reduce region)
+  (use-package expand-region
+    :ensure ;TODO: 
+    :config 
+    (global-set-key (kbd "C-=") 'er/expand-region))
+#+END_SRC 
+    
+*** Undo-Tree
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :ensure t
+    :init
+    (global-undo-tree-mode))
+#+END_SRC
+** Abkürzungen einschalten
+#+BEGIN_SRC emacs-lisp
+  (setq-default abbrev-mode t)
+  (setq save-abbrevs t)
+  (setq abbrev-file-name "~/Library/Application Support/Aquamacs Emacs/abbrev_defs")
+  ;; Datei mit Abkürzungen laden
+  (read-abbrev-file "~/Library/Application Support/Aquamacs Emacs/abbrev_defs")
+#+END_SRC
+
+** Wo sollen Backup-Dateien gespeichert werden?
+#+BEGIN_SRC emacs-lisp
+  (setq make-backup-files t)
+  (setq backup-directory-alist (quote ((".*" . "~/Library/Application Support/Aquamacs Emacs/backups"))))
+#+END_SRC
+   
+
+* Spezielle Modi
+
+** Slime, quicklisp, paredit
+   http://common-lisp.net/project/slime/
+   http://www.emacswiki.org/emacs/ParEdit
+#+BEGIN_SRC emacs-lisp
+  (load (expand-file-name "~/quicklisp/slime-helper.el"))
+
+  (use-package paredit
+    :ensure t
+    :config
+    (progn
+      (autoload 'paredit-mode "paredit"
+        "Minor mode for pseudo-structurally editing Lisp code." t)
+      (add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode +1)))
+      (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))))
+
+  ;; remove XLS-mode and allow "file.lsp" to start lisp-mode
+  (setq auto-mode-alist (rassq-delete-all 'XLS-mode auto-mode-alist))
+
+  ;; Stop SLIME's REPL from grabbing DEL,
+  ;; which is annoying when backspacing over a '('
+  (defun override-slime-repl-bindings-with-paredit ()
+    (define-key slime-repl-mode-map
+      (read-kbd-macro paredit-backward-delete-key) nil))
+
+  (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
+
+  ;; (setq inferior-lisp-program "/opt/local/bin/sbcl --no-inform --no-linedit")
+  ;; (setq inferior-lisp-program "/opt/local/bin/clisp")
+
+  (setq slime-lisp-implementations
+        '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
+          (clisp ("/opt/local/bin/clisp"))
+          (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
+
+  (setq slime-net-coding-system 'utf-8-unix)
+  (slime-setup '(slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
+
+  (add-hook 'slime-mode-hook
+            '(lambda ()
+               (paredit-mode +1)
+               (define-key slime-mode-map (kbd "<f12>") 'slime-selector)
+               (define-key slime-repl-mode-map (kbd "<f12>") 'slime-selector)
+               (define-key slime-mode-map [(return)] 'paredit-newline)
+               (require 'mic-paren)
+               (paren-activate)
+               (setf paren-priority 'close)))
+
+  ;; emacs-lisp-nav
+  (use-package elisp-slime-nav
+             :ensure t
+             :config
+             (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode))
+
+  (add-hook 'slime-mode-hook
+          (lambda ()
+            (unless (slime-connected-p)
+              (save-excursion (slime)))))
+
+  ;; ac-slime
+  (use-package ac-slime
+    :ensure t
+    :config
+    (progn
+      (add-hook 'slime-mode-hook 'set-up-slime-ac)
+      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+      (eval-after-load "auto-complete"
+        '(add-to-list 'ac-modes 'slime-repl-mode))))
+
+  ;; Hyperspec within Emacs
+  (setq browse-url-browser-function 'w3m-goto-url-new-session)
+
+  ;; Redshank
+  ;; http://www.foldr.org/~michaelw/emacs/redshank/
+  (require 'redshank-loader
+           "redshank-loader")
+           
+  (eval-after-load "redshank-loader"
+     `(redshank-setup '(lisp-mode-hook
+                        slime-repl-mode-hook) t))
+
+#+END_SRC
+   
+   q
+** YASnippet
+  #+BEGIN_SRC emacs-lisp
+    (use-package yasnippet
+      :ensure t
+      :init
+      (yas-global-mode 1))
+  #+END_SRC
+   
+
+* Tastenbelegungen
+#+BEGIN_SRC emacs-lisp
+  (global-set-key [f5] 'revert-buffer)
+  (global-set-key [f7] 'point-to-top)
+  (global-set-key [f8] 'point-to-bottom)
+  (global-set-key [f9] 'line-to-top)
+
+  (global-set-key (kbd "C-x k") 'kill-buffer) ; Warum geht kill-this-buffer nicht?
+
+  (global-set-key (kbd "C-c j") 'flyspell-check-previous-highlighted-word)
+
+  (global-set-key "\C-c\C-x\C-f" 'find-file-at-point)
+
+  ;; Einfügen von Datum
+  (global-set-key (kbd "C-c d") 'insert-date)
+  (global-set-key (kbd "C-c D") 'insert-datum)
+
+  ;; Suchen von Text unter dem Cursor, bzw. in aktueller Region
+  (global-set-key [f3]   'search-word-under-cursor)
+  (global-set-key [M-f3] 'search-selected-text)
+
+  ;; Länge des aktuellen Wortes
+  (global-set-key "\C-c\C-x\C-l" 'length-word-under-cursor)
+
+  ;; Open terminal.app
+  (global-set-key "\C-c\C-xo" 'mac-open-terminal)
+
+  ;; Buchstaben vertauschen
+  (global-set-key "\C-c\C-t" 'transpose-chars)
+#+END_SRC
+
+
+* Ende
+#+BEGIN_SRC emacs-lisp
+  (message "Martins myinit.org wurde gelesen.")
+#+END_SRC
