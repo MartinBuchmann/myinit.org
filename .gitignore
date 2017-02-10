@@ -11,3 +11,10 @@
 /recentf
 elpa/*
 auto-save-list/*
+/.emacs.desktop
+/.emacs.desktop.lock
+/.org-id-locations
+/recentf~
+/abbrev_defs
+/elisp/sensible-defaults.el
+/elisp/sensible-defaults.elc

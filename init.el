@@ -1,6 +1,6 @@
 ;;; init.el 
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2017-02-09 21:13:27 Martin>
+;; Time-stamp: <2017-02-10 20:55:38 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -42,9 +42,14 @@
  '(ansi-color-names-vector
    ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#e090d7" "#8cc4ff" "#eeeeec"])
  '(custom-enabled-themes (quote (tsdh-dark)))
+ '(package-selected-packages
+   (quote
+    (noflet w3m yasnippet which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell elisp-slime-nav counsel command-log-mode bm beacon avy ac-slime)))
  '(safe-local-variable-values
    (quote
-    ((ispell-dictionary . "en")
+    ((buffer-local-dictionary . "de")
+     (buffer-local-dictionary . "en")
+     (ispell-dictionary . "en")
      (ispell-dictionary . en)
      (spell-dictionary . en))))
  '(tool-bar-mode nil))

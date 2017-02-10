@@ -1,10 +1,11 @@
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-#+STARTUP: overview
-# Time-stamp: <2017-02-09 20:55:52 Martin>
+#+STARTUP: content
+# Time-stamp: <2017-02-10 21:38:30 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
+   Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
 #+BEGIN_SRC emacs-lisp
     (setq load-path
           (mapcar 'expand-file-name
@@ -13,13 +14,9 @@
                           load-path)))
 #+END_SRC
 
-** Meine Erweiterung werden geladen
-#+BEGIN_SRC emacs-lisp
-(message "Lade Martins Erweiterungen...")
-(require 'my_exten)
-#+END_SRC
-   
 ** Sicherheit
+   Einige grundlegende Einstellungen, um sicherzustellen, dass über das
+   Paketmanager keine allzu großen Sicherheitslücken entstehen. Inspiriert von
    [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][Your editor is malware]]
 #+BEGIN_SRC emacs-lisp
   (require 'cl)
@@ -40,6 +37,28 @@
     (setq gnutls-verify-error t)
     (setq gnutls-trustfiles (list trustfile)))
 #+END_SRC
+
+** Meine Erweiterung werden geladen
+   Einige Zusatzfunktionen, die mal aktualisiert und auf Sinnhaftigkeit geprüft
+   werden müssen.
+#+BEGIN_SRC emacs-lisp
+(message "Lade Martins Erweiterungen...")
+(require 'my_exten)
+#+END_SRC
+** Meine Makros werden geladen
+Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
+#+BEGIN_SRC emacs-lisp
+(message "Lade Makros...")
+(load "~/Library/Application Support/Aquamacs Emacs/emacs_mac")
+#+END_SRC
+** Grundlegende Einstellungen
+Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
+#+BEGIN_SRC emacs-lisp
+(load-file "/Users/Martin/.emacs.d/elisp/sensible-defaults.el")
+(sensible-defaults/use-all-settings)
+
+(desktop-save-mode 1)
+#+END_SRC
 ** Grundlegende Pakete
 *** Command log mode
 #+BEGIN_SRC emacs-lisp
@@ -52,7 +71,7 @@
           :ensure t)
 
   (use-package which-key
-          :ensure t 
+          :ensure t
           :diminish which-key-mode
           :config
           (which-key-mode))
@@ -102,35 +121,38 @@
 
   ;; (smex-initialize)
 #+END_SRC
-    
+
 *** counsel/ivy/swiper
 #+BEGIN_SRC emacs-lisp
-  ;; http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/
-  (use-package counsel
-    :ensure t
-    :bind
-    (("M-x" . counsel-M-x)
-     ("M-y" . counsel-yank-pop)
-     ("C-x C-f" . counsel-find-file)
-     (("C-c g") . counsel-git)
-     ("C-c j" . counsel-git-grep)))
+    ;; http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/
+    (use-package counsel
+      :ensure t
+      :bind
+      (("M-x" . counsel-M-x)
+       ("M-y" . counsel-yank-pop)
+       ("C-x C-f" . counsel-find-file)
+       (("C-c g") . counsel-git)
+       ("C-c j" . counsel-git-grep)
+       ("C-x r b" . counsel-bookmark)
+       :map ivy-minibuffer-map
+       ("M-y" . ivy-next-line)))
 
-  (use-package ivy
-    :ensure t
-    :diminish ivy-mode
-    :bind
-    (("C-c C-r" . ivy-resume)
-     ("C-s" . swiper)
-     ("C-r" . swiper)
-     ("C-x b" . ivy-switch-buffer))
-    :config
-    (progn
-      (ivy-mode 1)
-      (setq ivy-use-virtual-buffers t)
-      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
+    (use-package ivy
+      :ensure t
+      :diminish ivy-mode
+      :bind
+      (("C-c C-r" . ivy-resume)
+       ("C-s" . swiper)
+       ("C-r" . swiper)
+       ("C-x b" . ivy-switch-buffer))
+      :config
+      (progn
+        (ivy-mode 1)
+        (setq ivy-use-virtual-buffers t)
+        (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
 
-  (use-package ivy-hydra
-    :ensure t)
+    (use-package ivy-hydra
+      :ensure t)
 #+END_SRC
 *** dired
 #+BEGIN_SRC emacs-lisp
@@ -148,26 +170,96 @@
     http://orgmode.org
     https://github.com/zamansky/using-emacs/tree/lesson-2-org
 
-    http://orgmode.org/manual/Capture.html#Capture
+**** Allgemeine Konfiguration von org-mode
+#+BEGIN_SRC emacs-lisp
+ ;; Allgemeine Tastenbelegung
+ (global-set-key "\C-cl" 'org-store-link)
+ (global-set-key "\C-ca" 'org-agenda)
+ (global-set-key "\C-cc" 'org-capture)
+ (global-set-key "\C-cb" 'org-iswitchb)
+
+ ;; Allgemeine Einstellungen
+ (setq org-directory "~/Dropbox/orgfiles")
+ (setq org-default-notes-file (concat org-directory "/Notes.org"))
+
+ (setq org-agenda-files (list "~/Dropbox/orgfiles/Journal.org"
+                              "~/Dropbox/orgfiles/Martin.org"
+                              "~/Dropbox/orgfiles/Links.org"))
+
+ (setq org-export-html-postamble nil)
+ (setq org-startup-folded (quote overview))
+ (setq org-startup-indented t)
+ (setq org-src-tab-acts-natively t)
+ (setq org-src-window-setup 'current-window)
+
+ (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+ (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
+
+ (setq org-agenda-custom-commands
+       '(("c" "Simple agenda view"
+          ((agenda "")
+           (alltodo "")))))
+#+END_SRC
+
+**** org-bullets
+     Displaying nice bullets instead of just the asterics
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
     :ensure t
     :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
 
-  (setq org-directory "~/Dropbox/org")
-  (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
-  (setq org-default-notes-file (concat org-directory "/notes.org"))
-  (define-key global-map "\C-cc" 'org-capture)
+**** org-autocomplete
+#+BEGIN_SRC emacs-lisp
+  (use-package org-ac
+    :ensure ;TODO:
+    :init (progn
+            (require 'org-ac)
+            (org-ac/config-default)
+            ))
+#+END_SRC
+
+**** org-capture
+#+BEGIN_SRC emacs-lisp
 
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/Dropbox/org/gtd.org" "Tasks")
-           "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+datetree "~/Dropbox/org/journal.org")
+        '(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
+           "* %? %^L %^g \n%T" :prepend t)
+          ("t" "To Do Item" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
+           "* TODO %?\n%u" :prepend t)
+          ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
+           "* TODO %a\n %?" :prepend t)
+          ("n" "Note" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Note space")
+           "* %?\n%u" :prepend t)
+          ("j" "Journal" entry (file+datetree "~/Dropbox/org/Journal.org")
            "* %?\nEntered on %U\n  %i\n  %a")))
 
-  (define-key global-map "\C-cx"
-          (lambda () (interactive) (org-capture nil "x")))
+    ;; Capturing from outside of a runnign emacs
+    ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
+    (defadvice org-capture-finalize
+        (after delete-capture-frame activate)
+      "Advise capture-finalize to close the frame"
+      (if (equal "capture" (frame-parameter nil 'name))
+        (delete-frame)))
+
+    (defadvice org-capture-destroy
+        (after delete-capture-frame activate)
+      "Advise capture-destroy to close the frame"
+      (if (equal "capture" (frame-parameter nil 'name))
+        (delete-frame)))
+
+    (use-package noflet
+      :ensure t)
+
+    (defun make-capture-frame ()
+      "Create a new frame and run org-capture."
+      (interactive)
+      (make-frame '((name . "capture")))
+      (select-frame-by-name "capture")
+      (delete-other-windows)
+      (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+              (org-capture)))
 #+END_SRC
 
 *** Magit
@@ -176,18 +268,13 @@
    (global-set-key (kbd "C-x g") 'magit-status)
    (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
 #+END_SRC
-   
+
 *** Avy
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :ensure t
     :bind
     (("C-:" . avy-goto-char)))
-#+END_SRC
-** Meine Makros werden geladen
-#+BEGIN_SRC emacs-lisp
-(message "Lade Makros...")
-(load "~/Library/Application Support/Aquamacs Emacs/emacs_mac")
 #+END_SRC
 
 
@@ -197,10 +284,11 @@
    https://www.emacswiki.org/emacs/AquamacsEmacsCompatibilitySettings
    https://github.com/purcell/exec-path-from-shell
 #+BEGIN_SRC emacs-lisp
+  ;; Starts a server for connecting from emacsclient
+  (server-start)
+
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize))
-
-  ;(osx-key-mode -1)  ; no Mac-specific key bindings
 
   (unless window-system   ;; in TTY (terminal) mode
     (normal-erase-is-backspace-mode nil)
@@ -221,7 +309,6 @@
    aquamacs-default-major-mode 'lisp-mode  ; new buffers open in lisp-mode
    )
 
-  (fset 'yes-or-no-p 'y-or-n-p)           ; replace y-e-s by y
   (defconst use-backup-dir t)             ; use backup directory
   (setq cursor-type (quote (box)))        ; box cursor
   (put 'downcase-region 'disabled nil)    ; Erlaubt up/downcase Befehle
@@ -232,8 +319,6 @@
   (setq delete-by-moving-to-trash t
         trash-directory "~/.Trash/emacs")
 
-  (setq-default fill-column 79)           ; Zeilenlänge auf 79 Spalten setzen
-
   (setq shell-file-name           "bash")
   (setq sh-shell-file             "/bin/bash")
   (setq tex-shell-file-name       "bash")
@@ -243,58 +328,52 @@
   (setq user-mail-adress "Martin.Buchmann@gmail.com")
 
   (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
-#+END_SRC 
- 
-** Appearance
-*** Frame and window management
-#+BEGIN_SRC emacs-lisp
-  (when window-system
-    ;; I like this this way.
-    (set-frame-size (selected-frame) 220 70)
-    (set-frame-position (selected-frame) 165 35)
-    (tool-bar-mode -1)
-    (scroll-bar-mode -1))
-
-  (defalias 'list-buffers 'ibuffer-other-window)
-
-  (winner-mode)
-
-  (setq pop-up-frame-function (lambda () (split-window-right)))
-  (setq split-height-threshold 1400)
-  (setq split-width-treshold 1500)
-
-  (global-linum-mode t)
-  (setq linum-format " %4i ")
-
-  (global-hl-line-mode t)
-
-  (use-package mode-icons
-    :ensure t
-    :config
-    (mode-icons-mode t))
-
-  (use-package beacon
-    :ensure t
-    :config
-    (progn
-      (beacon-mode 1)
-      (setq beacon-push-mark 35)
-      (setq beacon-color "#666600")))
-
-  (use-package powerline
-    :ensure t
-    :config
-    (powerline-default-theme))
 #+END_SRC
 
-*** Color-Theme
-    http://stackoverflow.com/questions/21988671/how-to-make-aquamacs-color-theme-stick
-    https://www.emacswiki.org/emacs/AquamacsFAQ#toc21
+** Erscheinung
+*** Windows und Frames
 #+BEGIN_SRC emacs-lisp
-  (global-prettify-symbols-mode)
+   (when window-system
+     ;; I like this this way.
+     (set-frame-size (selected-frame) 220 70)
+     (set-frame-position (selected-frame) 165 35)
+     (tool-bar-mode -1)
+     (scroll-bar-mode -1)
+     (global-prettify-symbols-mode)
+     (global-hl-line-mode t)
+     (setq ring-bell-function 'ignore))
+
+   (defalias 'list-buffers 'ibuffer-other-window)
+
+   (winner-mode)
+
+   (setq pop-up-frame-function (lambda () (split-window-right)))
+   (setq split-height-threshold 1400)
+   (setq split-width-treshold 1500)
+
+   (global-linum-mode t)
+   (setq linum-format " %4i ")
+
+   (use-package mode-icons
+     :ensure t
+     :config
+     (mode-icons-mode t))
+
+   (use-package beacon
+     :ensure t
+     :config
+     (progn
+       (beacon-mode 1)
+       (setq beacon-push-mark 35)
+       (setq beacon-color "#666600")))
+
+   (use-package powerline
+     :ensure t
+     :config
+     (powerline-default-theme))
 #+END_SRC
+
 *** Editing
-    Die Flyspell-Einstellung werden noch wachsen...
 #+BEGIN_SRC emacs-lisp
   ;; Ich arbeite in einer deutschen Umgebung
   (set-language-environment       'German)
@@ -306,13 +385,14 @@
 
   (dolist (hook '(text-mode-hook))
     (add-hook hook (lambda () (flyspell-mode 1))))
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
 
   (add-hook 'before-save-hook 'time-stamp) ; Aktiviert die Time-stamp-Funktion
 
   ;; zap-up-up-char
   (autoload 'zap-up-to-char "misc"
       "Kill up to, but not including ARGth occurrence of CHAR.
-    
+
     \(fn arg char)"
       'interactive)
 
@@ -321,11 +401,11 @@
 
   ; expand the marked region in semantic increments (negative prefix to reduce region)
   (use-package expand-region
-    :ensure ;TODO: 
-    :config 
+    :ensure ;TODO:
+    :config
     (global-set-key (kbd "C-=") 'er/expand-region))
-#+END_SRC 
-    
+#+END_SRC
+
 *** Undo-Tree
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
@@ -336,10 +416,11 @@
 ** Abkürzungen einschalten
 #+BEGIN_SRC emacs-lisp
   (setq-default abbrev-mode t)
+  (diminish 'abbrev-mode)
   (setq save-abbrevs t)
-  (setq abbrev-file-name "~/Library/Application Support/Aquamacs Emacs/abbrev_defs")
+  (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
   ;; Datei mit Abkürzungen laden
-  (read-abbrev-file "~/Library/Application Support/Aquamacs Emacs/abbrev_defs")
+  (read-abbrev-file "~/.emacs.d/abbrev_defs")
 #+END_SRC
 
 ** Wo sollen Backup-Dateien gespeichert werden?
@@ -347,7 +428,7 @@
   (setq make-backup-files t)
   (setq backup-directory-alist (quote ((".*" . "~/Library/Application Support/Aquamacs Emacs/backups"))))
 #+END_SRC
-   
+
 
 * Spezielle Modi
 
@@ -426,13 +507,13 @@
   ;; http://www.foldr.org/~michaelw/emacs/redshank/
   (require 'redshank-loader
            "redshank-loader")
-           
+
   (eval-after-load "redshank-loader"
      `(redshank-setup '(lisp-mode-hook
                         slime-repl-mode-hook) t))
 
 #+END_SRC
-   
+
    q
 ** YASnippet
   #+BEGIN_SRC emacs-lisp
@@ -441,7 +522,7 @@
       :init
       (yas-global-mode 1))
   #+END_SRC
-   
+
 
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
@@ -450,7 +531,7 @@
   (global-set-key [f8] 'point-to-bottom)
   (global-set-key [f9] 'line-to-top)
 
-  (global-set-key (kbd "C-x k") 'kill-buffer) ; Warum geht kill-this-buffer nicht?
+  (global-set-key (kbd "C-x k") 'kill-this-buffer)
 
   (global-set-key (kbd "C-c j") 'flyspell-check-previous-highlighted-word)
 
