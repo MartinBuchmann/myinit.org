@@ -19,3 +19,7 @@ auto-save-list/*
 /elisp/sensible-defaults.el
 /elisp/sensible-defaults.elc
 /tramp
+/myinit.el~
+*.gpg
+*.png
+/org-gcal/*

@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-13 13:28:45 Martin>
+# Time-stamp: <2017-02-13 15:16:53 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -179,32 +179,33 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
 
 **** Allgemeine Konfiguration von org-mode
 #+BEGIN_SRC emacs-lisp
- ;; Allgemeine Tastenbelegung
- (global-set-key "\C-cl" 'org-store-link)
- (global-set-key "\C-ca" 'org-agenda)
- (global-set-key "\C-cc" 'org-capture)
- (global-set-key "\C-cb" 'org-iswitchb)
+   ;; Allgemeine Tastenbelegung
+   (global-set-key "\C-cl" 'org-store-link)
+   (global-set-key "\C-ca" 'org-agenda)
+   (global-set-key "\C-cc" 'org-capture)
+   (global-set-key "\C-cb" 'org-iswitchb)
 
- ;; Allgemeine Einstellungen
- (setq org-directory "~/Dropbox/orgfiles")
- (setq org-default-notes-file (concat org-directory "/Notes.org"))
+   ;; Allgemeine Einstellungen
+   (setq org-directory "~/Dropbox/orgfiles")
+   (setq org-default-notes-file (concat org-directory "/Notes.org"))
 
- (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
-                              "~/Dropbox/orgfiles/Notes.org"))
+   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
+				"~/Dropbox/orgfiles/Notes.org"
+				"~/Dropbox/orgfiles/GCal.org"))
 
- (setq org-export-html-postamble nil)
- (setq org-startup-folded (quote overview))
- (setq org-startup-indented t)
- (setq org-src-tab-acts-natively t)
- (setq org-src-window-setup 'current-window)
+   (setq org-export-html-postamble nil)
+   (setq org-startup-folded (quote overview))
+   (setq org-startup-indented t)
+   (setq org-src-tab-acts-natively t)
+   (setq org-src-window-setup 'current-window)
 
- (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
- (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
+   (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+   (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
 
- (setq org-agenda-custom-commands
-       '(("c" "Simple agenda view"
-          ((agenda "")
-           (alltodo "")))))
+   (setq org-agenda-custom-commands
+	 '(("c" "Simple agenda view"
+            ((agenda "")
+             (alltodo "")))))
 #+END_SRC
 
 **** org-bullets
@@ -228,50 +229,60 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
 
 **** org-capture
 #+BEGIN_SRC emacs-lisp
-    (setq org-capture-templates
-          '(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
-             "* %? %^L %^g \n%T" :prepend t)
-            ("a" "Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Aufgaben")
-             "* TODO %?\n%u" :prepend t)
-            ("e" "Emacs-Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Emacs")
-             "* TODO %?\n%u" :prepend t)
-            ("c" "Common Lisp" entry (file+headline "~/Dropbox/orgfiles/Martin.org"
-                                                    "Common Lisp-Projekte")
-             "* TODO %?\n%u" :prepend t)
-            ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
-             "* TODO %a\n %?" :prepend t)
-            ("n" "Notiz" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Notizen")
-             "* %?\n%u" :prepend t)
-            ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/org/Journal.org")
-             "* %?\nEntered on %U\n  %i\n  %a")))
+      (setq org-capture-templates
+            '(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
+               "* %? %^L %^g \n%T" :prepend t)
+              ("a" "Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Aufgaben")
+               "* TODO %?\n%u" :prepend t)
+              ("e" "Emacs-Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Emacs")
+               "* TODO %?\n%u" :prepend t)
+              ("c" "Common Lisp" entry (file+headline "~/Dropbox/orgfiles/Martin.org"
+                                                      "Common Lisp-Projekte")
+               "* TODO %?\n%u" :prepend t)
+              ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
+               "* TODO %a\n %?" :prepend t)
+              ("n" "Notiz" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Notizen")
+               "* %?\n%u" :prepend t)
+              ("T" "Termin" entry (file  "~/Dropbox/orgfiles/GCal.org" )
+               "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
+              ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/org/Journal.org")
+               "* %?\nEntered on %U\n  %i\n  %a")))
 
-      ;; Capturing from outside of a runnign emacs
-      ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
-      (defadvice org-capture-finalize
-          (after delete-capture-frame activate)
-        "Advise capture-finalize to close the frame"
-        (if (equal "capture" (frame-parameter nil 'name))
-          (delete-frame)))
+        ;; Capturing from outside of a runnign emacs
+        ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
+        (defadvice org-capture-finalize
+            (after delete-capture-frame activate)
+          "Advise capture-finalize to close the frame"
+          (if (equal "capture" (frame-parameter nil 'name))
+            (delete-frame)))
 
-      (defadvice org-capture-destroy
-          (after delete-capture-frame activate)
-        "Advise capture-destroy to close the frame"
-        (if (equal "capture" (frame-parameter nil 'name))
-          (delete-frame)))
+        (defadvice org-capture-destroy
+            (after delete-capture-frame activate)
+          "Advise capture-destroy to close the frame"
+          (if (equal "capture" (frame-parameter nil 'name))
+            (delete-frame)))
 
-      (use-package noflet
-        :ensure t)
+        (use-package noflet
+          :ensure t)
 
-      (defun make-capture-frame ()
-        "Create a new frame and run org-capture."
-        (interactive)
-        (make-frame '((name . "capture")))
-        (select-frame-by-name "capture")
-        (delete-other-windows)
-        (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
-                (org-capture)))
+        (defun make-capture-frame ()
+          "Create a new frame and run org-capture."
+          (interactive)
+          (make-frame '((name . "capture")))
+          (select-frame-by-name "capture")
+          (delete-other-windows)
+          (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+                  (org-capture)))
 #+END_SRC
 
+**** org-gcal
+Ich lade die Datei mit meinen Zugangsdaten.
+#+BEGIN_SRC emacs-lisp
+  (load (expand-file-name "~/.emacs.d/secrets/gcal.el.gpg") t)
+
+  (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
+  (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
+#+END_SRC
 *** Magit
 #+BEGIN_SRC emacs-lisp
    (global-magit-file-mode t)
@@ -336,54 +347,54 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
 ** Erscheinung
 *** Windows und Frames
 #+BEGIN_SRC emacs-lisp
-     (when window-system
-       ;; I like it this way.
-       (set-frame-size (selected-frame) 220 70)
-       (set-frame-position (selected-frame) 165 35)
+  (when window-system
+    ;; I like it this way.
+    (set-frame-size (selected-frame) 220 70)
+    (set-frame-position (selected-frame) 165 35)
 
-       (tool-bar-mode -1)
-       (scroll-bar-mode -1)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
 
-       (global-prettify-symbols-mode)
-       (global-hl-line-mode t)
+    (global-prettify-symbols-mode)
+    (global-hl-line-mode t)
 
-       (global-linum-mode t)
-       (setq linum-format " %4i ")
+    (global-linum-mode t)
+    (setq linum-format " %4i ")
 
-       (desktop-save-mode 1)
+    (desktop-save-mode 1)
 
-       ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
-       (delete-selection-mode t)
+    ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
+    (delete-selection-mode t)
 
-       (global-font-lock-mode t)
+    (global-font-lock-mode t)
 
-       (setq ns-pop-up-frames nil)
+    (setq ns-pop-up-frames nil)
 
-       (use-(point)ackage mode-icons
-            :ensure ;TODO: 
-            :config
-            (mode-icons-mode t))
-       
-       (use-package beacon
-         :ensure t
-         :config
-         ((progn )
-          (beacon-mode 1)
-          (setq beacon-push-mark 35)
-          (setq beacon-color "#666600")))
-       
-       (use-package powerline
-         :ensure t
-         :config
-         (powerline-default-theme)))
+    (use-package mode-icons
+	 :ensure ;TODO: 
+	 :config
+	 (mode-icons-mode t))
 
-       (defalias 'list-buffers 'ibuffer-other-window)
+    (use-package beacon
+      :ensure t
+      :config
+      (progn 
+	(beacon-mode 1)
+	(setq beacon-push-mark 35)
+	(setq beacon-color "#666600")))
 
-       (winner-mode)
+    (use-package powerline
+      :ensure t
+      :config
+      (powerline-default-theme)))
 
-       (setq pop-up-frame-function (lambda () (split-window-right)))
-       (setq split-height-threshold 1400)
-       (setq split-width-treshold 1500)
+    (defalias 'list-buffers 'ibuffer-other-window)
+
+    (winner-mode)
+
+    (setq pop-up-frame-function (lambda () (split-window-right)))
+    (setq split-height-threshold 1400)
+    (setq split-width-treshold 1500)
 #+END_SRC
 
 *** Editing
@@ -456,81 +467,78 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
    http://common-lisp.net/project/slime/
    http://www.emacswiki.org/emacs/ParEdit
 #+BEGIN_SRC emacs-lisp
-  (load (expand-file-name "~/quicklisp/slime-helper.el"))
+   (load (expand-file-name "~/quicklisp/slime-helper.el"))
 
-  (use-package paredit
-    :ensure t
-    :config
-    (progn
-      (autoload 'paredit-mode "paredit"
-        "Minor mode for pseudo-structurally editing Lisp code." t)
-      (add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode +1)))
-      (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))))
+   (use-package paredit
+     :ensure t
+     :config
+     (progn
+       (autoload 'paredit-mode "paredit"
+	 "Minor mode for pseudo-structurally editing Lisp code." t)
+       (add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode +1)))
+       (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))))
 
-  ;; remove XLS-mode and allow "file.lsp" to start lisp-mode
-  (setq auto-mode-alist (rassq-delete-all 'XLS-mode auto-mode-alist))
+   ;; remove XLS-mode and allow "file.lsp" to start lisp-mode
+   (setq auto-mode-alist (rassq-delete-all 'XLS-mode auto-mode-alist))
 
-  ;; Stop SLIME's REPL from grabbing DEL,
-  ;; which is annoying when backspacing over a '('
-  (defun override-slime-repl-bindings-with-paredit ()
-    (define-key slime-repl-mode-map
-      (read-kbd-macro paredit-backward-delete-key) nil))
+   ;; Stop SLIME's REPL from grabbing DEL,
+   ;; which is annoying when backspacing over a '('
+   (defun override-slime-repl-bindings-with-paredit ()
+     (define-key slime-repl-mode-map
+       (read-kbd-macro paredit-backward-delete-key) nil))
 
-  (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
+   (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
 
-  ;; (setq inferior-lisp-program "/opt/local/bin/sbcl --no-inform --no-linedit")
-  ;; (setq inferior-lisp-program "/opt/local/bin/clisp")
+   (setq slime-lisp-implementations
+	 '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
+           (clisp ("/opt/local/bin/clisp"))
+           (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
 
-  (setq slime-lisp-implementations
-        '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
-          (clisp ("/opt/local/bin/clisp"))
-          (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
+   (setq slime-net-coding-system 'utf-8-unix)
+   (slime-setup '(slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
 
-  (setq slime-net-coding-system 'utf-8-unix)
-  (slime-setup '(slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
+   (add-hook 'slime-mode-hook
+             '(lambda ()
+		(paredit-mode +1)
+		(define-key slime-mode-map (kbd "<f12>") 'slime-selector)
+		(define-key slime-repl-mode-map (kbd "<f12>") 'slime-selector)
+		(define-key slime-mode-map [(return)] 'paredit-newline)
+		(require 'mic-paren)
+		(paren-activate)
+		(setf paren-priority 'close)))
 
-  (add-hook 'slime-mode-hook
-            '(lambda ()
-               (paredit-mode +1)
-               (define-key slime-mode-map (kbd "<f12>") 'slime-selector)
-               (define-key slime-repl-mode-map (kbd "<f12>") 'slime-selector)
-               (define-key slime-mode-map [(return)] 'paredit-newline)
-               (require 'mic-paren)
-               (paren-activate)
-               (setf paren-priority 'close)))
+   ;; emacs-lisp-nav
+   (use-package elisp-slime-nav
+              :ensure t
+              :config
+              (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode))
 
-  ;; emacs-lisp-nav
-  (use-package elisp-slime-nav
-             :ensure t
-             :config
-             (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode))
+   (add-hook 'slime-mode-hook
+           (lambda ()
+             (unless (slime-connected-p)
+               (save-excursion (slime)))))
 
-  (add-hook 'slime-mode-hook
-          (lambda ()
-            (unless (slime-connected-p)
-              (save-excursion (slime)))))
+   ;; ac-slime
+   (use-package ac-slime
+     :ensure t
+     :config
+     (progn
+       (add-hook 'slime-mode-hook 'set-up-slime-ac)
+       (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+       (eval-after-load "auto-complete"
+	 '(add-to-list 'ac-modes 'slime-repl-mode))))
 
-  ;; ac-slime
-  (use-package ac-slime
-    :ensure t
-    :config
-    (progn
-      (add-hook 'slime-mode-hook 'set-up-slime-ac)
-      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
-      (eval-after-load "auto-complete"
-        '(add-to-list 'ac-modes 'slime-repl-mode))))
+   ;; Hyperspec within Emacs
+   (setq browse-url-browser-function 'w3m-goto-url-new-session)
 
-  ;; Hyperspec within Emacs
-  (setq browse-url-browser-function 'w3m-goto-url-new-session)
+   ;; Redshank
+   ;; http://www.foldr.org/~michaelw/emacs/redshank/
+   (require 'redshank-loader
+            "redshank-loader")
 
-  ;; Redshank
-  ;; http://www.foldr.org/~michaelw/emacs/redshank/
-  (require 'redshank-loader
-           "redshank-loader")
-
-  (eval-after-load "redshank-loader"
-     `(redshank-setup '(lisp-mode-hook
-                        slime-repl-mode-hook) t))
+   (eval-after-load "redshank-loader"
+      `(redshank-setup '(lisp-mode-hook
+			 slime-repl-mode-hook) t))
 
 #+END_SRC
 
@@ -581,4 +589,4 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
   (message "Martins myinit.org wurde gelesen.")
 #+END_SRC
 
-#  LocalWords:  utf German hook trackpad mode Frames capture
+#  LocalWords:  utf German hook trackpad mode Frames capture org swiper

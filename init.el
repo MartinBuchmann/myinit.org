@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2017-02-13 13:05:20 Martin>
+;; Time-stamp: <2017-02-13 14:27:14 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -39,7 +39,7 @@
  '(custom-enabled-themes (quote (tsdh-dark)))
  '(package-selected-packages
    (quote
-    (noflet w3m yasnippet which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell elisp-slime-nav counsel command-log-mode bm beacon avy ac-slime)))
+    (org-gcal noflet w3m yasnippet which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell elisp-slime-nav counsel command-log-mode bm beacon avy ac-slime)))
  '(safe-local-variable-values
    (quote
     ((buffer-local-dictionary . "de")
