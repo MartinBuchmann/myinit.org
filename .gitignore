@@ -18,3 +18,4 @@ auto-save-list/*
 /abbrev_defs
 /elisp/sensible-defaults.el
 /elisp/sensible-defaults.elc
+/tramp

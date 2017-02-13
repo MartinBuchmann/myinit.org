@@ -1,7 +1,7 @@
+#+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-#+STARTUP: content
-# Time-stamp: <2017-02-10 21:38:30 Martin>
+# Time-stamp: <2017-02-13 13:28:45 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -49,15 +49,22 @@
 Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
 #+BEGIN_SRC emacs-lisp
 (message "Lade Makros...")
-(load "~/Library/Application Support/Aquamacs Emacs/emacs_mac")
+(load "~/.emacs.d/emacs_mac")
 #+END_SRC
 ** Grundlegende Einstellungen
-Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 #+BEGIN_SRC emacs-lisp
-(load-file "/Users/Martin/.emacs.d/elisp/sensible-defaults.el")
-(sensible-defaults/use-all-settings)
+  (setq inhibit-startup-message t)
+  (setq initial-scratch-message nil)
 
-(desktop-save-mode 1)
+  (fset 'yes-or-no-p 'y-or-n-p)
+
+  ;; Hebt Klammern paarweise hervor
+  (show-paren-mode t)
+  (setq show-paren-delay 0.0)
+
+  (setq visible-bell t)
+
+  (setq-default fill-column 80)
 #+END_SRC
 ** Grundlegende Pakete
 *** Command log mode
@@ -182,9 +189,8 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
  (setq org-directory "~/Dropbox/orgfiles")
  (setq org-default-notes-file (concat org-directory "/Notes.org"))
 
- (setq org-agenda-files (list "~/Dropbox/orgfiles/Journal.org"
-                              "~/Dropbox/orgfiles/Martin.org"
-                              "~/Dropbox/orgfiles/Links.org"))
+ (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
+                              "~/Dropbox/orgfiles/Notes.org"))
 
  (setq org-export-html-postamble nil)
  (setq org-startup-folded (quote overview))
@@ -222,44 +228,48 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 
 **** org-capture
 #+BEGIN_SRC emacs-lisp
+    (setq org-capture-templates
+          '(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
+             "* %? %^L %^g \n%T" :prepend t)
+            ("a" "Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Aufgaben")
+             "* TODO %?\n%u" :prepend t)
+            ("e" "Emacs-Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Emacs")
+             "* TODO %?\n%u" :prepend t)
+            ("c" "Common Lisp" entry (file+headline "~/Dropbox/orgfiles/Martin.org"
+                                                    "Common Lisp-Projekte")
+             "* TODO %?\n%u" :prepend t)
+            ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
+             "* TODO %a\n %?" :prepend t)
+            ("n" "Notiz" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Notizen")
+             "* %?\n%u" :prepend t)
+            ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/org/Journal.org")
+             "* %?\nEntered on %U\n  %i\n  %a")))
 
-  (setq org-capture-templates
-        '(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
-           "* %? %^L %^g \n%T" :prepend t)
-          ("t" "To Do Item" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
-           "* TODO %?\n%u" :prepend t)
-          ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
-           "* TODO %a\n %?" :prepend t)
-          ("n" "Note" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Note space")
-           "* %?\n%u" :prepend t)
-          ("j" "Journal" entry (file+datetree "~/Dropbox/org/Journal.org")
-           "* %?\nEntered on %U\n  %i\n  %a")))
+      ;; Capturing from outside of a runnign emacs
+      ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
+      (defadvice org-capture-finalize
+          (after delete-capture-frame activate)
+        "Advise capture-finalize to close the frame"
+        (if (equal "capture" (frame-parameter nil 'name))
+          (delete-frame)))
 
-    ;; Capturing from outside of a runnign emacs
-    ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
-    (defadvice org-capture-finalize
-        (after delete-capture-frame activate)
-      "Advise capture-finalize to close the frame"
-      (if (equal "capture" (frame-parameter nil 'name))
-        (delete-frame)))
+      (defadvice org-capture-destroy
+          (after delete-capture-frame activate)
+        "Advise capture-destroy to close the frame"
+        (if (equal "capture" (frame-parameter nil 'name))
+          (delete-frame)))
 
-    (defadvice org-capture-destroy
-        (after delete-capture-frame activate)
-      "Advise capture-destroy to close the frame"
-      (if (equal "capture" (frame-parameter nil 'name))
-        (delete-frame)))
+      (use-package noflet
+        :ensure t)
 
-    (use-package noflet
-      :ensure t)
-
-    (defun make-capture-frame ()
-      "Create a new frame and run org-capture."
-      (interactive)
-      (make-frame '((name . "capture")))
-      (select-frame-by-name "capture")
-      (delete-other-windows)
-      (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
-              (org-capture)))
+      (defun make-capture-frame ()
+        "Create a new frame and run org-capture."
+        (interactive)
+        (make-frame '((name . "capture")))
+        (select-frame-by-name "capture")
+        (delete-other-windows)
+        (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+                (org-capture)))
 #+END_SRC
 
 *** Magit
@@ -281,19 +291,15 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 * Einstellungen
 ** Umgebungsvariablen, Mac-Spezifika, etc
    Zurück zur Standardtastenbelegung
-   https://www.emacswiki.org/emacs/AquamacsEmacsCompatibilitySettings
-   https://github.com/purcell/exec-path-from-shell
 #+BEGIN_SRC emacs-lisp
-  ;; Starts a server for connecting from emacsclient
-  (server-start)
+  ;; Startet einen Server, um sich mit emacsclient verbinden zu können.
+  (when window-system
+    (server-start))
 
+  ;; https://github.com/purcell/exec-path-from-shell
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize))
 
-  (unless window-system   ;; in TTY (terminal) mode
-    (normal-erase-is-backspace-mode nil)
-    (set-face-inverse-video-p 'mode-line-inactive t)
-    (define-key osx-key-mode-map "\C-z" 'suspend-emacs))
   (setq
    ns-command-modifier 'meta         ; Apple/Command key is Meta
    ns-alternate-modifier nil         ; Option is the Mac Option key
@@ -302,14 +308,11 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 
   ;; exchanging clipboard content with other applications
   (setq select-enable-clipboard t)
-  ;; Persistency and modes:
+
   (setq
-   aquamacs-scratch-file nil               ; do not save scratch file across sessions
-   initial-major-mode 'emacs-lisp-mode     ; *scratch* shows up in emacs-lisp-mode
-   aquamacs-default-major-mode 'lisp-mode  ; new buffers open in lisp-mode
+   initial-major-mode 'emacs-lisp-mode    ; *scratch* shows up in emacs-lisp-mode
    )
 
-  (defconst use-backup-dir t)             ; use backup directory
   (setq cursor-type (quote (box)))        ; box cursor
   (put 'downcase-region 'disabled nil)    ; Erlaubt up/downcase Befehle
   (put 'upcase-region 'disabled nil)
@@ -333,44 +336,54 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 ** Erscheinung
 *** Windows und Frames
 #+BEGIN_SRC emacs-lisp
-   (when window-system
-     ;; I like this this way.
-     (set-frame-size (selected-frame) 220 70)
-     (set-frame-position (selected-frame) 165 35)
-     (tool-bar-mode -1)
-     (scroll-bar-mode -1)
-     (global-prettify-symbols-mode)
-     (global-hl-line-mode t)
-     (setq ring-bell-function 'ignore))
+     (when window-system
+       ;; I like it this way.
+       (set-frame-size (selected-frame) 220 70)
+       (set-frame-position (selected-frame) 165 35)
 
-   (defalias 'list-buffers 'ibuffer-other-window)
+       (tool-bar-mode -1)
+       (scroll-bar-mode -1)
 
-   (winner-mode)
+       (global-prettify-symbols-mode)
+       (global-hl-line-mode t)
 
-   (setq pop-up-frame-function (lambda () (split-window-right)))
-   (setq split-height-threshold 1400)
-   (setq split-width-treshold 1500)
+       (global-linum-mode t)
+       (setq linum-format " %4i ")
 
-   (global-linum-mode t)
-   (setq linum-format " %4i ")
+       (desktop-save-mode 1)
 
-   (use-package mode-icons
-     :ensure t
-     :config
-     (mode-icons-mode t))
+       ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
+       (delete-selection-mode t)
 
-   (use-package beacon
-     :ensure t
-     :config
-     (progn
-       (beacon-mode 1)
-       (setq beacon-push-mark 35)
-       (setq beacon-color "#666600")))
+       (global-font-lock-mode t)
 
-   (use-package powerline
-     :ensure t
-     :config
-     (powerline-default-theme))
+       (setq ns-pop-up-frames nil)
+
+       (use-(point)ackage mode-icons
+            :ensure ;TODO: 
+            :config
+            (mode-icons-mode t))
+       
+       (use-package beacon
+         :ensure t
+         :config
+         ((progn )
+          (beacon-mode 1)
+          (setq beacon-push-mark 35)
+          (setq beacon-color "#666600")))
+       
+       (use-package powerline
+         :ensure t
+         :config
+         (powerline-default-theme)))
+
+       (defalias 'list-buffers 'ibuffer-other-window)
+
+       (winner-mode)
+
+       (setq pop-up-frame-function (lambda () (split-window-right)))
+       (setq split-height-threshold 1400)
+       (setq split-width-treshold 1500)
 #+END_SRC
 
 *** Editing
@@ -385,6 +398,11 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 
   (dolist (hook '(text-mode-hook))
     (add-hook hook (lambda () (flyspell-mode 1))))
+  ;; Making flyspell wprk with my trackpad
+  (eval-after-load "flyspell"
+    '(progn
+       (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+       (define-key flyspell-mouse-map [mosue-3] #'undefined)))
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
 
   (add-hook 'before-save-hook 'time-stamp) ; Aktiviert die Time-stamp-Funktion
@@ -410,6 +428,7 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
     :ensure t
+    :diminish undo-tree
     :init
     (global-undo-tree-mode))
 #+END_SRC
@@ -425,8 +444,9 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 
 ** Wo sollen Backup-Dateien gespeichert werden?
 #+BEGIN_SRC emacs-lisp
+  (defconst use-backup-dir t)             ; use backup directory
   (setq make-backup-files t)
-  (setq backup-directory-alist (quote ((".*" . "~/Library/Application Support/Aquamacs Emacs/backups"))))
+  (setq backup-directory-alist (quote ((".*" . "~/.emacs-d/backups"))))
 #+END_SRC
 
 
@@ -560,3 +580,5 @@ Gefunden bei [[https://github.com/hrs/sensible-defaults.el][Harry Schwartz]]
 #+BEGIN_SRC emacs-lisp
   (message "Martins myinit.org wurde gelesen.")
 #+END_SRC
+
+#  LocalWords:  utf German hook trackpad mode Frames capture

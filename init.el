@@ -1,6 +1,6 @@
-;;; init.el 
+;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2017-02-10 20:55:38 Martin>
+;; Time-stamp: <2017-02-13 13:05:20 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -8,11 +8,6 @@
 ;;--------------------------------------------------------------------
 ;;
 (message "Dies ist Martins init.el")
-
-;; Wir wollen alle Informationen
-(setq debug-on-error t)
-;; Keine Startmeldung
-(setq inhibit-startup-message t)
 
 ;;----------------------------------------
 ;; Der Paket-Manager
