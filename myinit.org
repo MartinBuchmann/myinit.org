@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-13 15:16:53 Martin>
+# Time-stamp: <2017-02-14 22:05:36 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -19,23 +19,27 @@
    Paketmanager keine allzu großen Sicherheitslücken entstehen. Inspiriert von
    [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][Your editor is malware]]
 #+BEGIN_SRC emacs-lisp
-  (require 'cl)
-  (setq tls-checktrust t)
+    (require 'cl)
+    (setq tls-checktrust t)
 
-  (setq python "/opt/local/bin/python")
+    (setq python "/opt/local/bin/python")
 
-  (let ((trustfile
-         (replace-regexp-in-string
-          "\\\\" "/"
-          (replace-regexp-in-string
-           "\n" ""
-           (shell-command-to-string (concat python " -m certifi"))))))
-    (setq tls-program
-          (list
-           (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
-                   (if (eq window-system 'w32) ".exe" "") trustfile)))
-    (setq gnutls-verify-error t)
-    (setq gnutls-trustfiles (list trustfile)))
+    (let ((trustfile
+           (replace-regexp-in-string
+            "\\\\" "/"
+            (replace-regexp-in-string
+             "\n" ""
+             (shell-command-to-string (concat python " -m certifi"))))))
+      (setq tls-program
+            (list
+             (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
+                     (if (eq window-system 'w32) ".exe" "") trustfile)))
+      (setq gnutls-verify-error t)
+      (setq gnutls-trustfiles (list trustfile)))
+
+      ;; https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
+      (setq auth-sources
+	    '((:source "~/.emacs.d/secrets/.authinfo.gpg")))
 #+END_SRC
 
 ** Meine Erweiterung werden geladen
@@ -63,8 +67,12 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
   (setq show-paren-delay 0.0)
 
   (setq visible-bell t)
+  (setq ring-bell-function 'ignore)
 
   (setq-default fill-column 80)
+
+  (setq mail-user-agent 'gnus-user-agent)
+  (setq gnus-init-file "~/.emacs.d/gnus.el")
 #+END_SRC
 ** Grundlegende Pakete
 *** Command log mode
@@ -178,36 +186,50 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
     https://github.com/zamansky/using-emacs/tree/lesson-2-org
 
 **** Allgemeine Konfiguration von org-mode
+
 #+BEGIN_SRC emacs-lisp
-   ;; Allgemeine Tastenbelegung
-   (global-set-key "\C-cl" 'org-store-link)
-   (global-set-key "\C-ca" 'org-agenda)
-   (global-set-key "\C-cc" 'org-capture)
-   (global-set-key "\C-cb" 'org-iswitchb)
+  ;; Allgemeine Tastenbelegung
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cc" 'org-capture)
+  (global-set-key "\C-cb" 'org-iswitchb)
 
-   ;; Allgemeine Einstellungen
-   (setq org-directory "~/Dropbox/orgfiles")
-   (setq org-default-notes-file (concat org-directory "/Notes.org"))
+  ;; Allgemeine Einstellungen
+  (setq org-directory "~/Dropbox/orgfiles")
+  (setq org-default-notes-file (concat org-directory "/Notes.org"))
 
-   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
-				"~/Dropbox/orgfiles/Notes.org"
-				"~/Dropbox/orgfiles/GCal.org"))
+  (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
+			       "~/Dropbox/orgfiles/Notes.org"
+			       "~/Dropbox/orgfiles/GCal.org"))
 
-   (setq org-export-html-postamble nil)
-   (setq org-startup-folded (quote overview))
-   (setq org-startup-indented t)
-   (setq org-src-tab-acts-natively t)
-   (setq org-src-window-setup 'current-window)
+  (setq org-export-html-postamble nil)
+  (setq org-startup-folded (quote overview))
+  (setq org-startup-indented t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-src-window-setup 'current-window)
 
-   (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
-   (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
+  (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+  (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
 
-   (setq org-agenda-custom-commands
-	 '(("c" "Simple agenda view"
-            ((agenda "")
-             (alltodo "")))))
+  (setq org-agenda-custom-commands
+	'(("c" "Simple agenda view"
+           ((agenda "")
+            (alltodo "")))))
+
+  (use-package htmlize
+    :ensure t)
+
+  (use-package mic-paren
+    :ensure t)
 #+END_SRC
 
+**** org-babel
+#+BEGIN_SRC emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((lisp . t)
+     (emacs-lisp . t)))
+#+END_SRC
 **** org-bullets
      Displaying nice bullets instead of just the asterics
 #+BEGIN_SRC emacs-lisp
@@ -220,11 +242,10 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
 **** org-autocomplete
 #+BEGIN_SRC emacs-lisp
   (use-package org-ac
-    :ensure ;TODO:
+    :ensure t
     :init (progn
             (require 'org-ac)
-            (org-ac/config-default)
-            ))
+            (org-ac/config-default)))
 #+END_SRC
 
 **** org-capture
@@ -245,7 +266,7 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
                "* %?\n%u" :prepend t)
               ("T" "Termin" entry (file  "~/Dropbox/orgfiles/GCal.org" )
                "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
-              ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/org/Journal.org")
+              ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/orgfiles/Journal.org.gpg")
                "* %?\nEntered on %U\n  %i\n  %a")))
 
         ;; Capturing from outside of a runnign emacs
@@ -298,6 +319,20 @@ Ich lade die Datei mit meinen Zugangsdaten.
     (("C-:" . avy-goto-char)))
 #+END_SRC
 
+*** projectile
+[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].  Vielleicht
+probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projectile]] aus.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :ensure t)
+
+  (use-package counsel-projectile
+    :ensure t
+    :init
+    (counsel-projectile-on))
+#+END_SRC
+
 
 * Einstellungen
 ** Umgebungsvariablen, Mac-Spezifika, etc
@@ -339,7 +374,8 @@ Ich lade die Datei mit meinen Zugangsdaten.
 
   (setq user-full-name "Martin Buchmann")
   (setq user-login-name "Martin")
-  (setq user-mail-adress "Martin.Buchmann@gmail.com")
+  (setq user-mail-address "Martin.Buchmann@gmail.com")
+  (setq smtpmail-smtp-user "Martin.Buchmann")
 
   (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
 #+END_SRC
@@ -457,7 +493,7 @@ Ich lade die Datei mit meinen Zugangsdaten.
 #+BEGIN_SRC emacs-lisp
   (defconst use-backup-dir t)             ; use backup directory
   (setq make-backup-files t)
-  (setq backup-directory-alist (quote ((".*" . "~/.emacs-d/backups"))))
+  (setq backup-directory-alist (quote ((".*" . "~/.emacs.d/backups"))))
 #+END_SRC
 
 
@@ -589,4 +625,5 @@ Ich lade die Datei mit meinen Zugangsdaten.
   (message "Martins myinit.org wurde gelesen.")
 #+END_SRC
 
-#  LocalWords:  utf German hook trackpad mode Frames capture org swiper
+#  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
+#  LocalWords:  projectile

@@ -23,3 +23,5 @@ auto-save-list/*
 *.gpg
 *.png
 /org-gcal/*
+/backups/*
+/gnus.el
