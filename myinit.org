@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-14 22:05:36 Martin>
+# Time-stamp: <2017-02-16 19:10:04 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -19,27 +19,28 @@
    Paketmanager keine allzu großen Sicherheitslücken entstehen. Inspiriert von
    [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][Your editor is malware]]
 #+BEGIN_SRC emacs-lisp
-    (require 'cl)
-    (setq tls-checktrust t)
+  (require 'cl)
+  (setq tls-checktrust t)
 
-    (setq python "/opt/local/bin/python")
+  (setq python "/opt/local/bin/python")
 
-    (let ((trustfile
-           (replace-regexp-in-string
-            "\\\\" "/"
-            (replace-regexp-in-string
-             "\n" ""
-             (shell-command-to-string (concat python " -m certifi"))))))
-      (setq tls-program
-            (list
-             (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
-                     (if (eq window-system 'w32) ".exe" "") trustfile)))
-      (setq gnutls-verify-error t)
-      (setq gnutls-trustfiles (list trustfile)))
+  (let ((trustfile
+	 (replace-regexp-in-string
+          "\\\\" "/"
+          (replace-regexp-in-string
+           "\n" ""
+           (shell-command-to-string (concat python " -m certifi"))))))
+    (setq tls-program
+          (list
+           (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
+                   (if (eq window-system 'w32) ".exe" "") trustfile)))
+    (setq gnutls-verify-error t)
+    (setq gnutls-trustfiles (list trustfile)))
 
-      ;; https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
-      (setq auth-sources
-	    '((:source "~/.emacs.d/secrets/.authinfo.gpg")))
+  ;; https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
+  (setq epa-file-cache-passphrase-for-symmetric-encryption t)
+  (setq auth-sources
+	      '((:source "~/.emacs.d/secrets/.authinfo.gpg")))
 #+END_SRC
 
 ** Meine Erweiterung werden geladen
@@ -79,6 +80,18 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
 #+BEGIN_SRC emacs-lisp
   (use-package command-log-mode
     :ensure t)
+#+END_SRC
+*** readline-completion
+#+BEGIN_SRC emacs-lisp
+  (use-package readline-complete
+    :ensure t
+    :config
+    (progn
+     (setq explicit-shell-file-name "bash")
+     (setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
+     (setq comint-process-echoes t)
+     (add-to-list 'ac-modes 'shell-mode)
+     (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
 #+END_SRC
 *** Try und which-key
 #+BEGIN_SRC emacs-lisp
@@ -182,8 +195,8 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
 #+END_SRC
 
 *** org-mode
-    http://orgmode.org
-    https://github.com/zamansky/using-emacs/tree/lesson-2-org
+Ich habe viele Tipps zu [[http://orgmode.org][Org-mode]] bei [[https://github.com/zamansky/using-emacs/tree/lesson-2-org][Mike]] gefunden.  Die Feineinstellungen und
+viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][Rainer]].
 
 **** Allgemeine Konfiguration von org-mode
 
@@ -201,6 +214,10 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
 			       "~/Dropbox/orgfiles/Notes.org"
 			       "~/Dropbox/orgfiles/GCal.org"))
+
+  (setq org-refile-targets '((org-agenda-files :level . 1)))
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+  (setq org-refile-use-outline-path 'file)
 
   (setq org-export-html-postamble nil)
   (setq org-startup-folded (quote overview))
@@ -223,6 +240,22 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
     :ensure t)
 #+END_SRC
 
+***** Zusätzliche TODO-Keywords und Tags
+#+BEGIN_SRC emacs-lisp
+  (setq org-todo-keywords
+	'((sequence "TODO(t@/!)" "Nächstes(n)" "Warten(w@/!)" "Projekt(p)" "Irgendwann(i)"
+		    "|" "DONE(d@/!)" "Gestoppt(g/!)")))
+
+  (setq org-tag-alist '(("@Arbeit" . ?a) ("@Zuhause" . ?z)
+			("Hobby" . ?h) ("Reichartdstieg" . ?r)))
+#+END_SRC
+
+***** Einstellungen für das Loggen und die Archivierung
+#+BEGIN_SRC emacs-lisp
+  (setq org-log-reschedule 'note)  
+  (setq org-log-into-drawer t)
+  (setq org-archive-location    "~/Dropbox/orgfiles/archive.org::* From %s")
+#+END_SRC 
 **** org-babel
 #+BEGIN_SRC emacs-lisp
   (org-babel-do-load-languages
@@ -304,6 +337,8 @@ Ich lade die Datei mit meinen Zugangsdaten.
   (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
   (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
 #+END_SRC
+
+
 *** Magit
 #+BEGIN_SRC emacs-lisp
    (global-magit-file-mode t)
@@ -626,4 +661,4 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 #+END_SRC
 
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
-#  LocalWords:  projectile
+#  LocalWords:  projectile Keywords wunderlist Avy Try

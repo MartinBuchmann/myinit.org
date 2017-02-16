@@ -25,3 +25,5 @@ auto-save-list/*
 /org-gcal/*
 /backups/*
 /gnus.el
+/init_bash.sh
+/secrets/.DS_Store
