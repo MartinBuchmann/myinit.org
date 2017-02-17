@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-16 19:10:04 Martin>
+# Time-stamp: <2017-02-17 21:01:41 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -92,6 +92,16 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
      (setq comint-process-echoes t)
      (add-to-list 'ac-modes 'shell-mode)
      (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
+#+END_SRC
+*** alert
+Ich verwende [[https://github.com/jwiegley/alert][alert]] um Benachrichtigungen anzuzeigen.  Da [[growl.info][Growl]] nicht
+funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][terminal-notifier]].
+
+#+BEGIN_SRC emacs-lisp
+  (use-package alert
+    :ensure t
+    :config
+    (setq alert-default-style 'notifier))
 #+END_SRC
 *** Try und which-key
 #+BEGIN_SRC emacs-lisp
@@ -233,13 +243,17 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
            ((agenda "")
             (alltodo "")))))
 
-  (use-package htmlize
-    :ensure t)
-
-  (use-package mic-paren
-    :ensure t)
+  (setq org-show-notification-handler 'alert)
 #+END_SRC
 
+***** Farbiges Syntax-Highlighting beim Exportieren
+#+BEGIN_SRC emacs-lisp
+(use-package htmlize
+  :ensure t)
+
+(use-package mic-paren
+  :ensure t)
+#+END_SRC
 ***** Zusätzliche TODO-Keywords und Tags
 #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
@@ -247,7 +261,11 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 		    "|" "DONE(d@/!)" "Gestoppt(g/!)")))
 
   (setq org-tag-alist '(("@Arbeit" . ?a) ("@Zuhause" . ?z)
-			("Hobby" . ?h) ("Reichartdstieg" . ?r)))
+			("Hobby" . ?h) ("Reichardtstieg" . ?r)))
+
+  (setq org-enforce-todo-dependencies t)
+  (setq org-enforce-checkbox-dependencies t)
+  (setq org-track-ordered-property-with-tag t)
 #+END_SRC
 
 ***** Einstellungen für das Loggen und die Archivierung
