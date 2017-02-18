@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-17 21:01:41 Martin>
+# Time-stamp: <2017-02-18 13:45:23 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -71,6 +71,8 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
   (setq ring-bell-function 'ignore)
 
   (setq-default fill-column 80)
+
+  (setq send-mail-function 'smtpmail-send-it)
 
   (setq mail-user-agent 'gnus-user-agent)
   (setq gnus-init-file "~/.emacs.d/gnus.el")
@@ -222,8 +224,8 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-default-notes-file (concat org-directory "/Notes.org"))
 
   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
-			       "~/Dropbox/orgfiles/Notes.org"
-			       "~/Dropbox/orgfiles/GCal.org"))
+				   "~/Dropbox/orgfiles/Notes.org"
+				   "~/Dropbox/orgfiles/GCal.org"))
 
   (setq org-refile-targets '((org-agenda-files :level . 1)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
@@ -238,10 +240,26 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
   (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
 
+  ;; Meine eigenen Agenda-Ansichten
   (setq org-agenda-custom-commands
-	'(("c" "Simple agenda view"
-           ((agenda "")
-            (alltodo "")))))
+	  '(("h" "Was liegt heute an?"
+	     ((tags-todo "Dringend"
+			 ((org-agenda-overriding-header "Dringende Aufgaben")
+			  (org-agenda-files
+			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
+	      (tags-todo "Anrufe"
+			 ((org-agenda-overriding-header "Anrufe")
+			  (org-agenda-files
+			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
+	      (agenda  ""
+			 ((org-agenda-overriding-header "Heute")
+			  (org-agenda-files
+			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))
+			   (org-agenda-span 1)
+			   (org-agenda-sorting-stragety '(time-up priority-down))))))
+	    ("c" "Einfache Agenda"
+	     ((agenda "")
+	      (alltodo "")))))
 
   (setq org-show-notification-handler 'alert)
 #+END_SRC
@@ -261,7 +279,7 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 		    "|" "DONE(d@/!)" "Gestoppt(g/!)")))
 
   (setq org-tag-alist '(("@Arbeit" . ?a) ("@Zuhause" . ?z)
-			("Hobby" . ?h) ("Reichardtstieg" . ?r)))
+			("Hobby" . ?h) ("Reichardtstieg" . ?r) ("Anrufe" . ?A) ("Dringend" . ?d)))
 
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-checkbox-dependencies t)
@@ -589,8 +607,8 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
    (add-hook 'slime-mode-hook
              '(lambda ()
 		(paredit-mode +1)
-		(define-key slime-mode-map (kbd "<f12>") 'slime-selector)
-		(define-key slime-repl-mode-map (kbd "<f12>") 'slime-selector)
+		(define-key slime-mode-map (kbd "C-c s") 'slime-selector)
+		(define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
 		(define-key slime-mode-map [(return)] 'paredit-newline)
 		(require 'mic-paren)
 		(paren-activate)
@@ -631,7 +649,6 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 
 #+END_SRC
 
-   q
 ** YASnippet
   #+BEGIN_SRC emacs-lisp
     (use-package yasnippet
@@ -676,6 +693,7 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 * Ende
 #+BEGIN_SRC emacs-lisp
   (message "Martins myinit.org wurde gelesen.")
+  (alert "Emacs ist gestartet..." :title "Emacs says:" :severity 'highest :persistent t)
 #+END_SRC
 
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel

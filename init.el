@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2017-02-17 21:17:51 Martin>
+;; Time-stamp: <2017-02-18 13:31:26 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -47,9 +47,7 @@
      (buffer-local-dictionary . "en")
      (ispell-dictionary . "en")
      (ispell-dictionary . en)
-     (spell-dictionary . en))))
- '(send-mail-function (quote smtpmail-send-it))
- '(tool-bar-mode nil))
+     (spell-dictionary . en)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
