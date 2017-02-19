@@ -27,3 +27,4 @@ auto-save-list/*
 /gnus.el
 /init_bash.sh
 /secrets/.DS_Store
+/bbdb

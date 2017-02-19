@@ -1,11 +1,11 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-18 13:45:23 Martin>
+# Time-stamp: <2017-02-19 21:44:33 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
-   Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
+Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
 #+BEGIN_SRC emacs-lisp
     (setq load-path
           (mapcar 'expand-file-name
@@ -224,8 +224,9 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-default-notes-file (concat org-directory "/Notes.org"))
 
   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
-				   "~/Dropbox/orgfiles/Notes.org"
-				   "~/Dropbox/orgfiles/GCal.org"))
+			       "~/Dropbox/orgfiles/Notes.org"
+			       "~/Dropbox/orgfiles/GCal.org"
+			       "~/Dropbox/orgfiles/Wunderlist.org"))
 
   (setq org-refile-targets '((org-agenda-files :level . 1)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
@@ -319,50 +320,55 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 
 **** org-capture
 #+BEGIN_SRC emacs-lisp
-      (setq org-capture-templates
-            '(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
-               "* %? %^L %^g \n%T" :prepend t)
-              ("a" "Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Aufgaben")
-               "* TODO %?\n%u" :prepend t)
-              ("e" "Emacs-Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Emacs")
-               "* TODO %?\n%u" :prepend t)
-              ("c" "Common Lisp" entry (file+headline "~/Dropbox/orgfiles/Martin.org"
-                                                      "Common Lisp-Projekte")
-               "* TODO %?\n%u" :prepend t)
-              ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
-               "* TODO %a\n %?" :prepend t)
-              ("n" "Notiz" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Notizen")
-               "* %?\n%u" :prepend t)
-              ("T" "Termin" entry (file  "~/Dropbox/orgfiles/GCal.org" )
-               "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
-              ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/orgfiles/Journal.org.gpg")
-               "* %?\nEntered on %U\n  %i\n  %a")))
+  (setq org-capture-templates
+	'(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
+           "* %? %^L %^g \n%T" :prepend t)
+          ("a" "Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Aufgaben")
+           "* TODO %?\n%u" :prepend t)
+          ("e" "Emacs-Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Emacs")
+           "* TODO %?\n%u" :prepend t)
+          ("c" "Common Lisp" entry (file+headline "~/Dropbox/orgfiles/Martin.org"
+                                                  "Common Lisp-Projekte")
+           "* TODO %?\n%u" :prepend t)
+          ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
+           "* TODO %a\n %?" :prepend t)
+          ("n" "Notiz" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Notizen")
+           "* %?\n%u" :prepend t)
+          ("T" "Termin" entry (file  "~/Dropbox/orgfiles/GCal.org")
+           "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
+          ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/orgfiles/Journal.org.gpg")
+           "* %?\nEntered on %U\n  %i\n  %a")
+	  ("b" "Buch" entry (file+headline "~/Dropbox/orgfiles/Bücher.org" "Bücher")
+	   "** Irgendwann %^{Autor} -- %^{Titel}\n:PROPERTIES:\n:SEITEN: %^{Seiten}\n:GENRE: %^{Genre}\n:Rating:\n:END:\n - Empfohlen von: %^{Empfohlen von:} \n:LOGBOOK:\n - Added: %U\n:END:\n"
+	   :prepend t)
+	  ("f" "Film" entry (file+headline "~/Dropbox/orgfiles/Filme.org" "Filme")
+	   "** Irgendwann %^{Titel}\n:PROPERTIES:\n:GENRE: %^{Genre}\n:END:\n- Empfohlen von: %^{Empfohlen von:}\n:LOGBOOK:\n - Added: %U\n:END:\n")))
 
-        ;; Capturing from outside of a runnign emacs
-        ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
-        (defadvice org-capture-finalize
-            (after delete-capture-frame activate)
-          "Advise capture-finalize to close the frame"
-          (if (equal "capture" (frame-parameter nil 'name))
-            (delete-frame)))
+    ;; Capturing from outside of a runnign emacs
+    ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
+    (defadvice org-capture-finalize
+	(after delete-capture-frame activate)
+      "Advise capture-finalize to close the frame"
+      (if (equal "capture" (frame-parameter nil 'name))
+	(delete-frame)))
 
-        (defadvice org-capture-destroy
-            (after delete-capture-frame activate)
-          "Advise capture-destroy to close the frame"
-          (if (equal "capture" (frame-parameter nil 'name))
-            (delete-frame)))
+    (defadvice org-capture-destroy
+	(after delete-capture-frame activate)
+      "Advise capture-destroy to close the frame"
+      (if (equal "capture" (frame-parameter nil 'name))
+	(delete-frame)))
 
-        (use-package noflet
-          :ensure t)
+    (use-package noflet
+      :ensure t)
 
-        (defun make-capture-frame ()
-          "Create a new frame and run org-capture."
-          (interactive)
-          (make-frame '((name . "capture")))
-          (select-frame-by-name "capture")
-          (delete-other-windows)
-          (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
-                  (org-capture)))
+    (defun make-capture-frame ()
+      "Create a new frame and run org-capture."
+      (interactive)
+      (make-frame '((name . "capture")))
+      (select-frame-by-name "capture")
+      (delete-other-windows)
+      (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+              (org-capture)))
 #+END_SRC
 
 **** org-gcal
@@ -374,6 +380,13 @@ Ich lade die Datei mit meinen Zugangsdaten.
   (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
 #+END_SRC
 
+**** org-wunderlist
+#+BEGIN_SRC emacs-lisp
+  (use-package org-wunderlist
+    :ensure t)
+
+  (load (expand-file-name "~/.emacs.d/secrets/wunderlist.el.gpg") t)
+#+END_SRC
 
 *** Magit
 #+BEGIN_SRC emacs-lisp
@@ -437,7 +450,7 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   (put 'narrow-to-region 'disabled nil)   ; Erlaubt narrow/wide
 
   (setq delete-by-moving-to-trash t
-        trash-directory "~/.Trash/emacs")
+	trash-directory "~/.Trash/emacs")
 
   (setq shell-file-name           "bash")
   (setq sh-shell-file             "/bin/bash")
@@ -449,6 +462,10 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   (setq smtpmail-smtp-user "Martin.Buchmann")
 
   (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
+
+  ;; https://github.com/chrisbarrett/osx-bbdb
+  (when (equal system-type 'darwin)
+    (require 'osx-bbdb))
 #+END_SRC
 
 ** Erscheinung
@@ -697,4 +714,4 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 #+END_SRC
 
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
-#  LocalWords:  projectile Keywords wunderlist Avy Try
+#  LocalWords:  projectile Keywords wunderlist Avy Try gcal
