@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-19 21:44:33 Martin>
+# Time-stamp: <2017-02-20 21:00:24 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -381,11 +381,12 @@ Ich lade die Datei mit meinen Zugangsdaten.
 #+END_SRC
 
 **** org-wunderlist
+Funktioniert nicht ohne Fehler, deshalb deaktivieren ich es erst einmal wieder.
 #+BEGIN_SRC emacs-lisp
   (use-package org-wunderlist
-    :ensure t)
+    :disabled t)
 
-  (load (expand-file-name "~/.emacs.d/secrets/wunderlist.el.gpg") t)
+  ;; (load (expand-file-name "~/.emacs.d/secrets/wunderlist.el.gpg") t)
 #+END_SRC
 
 *** Magit
@@ -428,13 +429,12 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 
   ;; https://github.com/purcell/exec-path-from-shell
   (when (memq window-system '(mac ns))
-    (exec-path-from-shell-initialize))
-
-  (setq
-   ns-command-modifier 'meta         ; Apple/Command key is Meta
-   ns-alternate-modifier nil         ; Option is the Mac Option key
-   ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
-   )
+    (exec-path-from-shell-initialize)
+    (setq
+     ns-command-modifier 'meta         ; Apple/Command key is Meta
+     ns-alternate-modifier nil         ; Option is the Mac Option key
+     ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
+     ))
 
   ;; exchanging clipboard content with other applications
   (setq select-enable-clipboard t)
@@ -485,8 +485,6 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
     (global-linum-mode t)
     (setq linum-format " %4i ")
 
-    (desktop-save-mode 1)
-
     ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
     (delete-selection-mode t)
 
@@ -512,13 +510,14 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
       :config
       (powerline-default-theme)))
 
-    (defalias 'list-buffers 'ibuffer-other-window)
+  (defalias 'list-buffers 'ibuffer-other-window)
 
-    (winner-mode)
+  (winner-mode)
+  (desktop-save-mode 1)
 
-    (setq pop-up-frame-function (lambda () (split-window-right)))
-    (setq split-height-threshold 1400)
-    (setq split-width-treshold 1500)
+  (setq pop-up-frame-function (lambda () (split-window-right)))
+  (setq split-height-threshold 1400)
+  (setq split-width-treshold 1500)
 #+END_SRC
 
 *** Editing
@@ -591,86 +590,80 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
    http://common-lisp.net/project/slime/
    http://www.emacswiki.org/emacs/ParEdit
 #+BEGIN_SRC emacs-lisp
-   (load (expand-file-name "~/quicklisp/slime-helper.el"))
+  (load (expand-file-name "~/quicklisp/slime-helper.el"))
 
-   (use-package paredit
-     :ensure t
-     :config
-     (progn
-       (autoload 'paredit-mode "paredit"
-	 "Minor mode for pseudo-structurally editing Lisp code." t)
-       (add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode +1)))
-       (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))))
+  (use-package paredit
+    :ensure t
+    :config
+    (progn
+      (autoload 'paredit-mode "paredit"
+	"Minor mode for pseudo-structurally editing Lisp code." t)
+      (add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode +1)))
+      (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))))
 
-   ;; remove XLS-mode and allow "file.lsp" to start lisp-mode
-   (setq auto-mode-alist (rassq-delete-all 'XLS-mode auto-mode-alist))
+  ;; remove XLS-mode and allow "file.lsp" to start lisp-mode
+  ;; (setq auto-mode-alist (rassq-delete-all 'XLS-mode auto-mode-alist))
 
-   ;; Stop SLIME's REPL from grabbing DEL,
-   ;; which is annoying when backspacing over a '('
-   (defun override-slime-repl-bindings-with-paredit ()
-     (define-key slime-repl-mode-map
-       (read-kbd-macro paredit-backward-delete-key) nil))
+  ;; Stop SLIME's REPL from grabbing DEL,
+  ;; which is annoying when backspacing over a '('
+  (defun override-slime-repl-bindings-with-paredit ()
+    (define-key slime-repl-mode-map
+      (read-kbd-macro paredit-backward-delete-key) nil))
 
-   (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
+  (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
 
-   (setq slime-lisp-implementations
-	 '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
-           (clisp ("/opt/local/bin/clisp"))
-           (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
+  (setq slime-lisp-implementations
+	'((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
+          (clisp ("/opt/local/bin/clisp"))
+          (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
 
-   (setq slime-net-coding-system 'utf-8-unix)
-   (slime-setup '(slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
+  (setq slime-net-coding-system 'utf-8-unix)
+  (slime-setup '(slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
 
-   (add-hook 'slime-mode-hook
-             '(lambda ()
-		(paredit-mode +1)
-		(define-key slime-mode-map (kbd "C-c s") 'slime-selector)
-		(define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
-		(define-key slime-mode-map [(return)] 'paredit-newline)
-		(require 'mic-paren)
-		(paren-activate)
-		(setf paren-priority 'close)))
+  (add-hook 'slime-mode-hook
+            '(lambda ()
+	       (paredit-mode +1)
+	       (define-key slime-mode-map (kbd "C-c s") 'slime-selector)
+	       (define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
+	       (define-key slime-mode-map [(return)] 'paredit-newline)
+	       (require 'mic-paren)
+	       (paren-activate)
+	       (setf paren-priority 'close)))
 
-   ;; emacs-lisp-nav
-   (use-package elisp-slime-nav
-              :ensure t
-              :config
-              (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode))
+  ;; ac-slime
+  (use-package ac-slime
+    :ensure t
+    :config
+    (progn
+      (add-hook 'slime-mode-hook 'set-up-slime-ac)
+      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+      (eval-after-load "auto-complete"
+	'(add-to-list 'ac-modes 'slime-repl-mode))))
 
-   (add-hook 'slime-mode-hook
-           (lambda ()
-             (unless (slime-connected-p)
-               (save-excursion (slime)))))
+  ;; emacs-lisp-nav
+  (use-package elisp-slime-nav
+             :ensure t
+             :config
+             (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode))
 
-   ;; ac-slime
-   (use-package ac-slime
-     :ensure t
-     :config
-     (progn
-       (add-hook 'slime-mode-hook 'set-up-slime-ac)
-       (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
-       (eval-after-load "auto-complete"
-	 '(add-to-list 'ac-modes 'slime-repl-mode))))
+  (add-hook 'slime-mode-hook
+          (lambda ()
+            (unless (slime-connected-p)
+              (save-excursion (slime)))))
 
-   ;; Hyperspec within Emacs
-   (setq browse-url-browser-function 'w3m-goto-url-new-session)
 
-   ;; Redshank
-   ;; http://www.foldr.org/~michaelw/emacs/redshank/
-   (require 'redshank-loader
-            "redshank-loader")
 
-   (eval-after-load "redshank-loader"
-      `(redshank-setup '(lisp-mode-hook
-			 slime-repl-mode-hook) t))
-
+  ;; Hyperspec within Emacs
+  (setq browse-url-browser-function 'w3m-goto-url-new-session)
 #+END_SRC
 
 ** YASnippet
+Aktuell benötige ich keine Templates.  Vielleicht probiere ich später einmal,
+das in meinen Workflow zu integrieren.
   #+BEGIN_SRC emacs-lisp
     (use-package yasnippet
-      :ensure t
-      :init
+      :disabled t
+      :config
       (yas-global-mode 1))
   #+END_SRC
 
@@ -714,4 +707,5 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 #+END_SRC
 
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
-#  LocalWords:  projectile Keywords wunderlist Avy Try gcal
+#  LocalWords:  projectile Keywords wunderlist Avy Try gcal YASnippet quicklisp
+#  LocalWords:  complete Templates Workflow
