@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-20 21:00:24 Martin>
+# Time-stamp: <2017-02-20 21:20:05 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -82,18 +82,6 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
 #+BEGIN_SRC emacs-lisp
   (use-package command-log-mode
     :ensure t)
-#+END_SRC
-*** readline-completion
-#+BEGIN_SRC emacs-lisp
-  (use-package readline-complete
-    :ensure t
-    :config
-    (progn
-     (setq explicit-shell-file-name "bash")
-     (setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
-     (setq comint-process-echoes t)
-     (add-to-list 'ac-modes 'shell-mode)
-     (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
 #+END_SRC
 *** alert
 Ich verwende [[https://github.com/jwiegley/alert][alert]] um Benachrichtigungen anzuzeigen.  Da [[growl.info][Growl]] nicht
@@ -204,6 +192,18 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 #+BEGIN_SRC emacs-lisp
   (require 'auto-complete)
   (global-auto-complete-mode t)
+#+END_SRC
+*** readline-completion
+#+BEGIN_SRC emacs-lisp
+  (use-package readline-complete
+    :ensure t
+    :config
+    (progn
+     (setq explicit-shell-file-name "bash")
+     (setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
+     (setq comint-process-echoes t)
+     (add-to-list 'ac-modes 'shell-mode)
+     (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
 #+END_SRC
 
 *** org-mode
@@ -429,12 +429,13 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 
   ;; https://github.com/purcell/exec-path-from-shell
   (when (memq window-system '(mac ns))
-    (exec-path-from-shell-initialize)
-    (setq
-     ns-command-modifier 'meta         ; Apple/Command key is Meta
-     ns-alternate-modifier nil         ; Option is the Mac Option key
-     ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
-     ))
+    (exec-path-from-shell-initialize))
+
+  (setq
+       ns-command-modifier 'meta         ; Apple/Command key is Meta
+       ns-alternate-modifier nil         ; Option is the Mac Option key
+       ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
+  )
 
   ;; exchanging clipboard content with other applications
   (setq select-enable-clipboard t)
@@ -650,9 +651,7 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
           (lambda ()
             (unless (slime-connected-p)
               (save-excursion (slime)))))
-
-
-
+	      
   ;; Hyperspec within Emacs
   (setq browse-url-browser-function 'w3m-goto-url-new-session)
 #+END_SRC
