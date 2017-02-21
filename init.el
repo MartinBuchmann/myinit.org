@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2017-02-19 15:10:07 Martin>
+;; Time-stamp: <2017-02-21 21:24:06 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -35,19 +35,23 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ac-ispell-fuzzy-limit 4)
+ '(ac-ispell-requires 4)
  '(ansi-color-names-vector
    ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#e090d7" "#8cc4ff" "#eeeeec"])
  '(custom-enabled-themes (quote (tsdh-dark)))
  '(package-selected-packages
    (quote
-    (org-wunderlist osx-bbdb osx-lib alert readline-complete mic-paren htmlize org-ac counsel-projectile counsel-osx-app bbdb-handy bbdb org-gcal noflet w3m yasnippet which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell elisp-slime-nav counsel command-log-mode bm beacon avy ac-slime)))
+    (ac-math ac-ispell org-wunderlist osx-bbdb osx-lib alert readline-complete mic-paren htmlize org-ac counsel-projectile counsel-osx-app bbdb-handy bbdb org-gcal noflet w3m yasnippet which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell elisp-slime-nav counsel command-log-mode bm beacon avy ac-slime)))
  '(safe-local-variable-values
    (quote
     ((buffer-local-dictionary . "de")
      (buffer-local-dictionary . "en")
      (ispell-dictionary . "en")
      (ispell-dictionary . en)
-     (spell-dictionary . en)))))
+     (spell-dictionary . en))))
+ '(show-paren-mode t)
+ '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

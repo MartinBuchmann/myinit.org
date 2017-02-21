@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-20 21:20:05 Martin>
+# Time-stamp: <2017-02-21 21:33:44 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -381,12 +381,13 @@ Ich lade die Datei mit meinen Zugangsdaten.
 #+END_SRC
 
 **** org-wunderlist
-Funktioniert nicht ohne Fehler, deshalb deaktivieren ich es erst einmal wieder.
+Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei geladen.
+[[https://github.com/myuhe/org-wunderlist.el][org-wunderlist]]
 #+BEGIN_SRC emacs-lisp
   (use-package org-wunderlist
-    :disabled t)
+    :ensure t)
 
-  ;; (load (expand-file-name "~/.emacs.d/secrets/wunderlist.el.gpg") t)
+  (load (expand-file-name "~/.emacs.d/secrets/wunderkind.el.gpg") t)
 #+END_SRC
 
 *** Magit
@@ -519,6 +520,10 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   (setq pop-up-frame-function (lambda () (split-window-right)))
   (setq split-height-threshold 1400)
   (setq split-width-treshold 1500)
+
+  ;; https://github.com/danielmai/.emacs.d/blob/master/config.org
+  ;; (add-to-list 'default-frame-alist
+  ;;              '(font . "Source Code Pro-14"))
 #+END_SRC
 
 *** Editing
@@ -539,6 +544,18 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
        (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
        (define-key flyspell-mouse-map [mosue-3] #'undefined)))
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
+
+  ;; Completion words longer than 4 characters
+  (custom-set-variables
+   '(ac-ispell-requires 4)
+   '(ac-ispell-fuzzy-limit 4))
+
+  (eval-after-load "auto-complete"
+    '(progn
+       (ac-ispell-setup)))
+
+  (add-hook 'git-commit-mode-hook 'ac-ispell-ac-setup)
+  (add-hook 'mail-mode-hook 'ac-ispell-ac-setup)
 
   (add-hook 'before-save-hook 'time-stamp) ; Aktiviert die Time-stamp-Funktion
 
@@ -657,13 +674,13 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 #+END_SRC
 
 ** YASnippet
-Aktuell benötige ich keine Templates.  Vielleicht probiere ich später einmal,
-das in meinen Workflow zu integrieren.
+Ich probiere es einfach mal aus. Hinweise zur Autocomplete-Erweiterung [[https://iloveemacs.wordpress.com/2015/07/17/yasnippet-and-auto-completion/][hier]].
   #+BEGIN_SRC emacs-lisp
     (use-package yasnippet
-      :disabled t
+      :ensure ;TODO: 
       :config
-      (yas-global-mode 1))
+      (yas-global-mode 1)
+      (add-to-list 'ac-sources 'ac-sources-yasnippet))
   #+END_SRC
 
 
@@ -707,4 +724,4 @@ das in meinen Workflow zu integrieren.
 
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
 #  LocalWords:  projectile Keywords wunderlist Avy Try gcal YASnippet quicklisp
-#  LocalWords:  complete Templates Workflow
+#  LocalWords:  complete Templates Workflow paredit Editing Undo
