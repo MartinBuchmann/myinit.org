@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-21 21:33:44 Martin>
+# Time-stamp: <2017-02-21 21:35:17 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -672,16 +672,6 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   ;; Hyperspec within Emacs
   (setq browse-url-browser-function 'w3m-goto-url-new-session)
 #+END_SRC
-
-** YASnippet
-Ich probiere es einfach mal aus. Hinweise zur Autocomplete-Erweiterung [[https://iloveemacs.wordpress.com/2015/07/17/yasnippet-and-auto-completion/][hier]].
-  #+BEGIN_SRC emacs-lisp
-    (use-package yasnippet
-      :ensure ;TODO: 
-      :config
-      (yas-global-mode 1)
-      (add-to-list 'ac-sources 'ac-sources-yasnippet))
-  #+END_SRC
 
 
 * Tastenbelegungen
