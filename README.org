@@ -2,7 +2,7 @@
 #+TITLE: README.org
 #+AUTHOR: Martin Buchmann
 #+STARTUP: showall
-# Time-stamp: <2017-02-09 21:31:58 Martin>
+# Time-stamp: <2017-02-22 17:52:30 Martin>
 
 * Martin's Emacs customization
 
@@ -10,8 +10,8 @@ This is my Emacs customization using [[https://www.gnu.org/software/emacs/][GNU 
 a basic setup but found it too cumbersome to customize it back to the pure
 Emacs' behaviour.
 
-I found some inspiration in [[http://cestlaz.github.io/stories/emacs][Mike's blog]] and [[https://gitlab.com/buildfunthings/emacs-config/blob/master/loader.org][Arjen's work]] but created mostly my
-own way.  Things will certainly change with time, e.g. I have not done a lot of
-LaTeX recently, which could certainly change.
+I found some inspiration in [[http://cestlaz.github.io/stories/emacs][Mike's blog]], [[https://gitlab.com/buildfunthings/emacs-config/blob/master/loader.org][Arjen's work]] and [[https://github.com/howardabrams/dot-files/blob/master/emacs.org][Howard's]] repo, but
+created mostly my own way.  Things will certainly change with time, e.g. I have
+not done a lot of LaTeX recently, which could certainly change.
 
 I basically use Emacs for playing around with Common Lisp using [[https://common-lisp.net/project/slime/][Slime]].

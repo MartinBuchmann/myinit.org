@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-21 21:35:17 Martin>
+# Time-stamp: <2017-02-22 18:11:40 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -205,7 +205,49 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
      (add-to-list 'ac-modes 'shell-mode)
      (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
 #+END_SRC
+*** el-doc und smart-comment
+#+BEGIN_SRC emacs-lisp
+  (use-package smart-comment
+    :bind ("M-;" . smart-comment))
+ 
+  (use-package eldoc
+    :diminish eldoc-mode
+    :init  (setq eldoc-idle-delay 0.1))
+#+END_SRC
+*** Recent files
+#+BEGIN_SRC emacs-lisp
+  (use-package recentf
+    :init
+    (setq recentf-max-menu-items 25
+          recentf-auto-cleanup 'never
+          recentf-keep '(file-remote-p file-readable-p))
+    (recentf-mode 1)
+    :bind ("C-c f f" . recentf-open-files))
+#+END_SRC
+*** Hide/Show
+#+BEGIN_SRC emacs-lisp
+  (defun ha/hs-show-all ()
+    (interactive)
+    (hs-minor-mode 1)
+    (hs-show-all))
+ 
+  (defun ha/hs-hide-all ()
+    (interactive)
+    (hs-minor-mode 1)
+    (hs-hide-all))
+ 
+  (defun ha/hs-toggle-hiding ()
+    (interactive)
+    (hs-minor-mode 1)
+    (hs-toggle-hiding))
 
+  (use-package hs-minor-mode
+    :bind
+    ("C-c T h" . hs-minor-mode)
+    ("C-c h a" . ha/hs-hide-all)
+    ("C-c h s" . ha/hs-show-all)
+    ("C-c h h" . ha/hs-toggle-hiding))
+#+END_SRC
 *** org-mode
 Ich habe viele Tipps zu [[http://orgmode.org][Org-mode]] bei [[https://github.com/zamansky/using-emacs/tree/lesson-2-org][Mike]] gefunden.  Die Feineinstellungen und
 viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][Rainer]].
@@ -374,7 +416,13 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 **** org-gcal
 Ich lade die Datei mit meinen Zugangsdaten.
 #+BEGIN_SRC emacs-lisp
-  (load (expand-file-name "~/.emacs.d/secrets/gcal.el.gpg") t)
+  (load (expand-file-name "~/.emacs.d/secrets/org.el.gpg") t)
+
+  (use-package org-gcal
+    :ensure t
+    :config
+    (setq org-gcal-file-alist '(("Martin.Buchmann@gmail.com" . 
+				 "~/Dropbox/orgfiles/GCal.org"))))
 
   (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
   (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
@@ -385,9 +433,10 @@ Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei gel
 [[https://github.com/myuhe/org-wunderlist.el][org-wunderlist]]
 #+BEGIN_SRC emacs-lisp
   (use-package org-wunderlist
-    :ensure t)
-
-  (load (expand-file-name "~/.emacs.d/secrets/wunderkind.el.gpg") t)
+    :ensure t
+    :config
+    (setq org-wunderlist-file  "~/Dropbox/orgfiles/Wunderlist.org"
+	  org-wunderlist-dir "~/Dropbox/orgfiles/wunderlist/"))
 #+END_SRC
 
 *** Magit
@@ -437,6 +486,9 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
        ns-alternate-modifier nil         ; Option is the Mac Option key
        ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
   )
+
+  (setq locate-command "mdfind")  ;; Use Mac OS X's Spotlight
+  (global-set-key (kbd "C-c f l") 'locate)
 
   ;; exchanging clipboard content with other applications
   (setq select-enable-clipboard t)
@@ -714,4 +766,5 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
 #  LocalWords:  projectile Keywords wunderlist Avy Try gcal YASnippet quicklisp
-#  LocalWords:  complete Templates Workflow paredit Editing Undo
+#  LocalWords:  complete Templates Workflow paredit Editing Undo el doc comment
+#  LocalWords:  Recent files Hide
