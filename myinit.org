@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-23 21:30:42 Martin>
+# Time-stamp: <2017-02-26 18:32:39 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -479,10 +479,10 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
     (exec-path-from-shell-initialize))
 
   (setq
-       ns-command-modifier 'meta         ; Apple/Command key is Meta
-       ns-alternate-modifier nil         ; Option is the Mac Option key
-       ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
-  )
+   ns-command-modifier 'meta         ; Apple/Command key is Meta
+   ns-alternate-modifier nil         ; Option is the Mac Option key
+   ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
+   )
 
   (setq locate-command "mdfind")  ;; Use Mac OS X's Spotlight
   (global-set-key (kbd "C-c f l") 'locate)
@@ -501,7 +501,7 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   (put 'narrow-to-region 'disabled nil)   ; Erlaubt narrow/wide
 
   (setq delete-by-moving-to-trash t
-	trash-directory "~/.Trash/emacs")
+        trash-directory "~/.Trash/emacs")
 
   (setq shell-file-name           "bash")
   (setq sh-shell-file             "/bin/bash")
@@ -721,6 +721,29 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   (setq browse-url-browser-function 'w3m-goto-url-new-session)
 #+END_SRC
 
+** AucTeX
+Ich verwende LaTeX immer noch für Briefe, Bewerbung usw. und habe durch [[https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/][Piotrs]]
+Artikel Lust bekommen mal zu schauen, ob alles zu meiner Zufriedenheit
+konfiguriert ist.
+#+BEGIN_SRC emacs-lisp
+  ;; AucTeX wurde über den Paketmanager installiert.  Hier gibt es nur noch ein
+  ;; paar zusätzliche Konfigurationen.
+  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+  (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
+
+  (require 'auto-complete-auctex)
+
+  (add-hook 'LaTeX-mode-hook 'turn-on-outline-minor-mode)
+  (add-hook 'LaTeX-mode-hook 'tex-fold-mode)
+  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+
+  (setq TeX-auto-save t
+        TeX-parse-self t
+        TeX-save-query nil)
+
+  (use-package lorem-ipsum
+    :ensure t)
+#+END_SRC
 
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
@@ -763,4 +786,4 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
 #  LocalWords:  projectile Keywords wunderlist Avy Try gcal YASnippet quicklisp
 #  LocalWords:  complete Templates Workflow paredit Editing Undo el doc comment
-#  LocalWords:  Recent files Hide
+#  LocalWords:  Recent files Hide AucTeX ivy
