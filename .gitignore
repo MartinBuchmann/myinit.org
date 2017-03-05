@@ -28,3 +28,4 @@ auto-save-list/*
 /init_bash.sh
 /secrets/.DS_Store
 /bbdb
+/%backup%~

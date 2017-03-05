@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-02-26 18:32:39 Martin>
+# Time-stamp: <2017-03-05 13:26:59 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -49,19 +49,6 @@ aus, anstatt =init.el= zu erweitern.
 	      '((:source "~/.emacs.d/secrets/.authinfo.gpg")))
 #+END_SRC
 
-** Meine Erweiterung werden geladen
-   Einige Zusatzfunktionen, die mal aktualisiert und auf Sinnhaftigkeit geprüft
-   werden müssen.
-#+BEGIN_SRC emacs-lisp
-(message "Lade Martins Erweiterungen...")
-(require 'my_exten)
-#+END_SRC
-** Meine Makros werden geladen
-Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
-#+BEGIN_SRC emacs-lisp
-(message "Lade Makros...")
-(load "~/.emacs.d/emacs_mac")
-#+END_SRC
 ** Grundlegende Einstellungen
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-message t)
@@ -78,11 +65,6 @@ Eine Sammlung alter Makros, die bei Gelegenheit überprüft werden müssen.
   (setq ring-bell-function 'ignore)
 
   (setq-default fill-column 80)
-
-  (setq send-mail-function 'smtpmail-send-it)
-
-  (setq mail-user-agent 'gnus-user-agent)
-  (setq gnus-init-file "~/.emacs.d/gnus.el")
 #+END_SRC
 ** Grundlegende Pakete
 *** Command log mode
@@ -210,6 +192,13 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
   (use-package eldoc
     :diminish eldoc-mode
     :init  (setq eldoc-idle-delay 0.1))
+#+END_SRC
+*** macrostep
+#+BEGIN_SRC emacs-lisp
+  (use-package macrostep
+    :ensure t
+    :config
+    (define-key emacs-lisp-mode-map (kbd "C-c e") 'macrostep-expand))
 #+END_SRC
 *** Recent files
 #+BEGIN_SRC emacs-lisp
@@ -465,6 +454,130 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
     (counsel-projectile-on))
 #+END_SRC
 
+*** GNUs
+#+BEGIN_SRC emacs-lisp
+  (setq gnus-init-file "~/.emacs.d/gnus.el")
+#+END_SRC
+
+*** mu4e
+Ich wusste, daß es irgendwann passieren wird ;-)
+
+[[http://cachestocaches.com/2017/3/complete-guide-email-emacs-using-mu-and-/#getting-set-up-with-mu-and-offlineimap][Diese]] Anleitung hat es mir sehr einfach gemacht. Ich habe alle nötigen Programme
+mittels macports installieren können (mu +emacs!).  Um mein Passwort nicht im
+Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP-with-Encrypted-Authinfo.html][Trick]] angewandt. 
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path "/opt/local/share/emacs/site-lisp/mu4e/")
+
+  (require 'mu4e)
+  ;; (setq send-mail-function 'smtpmail-send-it)
+  (setq mail-user-agent 'mu4e-user-agent)
+
+  (require 'mu4e-maildirs-extension)
+  (mu4e-maildirs-extension)
+
+  (setq mu4e-contexts
+        `( ,(make-mu4e-context
+	     :name "Gmail"
+	     :match-func (lambda (msg) (when msg
+				         (string-prefix-p
+					  "/Gmail" (mu4e-message-field msg :maildir))))
+	     :vars '(
+		     (mu4e-trash-folder . "/Gmail/[Google Mail].Papierkorb")
+		     (mu4e-refile-folder . "/Gmail/[Google Mail].Alle Nachrichten")))))
+
+  (use-package mu4e-alert
+    :ensure t
+    :after mu4e
+    :init
+    (setq mu4e-alert-interesting-mail-query
+      (concat
+       "flag:unread maildir:/Gmail/INBOX"
+       ))
+    (mu4e-alert-enable-mode-line-display)
+    (defun gjstein-refresh-mu4e-alert-mode-line ()
+      (interactive)
+      (mu4e~proc-kill)
+      (mu4e-alert-enable-mode-line-display)
+      )
+    (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line))
+
+  ;; I have my "default" parameters from Gmail
+  ;; (setq mu4e-sent-folder "/Users/Martin/Maildir/Gmail/[Google Mail].Gesendet"
+  ;;       ;; mu4e-sent-messages-behavior 'delete ;; Unsure how this should be configured
+  ;;       mu4e-drafts-folder "/Users/Martin/Maildir/Drafts"
+  ;;       user-mail-address "Martin.Buchmann@googlemail.com"
+  ;;       smtpmail-default-smtp-server "smtp.googlemail.com"
+  ;;       smtpmail-smtp-server "smtp.googlemail.com"
+  ;;       smtpmail-smtp-service 587)
+
+  ;; Now I set a list of 
+  (defvar my-mu4e-account-alist
+    '(("Gmail"
+       (mu4e-sent-folder "/Gmail/[Google Mail].Gesendet")
+       (mu4e-drafts-folder "/Gmail/Drafts")
+       (user-mail-address "Martin.Buchmann@googlemail.com")
+       (smtpmail-smtp-user "Martin.Buchmann")
+       (smtpmail-local-domain "googlemail.com")
+       (smtpmail-default-smtp-server "smtp.googlemail.com")
+       (smtpmail-smtp-server "smtp.googlemail.com")
+       (smtpmail-smtp-service 587)
+       )
+       ;; Include any other accounts here ...
+      ))
+
+  (defun my-mu4e-set-account ()
+    "Set the account for composing a message.
+     This function is taken from: 
+       https://www.djcbsoftware.nl/code/mu/mu4e/Multiple-accounts.html"
+    (let* ((account
+      (if mu4e-compose-parent-message
+          (let ((maildir (mu4e-message-field mu4e-compose-parent-message :maildir)))
+      (string-match "/\\(.*?\\)/" maildir)
+      (match-string 1 maildir))
+        (completing-read (format "Compose with account: (%s) "
+               (mapconcat #'(lambda (var) (car var))
+              my-mu4e-account-alist "/"))
+             (mapcar #'(lambda (var) (car var)) my-mu4e-account-alist)
+             nil t nil nil (caar my-mu4e-account-alist))))
+     (account-vars (cdr (assoc account my-mu4e-account-alist))))
+      (if account-vars
+    (mapc #'(lambda (var)
+        (set (car var) (cadr var)))
+          account-vars)
+        (error "No email account found"))))
+  (add-hook 'mu4e-compose-pre-hook 'my-mu4e-set-account)
+
+  (defun remove-nth-element (nth list)
+    (if (zerop nth) (cdr list)
+      (let ((last (nthcdr (1- nth) list)))
+        (setcdr last (cddr last))
+        list)))
+  (setq mu4e-marks (remove-nth-element 5 mu4e-marks))
+  (add-to-list 'mu4e-marks
+       '(trash
+         :char ("d" . "▼")
+         :prompt "dtrash"
+         :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
+         :action (lambda (docid msg target) 
+                   (mu4e~proc-move docid
+                      (mu4e~mark-check-target target) "-N"))))
+
+  ;; Include a bookmark to open all of my inboxes
+  ;; (add-to-list 'mu4e-bookmarks
+  ;;        (make-mu4e-bookmark
+  ;;         :name "All Inboxes"
+  ;;         :query "maildir:/Gmail/INBOX"
+  ;;         :key ?i))
+
+  ;; This allows me to use 'helm' to select mailboxes
+  (setq mu4e-completing-read-function 'completing-read)
+  ;; Why would I want to leave my message open after I've sent it?
+  (setq message-kill-buffer-on-exit t)
+  ;; Don't ask for a 'context' upon opening mu4e
+  (setq mu4e-context-policy 'pick-first)
+  ;; Don't ask to quit... why is this the default?
+  (setq mu4e-confirm-quit nil)
+#+END_SRC
 
 * Einstellungen
 ** Umgebungsvariablen, Mac-Spezifika, etc
@@ -642,7 +755,7 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   (read-abbrev-file "~/.emacs.d/abbrev_defs")
 #+END_SRC
 
-** Wo sollen Backup-Dateien gespeichert werden?
+** Wo sollen Dateien-Backup gespeichert werden?
 #+BEGIN_SRC emacs-lisp
   (defconst use-backup-dir t)             ; use backup directory
   (setq make-backup-files t)
@@ -748,29 +861,12 @@ konfiguriert ist.
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
   (global-set-key [f5] 'revert-buffer)
-  (global-set-key [f7] 'point-to-top)
-  (global-set-key [f8] 'point-to-bottom)
-  (global-set-key [f9] 'line-to-top)
 
   (global-set-key (kbd "C-x k") 'kill-this-buffer)
 
   (global-set-key (kbd "C-c j") 'flyspell-check-previous-highlighted-word)
 
-  (global-set-key "\C-c\C-x\C-f" 'find-file-at-point)
-
-  ;; Einfügen von Datum
-  (global-set-key (kbd "C-c d") 'insert-date)
-  (global-set-key (kbd "C-c D") 'insert-datum)
-
-  ;; Suchen von Text unter dem Cursor, bzw. in aktueller Region
-  (global-set-key [f3]   'search-word-under-cursor)
-  (global-set-key [M-f3] 'search-selected-text)
-
-  ;; Länge des aktuellen Wortes
-  (global-set-key "\C-c\C-x\C-l" 'length-word-under-cursor)
-
-  ;; Open terminal.app
-  (global-set-key "\C-c\C-xo" 'mac-open-terminal)
+  (global-set-key "\C-c\C-f" 'find-file-at-point)
 
   ;; Buchstaben vertauschen
   (global-set-key "\C-c\C-t" 'transpose-chars)
@@ -786,4 +882,4 @@ konfiguriert ist.
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
 #  LocalWords:  projectile Keywords wunderlist Avy Try gcal YASnippet quicklisp
 #  LocalWords:  complete Templates Workflow paredit Editing Undo el doc comment
-#  LocalWords:  Recent files Hide AucTeX ivy
+#  LocalWords:  Recent files Hide AucTeX ivy GNUs macrostep Magit
