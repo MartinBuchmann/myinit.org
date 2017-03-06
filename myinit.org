@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-03-05 13:26:59 Martin>
+# Time-stamp: <2017-03-06 20:38:30 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -234,230 +234,6 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
     ("C-c h s" . ha/hs-show-all)
     ("C-c h h" . ha/hs-toggle-hiding))
 #+END_SRC
-*** org-mode
-Ich habe viele Tipps zu [[http://orgmode.org][Org-mode]] bei [[https://github.com/zamansky/using-emacs/tree/lesson-2-org][Mike]] gefunden.  Die Feineinstellungen und
-viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][Rainer]].
-
-**** Allgemeine Konfiguration von org-mode
-
-#+BEGIN_SRC emacs-lisp
-  ;; Allgemeine Tastenbelegung
-  (global-set-key "\C-cl" 'org-store-link)
-  (global-set-key "\C-ca" 'org-agenda)
-  (global-set-key "\C-cc" 'org-capture)
-  (global-set-key "\C-cb" 'org-iswitchb)
-
-  ;; Allgemeine Einstellungen
-  (setq org-directory "~/Dropbox/orgfiles")
-  (setq org-default-notes-file (concat org-directory "/Notes.org"))
-
-  (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
-			       "~/Dropbox/orgfiles/Notes.org"
-			       "~/Dropbox/orgfiles/GCal.org"
-			       "~/Dropbox/orgfiles/Wunderlist.org"))
-
-  (setq org-refile-targets '((org-agenda-files :level . 1)))
-  (setq org-refile-allow-creating-parent-nodes 'confirm)
-  (setq org-refile-use-outline-path 'file)
-
-  (setq org-export-html-postamble nil)
-  (setq org-startup-folded (quote overview))
-  (setq org-startup-indented t)
-  (setq org-src-tab-acts-natively t)
-  (setq org-src-window-setup 'current-window)
-
-  (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
-  (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
-
-  ;; Meine eigenen Agenda-Ansichten
-  (setq org-agenda-custom-commands
-	  '(("h" "Was liegt heute an?"
-	     ((tags-todo "Dringend"
-			 ((org-agenda-overriding-header "Dringende Aufgaben")
-			  (org-agenda-files
-			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
-	      (tags-todo "Anrufe"
-			 ((org-agenda-overriding-header "Anrufe")
-			  (org-agenda-files
-			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
-	      (agenda  ""
-			 ((org-agenda-overriding-header "Heute")
-			  (org-agenda-files
-			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))
-			   (org-agenda-span 1)
-			   (org-agenda-sorting-stragety '(time-up priority-down))))))
-	    ("c" "Einfache Agenda"
-	     ((agenda "")
-	      (alltodo "")))))
-
-  (setq org-show-notification-handler 'alert)
-#+END_SRC
-
-***** Farbiges Syntax-Highlighting beim Exportieren
-#+BEGIN_SRC emacs-lisp
-(use-package htmlize
-  :ensure t)
-
-(use-package mic-paren
-  :ensure t)
-#+END_SRC
-***** Zusätzliche TODO-Keywords und Tags
-#+BEGIN_SRC emacs-lisp
-  (setq org-todo-keywords
-	'((sequence "TODO(t@/!)" "Nächstes(n)" "Warten(w@/!)" "Projekt(p)" "Irgendwann(i)"
-		    "|" "DONE(d@/!)" "Gestoppt(g/!)")))
-
-  (setq org-tag-alist '(("@Arbeit" . ?a) ("@Zuhause" . ?z)
-			("Hobby" . ?h) ("Reichardtstieg" . ?r) ("Anrufe" . ?A) ("Dringend" . ?d)))
-
-  (setq org-enforce-todo-dependencies t)
-  (setq org-enforce-checkbox-dependencies t)
-  (setq org-track-ordered-property-with-tag t)
-#+END_SRC
-
-***** Einstellungen für das Loggen und die Archivierung
-#+BEGIN_SRC emacs-lisp
-  (setq org-log-reschedule 'note)  
-  (setq org-log-into-drawer t)
-  (setq org-archive-location    "~/Dropbox/orgfiles/archive.org::* From %s")
-#+END_SRC 
-**** org-babel
-#+BEGIN_SRC emacs-lisp
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((lisp . t)
-     (emacs-lisp . t)))
-#+END_SRC
-**** org-bullets
-     Displaying nice bullets instead of just the asterics
-#+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-    :ensure t
-    :config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-#+END_SRC
-
-**** org-autocomplete
-#+BEGIN_SRC emacs-lisp
-  (use-package org-ac
-    :ensure t
-    :init (progn
-            (require 'org-ac)
-            (org-ac/config-default)))
-#+END_SRC
-
-**** org-capture
-#+BEGIN_SRC emacs-lisp
-  (setq org-capture-templates
-	'(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
-           "* %? %^L %^g \n%T" :prepend t)
-          ("a" "Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Aufgaben")
-           "* TODO %?\n%u" :prepend t)
-          ("e" "Emacs-Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Emacs")
-           "* TODO %?\n%u" :prepend t)
-          ("c" "Common Lisp" entry (file+headline "~/Dropbox/orgfiles/Martin.org"
-                                                  "Common Lisp-Projekte")
-           "* TODO %?\n%u" :prepend t)
-          ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
-           "* TODO %a\n %?" :prepend t)
-          ("n" "Notiz" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Notizen")
-           "* %?\n%u" :prepend t)
-          ("T" "Termin" entry (file  "~/Dropbox/orgfiles/GCal.org")
-           "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
-          ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/orgfiles/Journal.org.gpg")
-           "* %?\nEntered on %U\n  %i\n  %a")
-	  ("b" "Buch" entry (file+headline "~/Dropbox/orgfiles/Bücher.org" "Bücher")
-	   "** Irgendwann %^{Autor} -- %^{Titel}\n:PROPERTIES:\n:SEITEN: %^{Seiten}\n:GENRE: %^{Genre}\n:Rating:\n:END:\n - Empfohlen von: %^{Empfohlen von:} \n:LOGBOOK:\n - Added: %U\n:END:\n"
-	   :prepend t)
-	  ("f" "Film" entry (file+headline "~/Dropbox/orgfiles/Filme.org" "Filme")
-	   "** Irgendwann %^{Titel}\n:PROPERTIES:\n:GENRE: %^{Genre}\n:END:\n- Empfohlen von: %^{Empfohlen von:}\n:LOGBOOK:\n - Added: %U\n:END:\n")))
-
-    ;; Capturing from outside of a runnign emacs
-    ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
-    (defadvice org-capture-finalize
-	(after delete-capture-frame activate)
-      "Advise capture-finalize to close the frame"
-      (if (equal "capture" (frame-parameter nil 'name))
-	(delete-frame)))
-
-    (defadvice org-capture-destroy
-	(after delete-capture-frame activate)
-      "Advise capture-destroy to close the frame"
-      (if (equal "capture" (frame-parameter nil 'name))
-	(delete-frame)))
-
-    (use-package noflet
-      :ensure t)
-
-    (defun make-capture-frame ()
-      "Create a new frame and run org-capture."
-      (interactive)
-      (make-frame '((name . "capture")))
-      (select-frame-by-name "capture")
-      (delete-other-windows)
-      (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
-              (org-capture)))
-#+END_SRC
-
-**** org-gcal
-Ich lade die Datei mit meinen Zugangsdaten.
-#+BEGIN_SRC emacs-lisp
-  (load (expand-file-name "~/.emacs.d/secrets/org.el.gpg") t)
-
-  (use-package org-gcal
-    :ensure t
-    :config
-    (setq org-gcal-file-alist '(("Martin.Buchmann@gmail.com" . 
-				 "~/Dropbox/orgfiles/GCal.org"))))
-
-  (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
-  (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
-#+END_SRC
-
-**** org-wunderlist
-Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei geladen.
-[[https://github.com/myuhe/org-wunderlist.el][org-wunderlist]]
-#+BEGIN_SRC emacs-lisp
-  (use-package org-wunderlist
-    :ensure t
-    :config
-    (setq org-wunderlist-file  "~/Dropbox/orgfiles/Wunderlist.org"
-	  org-wunderlist-dir "~/Dropbox/orgfiles/wunderlist/"))
-#+END_SRC
-
-*** Magit
-#+BEGIN_SRC emacs-lisp
-   (global-magit-file-mode t)
-   (global-set-key (kbd "C-x g") 'magit-status)
-   (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
-#+END_SRC
-
-*** Avy
-#+BEGIN_SRC emacs-lisp
-  (use-package avy
-    :ensure t
-    :bind
-    (("C-:" . avy-goto-char)))
-#+END_SRC
-
-*** projectile
-[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].  Vielleicht
-probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projectile]] aus.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :ensure t)
-
-  (use-package counsel-projectile
-    :ensure t
-    :init
-    (counsel-projectile-on))
-#+END_SRC
-
-*** GNUs
-#+BEGIN_SRC emacs-lisp
-  (setq gnus-init-file "~/.emacs.d/gnus.el")
-#+END_SRC
 
 *** mu4e
 Ich wusste, daß es irgendwann passieren wird ;-)
@@ -577,6 +353,240 @@ Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP
   (setq mu4e-context-policy 'pick-first)
   ;; Don't ask to quit... why is this the default?
   (setq mu4e-confirm-quit nil)
+#+END_SRC
+*** org-mode
+Ich habe viele Tipps zu [[http://orgmode.org][Org-mode]] bei [[https://github.com/zamansky/using-emacs/tree/lesson-2-org][Mike]] gefunden.  Die Feineinstellungen und
+viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][Rainer]].
+
+**** Allgemeine Konfiguration von org-mode
+
+#+BEGIN_SRC emacs-lisp
+  ;; Allgemeine Tastenbelegung
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cc" 'org-capture)
+  (global-set-key "\C-cb" 'org-iswitchb)
+
+  ;; Allgemeine Einstellungen
+  (setq org-directory "~/Dropbox/orgfiles")
+  (setq org-default-notes-file (concat org-directory "/Notes.org"))
+
+  (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
+			       "~/Dropbox/orgfiles/Notes.org"
+			       "~/Dropbox/orgfiles/GCal.org"
+			       "~/Dropbox/orgfiles/Wunderlist.org"))
+
+  (setq org-refile-targets '((org-agenda-files :level . 1)))
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+  (setq org-refile-use-outline-path 'file)
+
+  (setq org-export-html-postamble nil)
+  (setq org-startup-folded (quote overview))
+  (setq org-startup-indented t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-src-window-setup 'current-window)
+
+  (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+  (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
+
+  ;; Meine eigenen Agenda-Ansichten
+  (setq org-agenda-custom-commands
+	  '(("h" "Was liegt heute an?"
+	     ((tags-todo "Dringend"
+			 ((org-agenda-overriding-header "Dringende Aufgaben")
+			  (org-agenda-files
+			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
+	      (tags-todo "Anrufe"
+			 ((org-agenda-overriding-header "Anrufe")
+			  (org-agenda-files
+			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
+	      (agenda  ""
+			 ((org-agenda-overriding-header "Heute")
+			  (org-agenda-files
+			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))
+			   (org-agenda-span 1)
+			   (org-agenda-sorting-stragety '(time-up priority-down))))))
+	    ("c" "Einfache Agenda"
+	     ((agenda "")
+	      (alltodo "")))))
+
+  (setq org-show-notification-handler 'alert)
+#+END_SRC
+
+***** Farbiges Syntax-Highlighting beim Exportieren
+#+BEGIN_SRC emacs-lisp
+(use-package htmlize
+  :ensure t)
+
+(use-package mic-paren
+  :ensure t)
+#+END_SRC
+***** Zusätzliche TODO-Keywords und Tags
+#+BEGIN_SRC emacs-lisp
+  (setq org-todo-keywords
+	'((sequence "TODO(t@/!)" "Nächstes(n)" "Warten(w@/!)" "Projekt(p)" "Irgendwann(i)"
+		    "|" "DONE(d@/!)" "Gestoppt(g/!)")))
+
+  (setq org-tag-alist '(("@Arbeit" . ?a) ("@Zuhause" . ?z)
+			("Hobby" . ?h) ("Reichardtstieg" . ?r) ("Anrufe" . ?A) ("Dringend" . ?d)))
+
+  (setq org-enforce-todo-dependencies t)
+  (setq org-enforce-checkbox-dependencies t)
+  (setq org-track-ordered-property-with-tag t)
+#+END_SRC
+
+***** Einstellungen für das Loggen und die Archivierung
+#+BEGIN_SRC emacs-lisp
+  (setq org-log-reschedule 'note)  
+  (setq org-log-into-drawer t)
+  (setq org-archive-location    "~/Dropbox/orgfiles/archive.org::* From %s")
+#+END_SRC 
+**** org-babel
+#+BEGIN_SRC emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((lisp . t)
+     (emacs-lisp . t)))
+#+END_SRC
+**** org-bullets
+     Displaying nice bullets instead of just the asterics
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+
+**** org-autocomplete
+#+BEGIN_SRC emacs-lisp
+  (use-package org-ac
+    :ensure t
+    :init (progn
+            (require 'org-ac)
+            (org-ac/config-default)))
+#+END_SRC
+
+**** org-capture
+#+BEGIN_SRC emacs-lisp
+  (setq org-capture-templates
+        '(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
+           "* %? %^L %^g \n%T" :prepend t)
+          ("a" "Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Aufgaben")
+           "* TODO %?\n%u" :prepend t)
+          ("u" "Aufgabe mit Deadline" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Aufgaben")
+            "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n" :prepend t)
+          ("e" "Emacs-Aufgabe" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "Emacs")
+           "* TODO %?\n%u" :prepend t)
+          ("c" "Common Lisp" entry (file+headline "~/Dropbox/orgfiles/Martin.org"
+                                                  "Common Lisp-Projekte")
+           "* TODO %?\n%u" :prepend t)
+          ("m" "Mail To Do" entry (file+headline "~/Dropbox/orgfiles/Martin.org" "To Do")
+           "* TODO %a\n %?" :prepend t)
+          ("n" "Notiz" entry (file+headline "~/Dropbox/orgfiles/Notes.org" "Notizen")
+           "* %?\n%u" :prepend t)
+          ("T" "Termin" entry (file  "~/Dropbox/orgfiles/GCal.org")
+           "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
+          ("t" "Tagebucheintrag" entry (file+datetree "~/Dropbox/orgfiles/Journal.org.gpg")
+           "* %?\nEntered on %U\n  %i\n  %a")
+	  ("b" "Buch" entry (file+headline "~/Dropbox/orgfiles/Bücher.org" "Bücher")
+	   "** Irgendwann %^{Autor} -- %^{Titel}\n:PROPERTIES:\n:SEITEN: %^{Seiten}\n:GENRE: %^{Genre}\n:Rating:\n:END:\n - Empfohlen von: %^{Empfohlen von:} \n:LOGBOOK:\n - Added: %U\n:END:\n"
+	   :prepend t)
+	  ("f" "Film" entry (file+headline "~/Dropbox/orgfiles/Filme.org" "Filme")
+	   "** Irgendwann %^{Titel}\n:PROPERTIES:\n:GENRE: %^{Genre}\n:END:\n- Empfohlen von: %^{Empfohlen von:}\n:LOGBOOK:\n - Added: %U\n:END:\n")))
+
+    ;; Capturing from outside of a runnign emacs
+    ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
+    (defadvice org-capture-finalize
+        (after delete-capture-frame activate)
+      "Advise capture-finalize to close the frame"
+      (if (equal "capture" (frame-parameter nil 'name))
+        (delete-frame)))
+
+    (defadvice org-capture-destroy
+        (after delete-capture-frame activate)
+      "Advise capture-destroy to close the frame"
+      (if (equal "capture" (frame-parameter nil 'name))
+        (delete-frame)))
+
+    (use-package noflet
+      :ensure t)
+
+    (defun make-capture-frame ()
+      "Create a new frame and run org-capture."
+      (interactive)
+      (make-frame '((name . "capture")))
+      (select-frame-by-name "capture")
+      (delete-other-windows)
+      (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+              (org-capture)))
+#+END_SRC
+
+**** org-gcal
+Ich lade die Datei mit meinen Zugangsdaten.
+#+BEGIN_SRC emacs-lisp
+  (load (expand-file-name "~/.emacs.d/secrets/org.el.gpg") t)
+
+  (use-package org-gcal
+    :ensure t
+    :config
+    (setq org-gcal-file-alist '(("Martin.Buchmann@gmail.com" . 
+				 "~/Dropbox/orgfiles/GCal.org"))))
+
+  (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
+  (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
+#+END_SRC
+
+**** org-wunderlist
+Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei geladen.
+[[https://github.com/myuhe/org-wunderlist.el][org-wunderlist]]
+#+BEGIN_SRC emacs-lisp
+  (use-package org-wunderlist
+    :ensure t
+    :config
+    (setq org-wunderlist-file  "~/Dropbox/orgfiles/Wunderlist.org"
+	  org-wunderlist-dir "~/Dropbox/orgfiles/wunderlist/"))
+#+END_SRC
+
+**** org-mu4e
+#+BEGIN_SRC emacs-lisp
+;; http://pragmaticemacs.com/emacs/master-your-inbox-with-mu4e-and-org-mode/
+;; store org-mode links to messages
+(require 'org-mu4e)
+;; store link to message if in header view, not to header query
+(setq org-mu4e-link-query-in-headers-mode nil)
+#+END_SRC
+*** Magit
+#+BEGIN_SRC emacs-lisp
+   (global-magit-file-mode t)
+   (global-set-key (kbd "C-x g") 'magit-status)
+   (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
+#+END_SRC
+
+*** Avy
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind
+    (("C-:" . avy-goto-char)))
+#+END_SRC
+
+*** projectile
+[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].  Vielleicht
+probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projectile]] aus.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :ensure t)
+
+  (use-package counsel-projectile
+    :ensure t
+    :init
+    (counsel-projectile-on))
+#+END_SRC
+
+*** GNUs
+#+BEGIN_SRC emacs-lisp
+  (setq gnus-init-file "~/.emacs.d/gnus.el")
 #+END_SRC
 
 * Einstellungen
@@ -743,7 +753,11 @@ Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP
     :ensure t
     :diminish undo-tree
     :init
-    (global-undo-tree-mode))
+    (global-undo-tree-mode)
+    :config
+    (with-eval-after-load 'undo-tree
+      (define-key undo-tree-map (kbd "<S-wheel-down>") 'undo-tree-redo)
+      (define-key undo-tree-map (kbd "<S-wheel-up>") 'undo-tree-undo)))
 #+END_SRC
 ** Abkürzungen einschalten
 #+BEGIN_SRC emacs-lisp
@@ -882,4 +896,4 @@ konfiguriert ist.
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
 #  LocalWords:  projectile Keywords wunderlist Avy Try gcal YASnippet quicklisp
 #  LocalWords:  complete Templates Workflow paredit Editing Undo el doc comment
-#  LocalWords:  Recent files Hide AucTeX ivy GNUs macrostep Magit
+#  LocalWords:  Recent files Hide AucTeX ivy GNUs macrostep Magit mu
