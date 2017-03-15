@@ -10,7 +10,8 @@
  '(custom-enabled-themes (quote (zenburn)))
  '(custom-safe-themes
    (quote
-    ("bb749a38c5cb7d13b60fa7fc40db7eced3d00aa93654d150b9627cabd2d9b361" "2997ecd20f07b99259bddba648555335ffb7a7d908d8d3e6660ecbec415f6b95" default)))
+    ("f5512c02e0a6887e987a816918b7a684d558716262ac7ee2dd0437ab913eaec6" "bb749a38c5cb7d13b60fa7fc40db7eced3d00aa93654d150b9627cabd2d9b361" "2997ecd20f07b99259bddba648555335ffb7a7d908d8d3e6660ecbec415f6b95" default)))
+ '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
     (osx-dictionary osx-org-clock-menubar mu4e-maildirs-extension mu4e mu4e-alert lorem-ipsum auto-complete-auctex auctex smart-comment org-beautify-theme zenburn-theme ac-math ac-ispell org-wunderlist osx-bbdb osx-lib alert readline-complete mic-paren htmlize org-ac counsel-projectile counsel-osx-app bbdb-handy bbdb org-gcal noflet w3m yasnippet which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell elisp-slime-nav counsel command-log-mode bm beacon avy ac-slime)))
@@ -23,6 +24,7 @@
      (ispell-dictionary . "en")
      (ispell-dictionary . en)
      (spell-dictionary . en))))
+ '(send-mail-function (quote smtpmail-send-it))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces

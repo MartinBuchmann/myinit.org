@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-03-06 20:38:30 Martin>
+# Time-stamp: <2017-03-15 09:41:56 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -393,15 +393,15 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-agenda-custom-commands
 	  '(("h" "Was liegt heute an?"
 	     ((tags-todo "Dringend"
-			 ((org-agenda-overriding-header "Dringende Aufgaben")
+		         ((org-agenda-overriding-header "Dringende Aufgaben")
 			  (org-agenda-files
 			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
 	      (tags-todo "Anrufe"
-			 ((org-agenda-overriding-header "Anrufe")
+		         ((org-agenda-overriding-header "Anrufe")
 			  (org-agenda-files
 			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
 	      (agenda  ""
-			 ((org-agenda-overriding-header "Heute")
+		         ((org-agenda-overriding-header "Heute")
 			  (org-agenda-files
 			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))
 			   (org-agenda-span 1)
@@ -411,6 +411,19 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 	      (alltodo "")))))
 
   (setq org-show-notification-handler 'alert)
+
+  ;; http://orgmode.org/worg/org-faq.html
+  (defun diary-limited-cyclic (recurrences interval m d y)
+    "For use in emacs diary. Cyclic item with limited number of recurrences.
+  Occurs every INTERVAL days, starting on YYYY-MM-DD, for a total of
+  RECURRENCES occasions."
+    (let ((startdate (calendar-absolute-from-gregorian (list m d y)))
+          (today (calendar-absolute-from-gregorian date)))
+      (and (not (minusp (- today startdate)))
+           (zerop (% (- today startdate) interval))
+           (< (floor (- today startdate) interval) recurrences))))
+
+
 #+END_SRC
 
 ***** Farbiges Syntax-Highlighting beim Exportieren
@@ -530,10 +543,10 @@ Ich lade die Datei mit meinen Zugangsdaten.
     :ensure t
     :config
     (setq org-gcal-file-alist '(("Martin.Buchmann@gmail.com" . 
-				 "~/Dropbox/orgfiles/GCal.org"))))
+			         "~/Dropbox/orgfiles/GCal.org"))))
 
-  (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
-  (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
+  ;; (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
+  ;; (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
 #+END_SRC
 
 **** org-wunderlist
@@ -572,14 +585,15 @@ Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei gel
 
 *** projectile
 [[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].  Vielleicht
-probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projectile]] aus.
+probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projectile]] aus.  Aktuelle verwende ich es nicht, lasse
+es aber hier stehen.
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
-    :ensure t)
+    :disabled nil)
 
   (use-package counsel-projectile
-    :ensure t
+    :disabled t
     :init
     (counsel-projectile-on))
 #+END_SRC
@@ -588,6 +602,7 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 #+BEGIN_SRC emacs-lisp
   (setq gnus-init-file "~/.emacs.d/gnus.el")
 #+END_SRC
+
 
 * Einstellungen
 ** Umgebungsvariablen, Mac-Spezifika, etc
@@ -635,6 +650,14 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   (setq user-mail-address "Martin.Buchmann@gmail.com")
   (setq smtpmail-smtp-user "Martin.Buchmann")
 
+  (setq calendar-latitude 50.9271)
+  (setq calendar-longitude 11.5892)
+  (setq calendar-location-name "Jena, Germany")
+      
+  (setq calendar-time-zone +60)
+  (setq calendar-standard-time-zone-name "CET")
+  (setq calendar-daylight-time-zone-name "CEST")
+
   (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
 
   ;; https://github.com/chrisbarrett/osx-bbdb
@@ -643,6 +666,7 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
 #+END_SRC
 
 ** Erscheinung
+
 *** Windows und Frames
 #+BEGIN_SRC emacs-lisp
   (when window-system
@@ -684,7 +708,9 @@ probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projec
   (defalias 'list-buffers 'ibuffer-other-window)
 
   (winner-mode)
-  (desktop-save-mode 1)
+  ;; Momentan brauche ich das nicht. Entweder läuft Emacs noch oder ich möchte
+  ;; komplett neustarten.
+  (desktop-save-mode nil)
 
   (setq pop-up-frame-function (lambda () (split-window-right)))
   (setq split-height-threshold 1400)
@@ -872,6 +898,7 @@ konfiguriert ist.
     :ensure t)
 #+END_SRC
 
+
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
   (global-set-key [f5] 'revert-buffer)
@@ -881,11 +908,7 @@ konfiguriert ist.
   (global-set-key (kbd "C-c j") 'flyspell-check-previous-highlighted-word)
 
   (global-set-key "\C-c\C-f" 'find-file-at-point)
-
-  ;; Buchstaben vertauschen
-  (global-set-key "\C-c\C-t" 'transpose-chars)
 #+END_SRC
-
 
 * Ende
 #+BEGIN_SRC emacs-lisp

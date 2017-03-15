@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2017-02-23 21:13:43 Martin>
+;; Time-stamp: <2017-03-15 09:45:39 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -10,7 +10,6 @@
 (message "Dies ist Martins init.el")
 
 ;;----------------------------------------
-
 ;; Neu strukturiert und ergänzt nach
 ;; https://github.com/durantschoon/.emacs.d/tree/boilerplate-sane-defaults_v1.0
 ;; Gleich zu Beginn unnötige Anzeigen abstellen.
@@ -33,6 +32,12 @@
 (unless (package-installed-p 'use-package)
 	(package-refresh-contents)
 	(package-install 'use-package))
+
+;; Benchmark-init
+;; https://github.com/dholm/benchmark-init-el.git
+(add-to-list 'load-path "/Users/Martin/.emacs.d/elisp/benchmark-init-el")
+(require 'benchmark-init-loaddefs)
+(benchmark-init/activate)
 
 ;; Die eigentlichen Anpassungen erfolgen in myinit.org
 (org-babel-load-file "/Users/Martin/.emacs.d/myinit.org")
