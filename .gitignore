@@ -30,3 +30,4 @@ auto-save-list/*
 /bbdb
 /%backup%~
 /elisp/benchmark-init-el/
+/var/pcache/gh/gh-gist-api/MartinBuchmann

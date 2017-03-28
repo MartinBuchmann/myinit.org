@@ -1,7 +1,8 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-03-15 09:41:56 Martin>
+# Time-stamp: <2017-03-28 14:06:56 Martin>
+
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -165,6 +166,11 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 #+BEGIN_SRC emacs-lisp
   (setq insert-directory-program "/opt/local/bin/gls")
   (setq dired-listing-switches "-aBhl --group-directories-first")
+
+  (use-package dired-quick-sort
+    :ensure t
+    :config
+    (dired-quick-sort-setup))
 #+END_SRC
 
 *** Auto-complete mode
@@ -236,7 +242,7 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 #+END_SRC
 
 *** mu4e
-Ich wusste, daß es irgendwann passieren wird ;-)
+Ich wusste, daß es irgendwann passieren wird...
 
 [[http://cachestocaches.com/2017/3/complete-guide-email-emacs-using-mu-and-/#getting-set-up-with-mu-and-offlineimap][Diese]] Anleitung hat es mir sehr einfach gemacht. Ich habe alle nötigen Programme
 mittels macports installieren können (mu +emacs!).  Um mein Passwort nicht im
@@ -535,15 +541,18 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 #+END_SRC
 
 **** org-gcal
-Ich lade die Datei mit meinen Zugangsdaten.
+Ich brauche das eigentlich nicht. Es gibt auch noch zahlreiche Fehler, z.B. mit
+dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/issues][Issues]]. Deshalb setze ich es erst einmal aus...
 #+BEGIN_SRC emacs-lisp
-  (load (expand-file-name "~/.emacs.d/secrets/org.el.gpg") t)
-
   (use-package org-gcal
-    :ensure t
+    :disabled t
     :config
-    (setq org-gcal-file-alist '(("Martin.Buchmann@gmail.com" . 
-			         "~/Dropbox/orgfiles/GCal.org"))))
+    (progn
+      (setq org-gcal-file-alist '(("Martin.Buchmann@gmail.com" . 
+                                   "~/Dropbox/orgfiles/GCal.org")))
+      (load (expand-file-name "~/.emacs.d/secrets/org-gcal.el.gpg") t))
+    :bind
+    (("C-c C-g" . org-gcal-fetch)))
 
   ;; (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
   ;; (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
@@ -554,10 +563,12 @@ Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei gel
 [[https://github.com/myuhe/org-wunderlist.el][org-wunderlist]]
 #+BEGIN_SRC emacs-lisp
   (use-package org-wunderlist
-    :ensure t
+    :defer t
     :config
-    (setq org-wunderlist-file  "~/Dropbox/orgfiles/Wunderlist.org"
-	  org-wunderlist-dir "~/Dropbox/orgfiles/wunderlist/"))
+    (progn
+      (load (expand-file-name "~/.emacs.d/secrets/org.el.gpg") t)
+      (setq org-wunderlist-file  "~/Dropbox/orgfiles/Wunderlist.org"
+           org-wunderlist-dir "~/Dropbox/orgfiles/wunderlist/")))
 #+END_SRC
 
 **** org-mu4e
@@ -568,11 +579,14 @@ Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei gel
 ;; store link to message if in header view, not to header query
 (setq org-mu4e-link-query-in-headers-mode nil)
 #+END_SRC
-*** Magit
+*** Magit, gist
 #+BEGIN_SRC emacs-lisp
-   (global-magit-file-mode t)
-   (global-set-key (kbd "C-x g") 'magit-status)
-   (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
+  (global-magit-file-mode t)
+  (global-set-key (kbd "C-x g") 'magit-status)
+  (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
+
+  (use-package gist
+    :ensure t)
 #+END_SRC
 
 *** Avy
@@ -673,6 +687,8 @@ es aber hier stehen.
     ;; I like it this way.
     (set-frame-size (selected-frame) 220 70)
     (set-frame-position (selected-frame) 165 35)
+    (set-default-font
+       "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
 
     (global-prettify-symbols-mode)
     (global-hl-line-mode t)
@@ -688,7 +704,7 @@ es aber hier stehen.
     (setq ns-pop-up-frames nil)
 
     (use-package mode-icons
-         :ensure ;TODO: 
+         :ensure t 
          :config
          (mode-icons-mode t))
 
@@ -710,7 +726,7 @@ es aber hier stehen.
   (winner-mode)
   ;; Momentan brauche ich das nicht. Entweder läuft Emacs noch oder ich möchte
   ;; komplett neustarten.
-  (desktop-save-mode nil)
+  (desktop-save-mode -1)
 
   (setq pop-up-frame-function (lambda () (split-window-right)))
   (setq split-height-threshold 1400)
@@ -802,8 +818,43 @@ es aber hier stehen.
   (setq backup-directory-alist (quote ((".*" . "~/.emacs.d/backups"))))
 #+END_SRC
 
+** Eigene Funktionen
+#+BEGIN_SRC emacs-lisp
+  ;; https://www.emacswiki.org/emacs/InsertFileName
+  (defun my-insert-file-name (filename &optional args)
+      "Insert name of file FILENAME into buffer after point.
+  
+    Prefixed with \\[universal-argument], expand the file name to
+    its fully canocalized path.  See `expand-file-name'.
+  
+    Prefixed with \\[negative-argument], use relative path to file
+    name from current directory, `default-directory'.  See
+    `file-relative-name'.
+  
+    The default with no prefix is to insert the file name exactly as
+    it appears in the minibuffer prompt."
+      ;; Based on insert-file in Emacs -- ashawley 20080926
+      (interactive "*fInsert file name: \nP")
+      (cond ((eq '- args)
+             (insert (file-relative-name filename)))
+            ((not (null args))
+             (insert (expand-file-name filename)))
+            (t
+             (insert filename))))
+#+END_SRC
 
 * Spezielle Modi
+
+** YASnippet
+[[http://joaotavora.github.io/yasnippet/][Yet another snippet extension]]
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :defer t
+    :config
+    (progn
+      (yas-global-mode 1)
+      (add-to-list 'warning-suppress-types '(yasnippet backquote-change))))
+#+END_SRC
 
 ** Slime, quicklisp, paredit
    http://common-lisp.net/project/slime/
@@ -816,7 +867,8 @@ es aber hier stehen.
     :config
     (progn
       (autoload 'paredit-mode "paredit"
-	"Minor mode for pseudo-structurally editing Lisp code." t)
+        "Minor mode for pseudo-structurally editing Lisp code." t)
+      (add-hook 'slime-mode-hook (lambda () (paredit-mode +1)))
       (add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode +1)))
       (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))))
 
@@ -832,22 +884,20 @@ es aber hier stehen.
   (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
 
   (setq slime-lisp-implementations
-	'((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
+        '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
           (clisp ("/opt/local/bin/clisp"))
           (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
 
   (setq slime-net-coding-system 'utf-8-unix)
   (slime-setup '(slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
 
-  (add-hook 'slime-mode-hook
-            '(lambda ()
-	       (paredit-mode +1)
-	       (define-key slime-mode-map (kbd "C-c s") 'slime-selector)
-	       (define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
-	       (define-key slime-mode-map [(return)] 'paredit-newline)
-	       (require 'mic-paren)
-	       (paren-activate)
-	       (setf paren-priority 'close)))
+  (define-key slime-mode-map (kbd "C-c s") 'slime-selector)
+  (define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
+  (define-key slime-mode-map [(return)] 'paredit-newline)
+
+  (require 'mic-paren)
+  (paren-activate)
+  (setf paren-priority 'close)
 
   ;; ac-slime
   (use-package ac-slime
@@ -857,7 +907,7 @@ es aber hier stehen.
       (add-hook 'slime-mode-hook 'set-up-slime-ac)
       (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
       (eval-after-load "auto-complete"
-	'(add-to-list 'ac-modes 'slime-repl-mode))))
+        '(add-to-list 'ac-modes 'slime-repl-mode))))
 
   ;; emacs-lisp-nav
   (use-package elisp-slime-nav
@@ -869,9 +919,10 @@ es aber hier stehen.
           (lambda ()
             (unless (slime-connected-p)
               (save-excursion (slime)))))
-	      
+
   ;; Hyperspec within Emacs
-  (setq browse-url-browser-function 'w3m-goto-url-new-session)
+  (setq browse-url-browser-function
+        '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser)))
 #+END_SRC
 
 ** AucTeX
@@ -898,7 +949,29 @@ konfiguriert ist.
     :ensure t)
 #+END_SRC
 
+** web-mode
+Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode.org][web mode]] nutzen.
+#+BEGIN_SRC emacs-lisp
+  (use-package web-mode
+    :ensure t
+    :config
+    (progn
+      (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+      (setq web-mode-ac-sources-alist
+            '(("css" . (ac-source-css-property))
+              ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
+      (setq web-mode-enable-auto-closing t)
+      (setq web-mode-enable-auto-quoting t)
+      (setq web-mode-enable-css-colorization t)))
 
+#+END_SRC
+
+*** lass-mode
+#+BEGIN_SRC emacs-lisp
+  ;; Der Pfad muss angepasst werden, bei einem Update von lass
+  (add-to-list 'load-path "~/quicklisp/dists/quicklisp/software/lass-20170227-git")
+  (require 'lass)
+#+END_SRC
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
   (global-set-key [f5] 'revert-buffer)
@@ -907,7 +980,9 @@ konfiguriert ist.
 
   (global-set-key (kbd "C-c j") 'flyspell-check-previous-highlighted-word)
 
-  (global-set-key "\C-c\C-f" 'find-file-at-point)
+  (global-set-key (kbd "\C-c\C-f") 'find-file-at-point)
+
+  (global-set-key (kbd "\C-c i") 'my-insert-file-name)
 #+END_SRC
 
 * Ende
@@ -919,4 +994,5 @@ konfiguriert ist.
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel
 #  LocalWords:  projectile Keywords wunderlist Avy Try gcal YASnippet quicklisp
 #  LocalWords:  complete Templates Workflow paredit Editing Undo el doc comment
-#  LocalWords:  Recent files Hide AucTeX ivy GNUs macrostep Magit mu
+#  LocalWords:  Recent files Hide AucTeX ivy GNUs macrostep Magit mu web Slime
+#  LocalWords:  gist dired

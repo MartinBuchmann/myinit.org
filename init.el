@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2017-03-15 09:45:39 Martin>
+;; Time-stamp: <2017-03-19 15:34:40 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -14,7 +14,7 @@
 ;; https://github.com/durantschoon/.emacs.d/tree/boilerplate-sane-defaults_v1.0
 ;; Gleich zu Beginn unnötige Anzeigen abstellen.
 (when window-system
-  (menu-bar-mode -1)
+  (menu-bar-mode 1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (tooltip-mode -1))

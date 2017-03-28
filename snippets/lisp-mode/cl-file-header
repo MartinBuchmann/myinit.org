@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: cl-file-header
+# key: clfh
+# binding: direct keybinding
+# contributor: Martin Buchmann <Martin.Buchmann@gmail.com>
+# --
+;;;; `(insert (file-name-nondirectory (buffer-file-name)))`
+;;; Time-stamp: <2017-03-28 14:10:41 Martin>
+;;;
+;;; $1 
+;;;
