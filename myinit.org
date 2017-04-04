@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-03-28 14:06:56 Martin>
+# Time-stamp: <2017-04-04 21:34:38 Martin>
 
 
 * Allgemeines
@@ -66,6 +66,12 @@ aus, anstatt =init.el= zu erweitern.
   (setq ring-bell-function 'ignore)
 
   (setq-default fill-column 80)
+
+  ;; auto revert mode
+  (global-auto-revert-mode 1)
+
+  ;; auto refresh dired when file changes
+  (add-hook 'dired-mode-hook 'auto-revert-mode)
 #+END_SRC
 ** Grundlegende Pakete
 *** Command log mode
@@ -721,6 +727,8 @@ es aber hier stehen.
       :config
       (powerline-default-theme)))
 
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
   (defalias 'list-buffers 'ibuffer-other-window)
 
   (winner-mode)
@@ -849,10 +857,12 @@ es aber hier stehen.
 [[http://joaotavora.github.io/yasnippet/][Yet another snippet extension]]
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
-    :defer t
+    :ensure t
     :config
     (progn
       (yas-global-mode 1)
+      (unless (boundp 'warning-suppress-types)
+        (setq warning-suppress-types nil))
       (add-to-list 'warning-suppress-types '(yasnippet backquote-change))))
 #+END_SRC
 
@@ -962,7 +972,8 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
               ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
       (setq web-mode-enable-auto-closing t)
       (setq web-mode-enable-auto-quoting t)
-      (setq web-mode-enable-css-colorization t)))
+      (setq web-mode-enable-css-colorization t)
+      (rainbow-mode 1)))
 
 #+END_SRC
 
