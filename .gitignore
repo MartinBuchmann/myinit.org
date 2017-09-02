@@ -31,3 +31,6 @@ auto-save-list/*
 /%backup%~
 /elisp/benchmark-init-el/
 /var/pcache/gh/gh-gist-api/MartinBuchmann
+/image-dired/.image-dired_db
+/projectile-bookmarks.eld
+/url/cookies

@@ -1,8 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-04-04 21:34:38 Martin>
-
+# Time-stamp: <2017-09-02 14:44:51 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -75,9 +74,18 @@ aus, anstatt =init.el= zu erweitern.
 #+END_SRC
 ** Grundlegende Pakete
 *** Command log mode
+
 #+BEGIN_SRC emacs-lisp
   (use-package command-log-mode
     :ensure t)
+#+END_SRC
+*** beginend
+
+#+BEGIN_SRC emacs-lisp
+  (use-package beginend
+    :ensure t
+    :config
+    (beginend-global-mode))
 #+END_SRC
 *** alert
 Ich verwende [[https://github.com/jwiegley/alert][alert]] um Benachrichtigungen anzuzeigen.  Da [[growl.info][Growl]] nicht
@@ -100,7 +108,10 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
           :config
           (which-key-mode))
 #+END_SRC
-
+*** pdf-tools
+#+BEGIN_SRC emacs-lisp
+  (pdf-tools-install)
+#+END_SRC
 *** Farbige Lesezeichen im Buffer
 #+BEGIN_SRC emacs-lisp
   ;; Make sure the repository is loaded as early as possible
@@ -138,35 +149,38 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 
 *** counsel/ivy/swiper
 #+BEGIN_SRC emacs-lisp
-    ;; http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/
-    (use-package counsel
-      :ensure t
-      :bind
-      (("M-x" . counsel-M-x)
-       ("M-y" . counsel-yank-pop)
-       ("C-x C-f" . counsel-find-file)
-       (("C-c g") . counsel-git)
-       ("C-c j" . counsel-git-grep)
-       ("C-x r b" . counsel-bookmark)
-       :map ivy-minibuffer-map
-       ("M-y" . ivy-next-line)))
+  ;; http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/
+  (use-package counsel
+    :ensure t
+    :bind
+    (("M-x" . counsel-M-x)
+     ("M-y" . counsel-yank-pop)
+     ("C-x C-f" . counsel-find-file)
+     ("C-x r b" . counsel-bookmark)
+     ("M-i" . counsel-imenu)
+     ("C-c g" . counsel-git)
+     ("C-c j" . counsel-git-grep)
+     ("C-c k" . counsel-ag)
+     ("C-x l" . counsel-locate)
+     :map ivy-minibuffer-map
+     ("M-y" . ivy-next-line)))
 
-    (use-package ivy
-      :ensure t
-      :diminish ivy-mode
-      :bind
-      (("C-c C-r" . ivy-resume)
-       ("C-s" . swiper)
-       ("C-r" . swiper)
-       ("C-x b" . ivy-switch-buffer))
-      :config
-      (progn
-        (ivy-mode 1)
-        (setq ivy-use-virtual-buffers t)
-        (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
+  (use-package ivy
+    :ensure t
+    :diminish ivy-mode
+    :bind
+    (("C-c C-r" . ivy-resume)
+     ("C-s" . swiper)
+     ("C-r" . swiper)
+     ("C-x b" . ivy-switch-buffer))
+    :config
+    (progn
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
 
-    (use-package ivy-hydra
-      :ensure t)
+  (use-package ivy-hydra
+    :ensure t)
 #+END_SRC
 *** dired
 #+BEGIN_SRC emacs-lisp
@@ -177,6 +191,48 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
     :ensure t
     :config
     (dired-quick-sort-setup))
+
+  ;;; https://fuco1.github.io/2017-05-01-Support-for-imenu-in-dired.html
+  (use-package f
+    :ensure t)
+
+  (use-package dash
+    :ensure t)
+
+  (defun my-dired-imenu-prev-index-position (&optional arg)
+    "Go to the header line of previous directory."
+    (interactive "p")
+    (unless (= (line-number-at-pos) 1)
+      (call-interactively 'dired-prev-subdir)
+      t))
+
+  (defun my-dired-extract-index-name ()
+    "Extract name of the current item for imenu."
+    (save-excursion
+      (back-to-indentation)
+      (buffer-substring-no-properties
+       (point)
+       (1- (re-search-forward ":$")))))
+
+  (defun my-dired-imenu-create-index ()
+    "Create `imenu' index for dired."
+    (let* ((alist (imenu-default-create-index-function))
+           (uniquified (f-uniquify-alist (-map 'car alist))))
+      (--remove
+       (= 0 (length (car it)))
+       (--map (cons (cdr (assoc (car it) uniquified)) (cdr it))
+              alist))))
+
+  (defun my-dired-imenu-init ()
+    "Initialize `imenu' variables in current buffer."
+    (setq-local imenu-prev-index-position-function
+                'my-dired-imenu-prev-index-position)
+    (setq-local imenu-extract-index-name-function
+                'my-dired-extract-index-name)
+    (setq-local imenu-create-index-function
+                'my-dired-imenu-create-index))
+
+  (add-hook 'dired-mode-hook 'my-dired-imenu-init)
 #+END_SRC
 
 *** Auto-complete mode
@@ -384,9 +440,9 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-default-notes-file (concat org-directory "/Notes.org"))
 
   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
-			       "~/Dropbox/orgfiles/Notes.org"
-			       "~/Dropbox/orgfiles/GCal.org"
-			       "~/Dropbox/orgfiles/Wunderlist.org"))
+                               "~/Dropbox/orgfiles/Notes.org"
+                               "~/Dropbox/orgfiles/GCal.org"
+                               "~/Dropbox/orgfiles/Wunderlist.org"))
 
   (setq org-refile-targets '((org-agenda-files :level . 1)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
@@ -403,24 +459,24 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 
   ;; Meine eigenen Agenda-Ansichten
   (setq org-agenda-custom-commands
-	  '(("h" "Was liegt heute an?"
-	     ((tags-todo "Dringend"
-		         ((org-agenda-overriding-header "Dringende Aufgaben")
-			  (org-agenda-files
-			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
-	      (tags-todo "Anrufe"
-		         ((org-agenda-overriding-header "Anrufe")
-			  (org-agenda-files
-			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
-	      (agenda  ""
-		         ((org-agenda-overriding-header "Heute")
-			  (org-agenda-files
-			   '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))
-			   (org-agenda-span 1)
-			   (org-agenda-sorting-stragety '(time-up priority-down))))))
-	    ("c" "Einfache Agenda"
-	     ((agenda "")
-	      (alltodo "")))))
+          '(("h" "Was liegt heute an?"
+             ((tags-todo "Dringend"
+                         ((org-agenda-overriding-header "Dringende Aufgaben")
+                          (org-agenda-files
+                           '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
+              (tags-todo "Anrufe"
+                         ((org-agenda-overriding-header "Anrufe")
+                          (org-agenda-files
+                           '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))))
+              (agenda  ""
+                         ((org-agenda-overriding-header "Heute")
+                          (org-agenda-files
+                           '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"))
+                           (org-agenda-span 1)
+                           (org-agenda-sorting-stragety '(time-up priority-down))))))
+            ("c" "Einfache Agenda"
+             ((agenda "")
+              (alltodo "")))))
 
   (setq org-show-notification-handler 'alert)
 
@@ -435,6 +491,14 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
            (zerop (% (- today startdate) interval))
            (< (floor (- today startdate) interval) recurrences))))
 
+  (with-eval-after-load "ox-latex"
+    (add-to-list 'org-latex-classes
+                 '("koma-article" "\\documentclass{scrartcl}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 #+END_SRC
 
@@ -610,10 +674,12 @@ es aber hier stehen.
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
-    :disabled nil)
+    :ensure t
+    :init
+    (projectile-mode))
 
   (use-package counsel-projectile
-    :disabled t
+    :ensure t
     :init
     (counsel-projectile-on))
 #+END_SRC
@@ -673,12 +739,16 @@ es aber hier stehen.
   (setq calendar-latitude 50.9271)
   (setq calendar-longitude 11.5892)
   (setq calendar-location-name "Jena, Germany")
-      
+
   (setq calendar-time-zone +60)
   (setq calendar-standard-time-zone-name "CET")
   (setq calendar-daylight-time-zone-name "CEST")
 
   (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
+
+  (add-hook 'shell-mode-hook  'with-editor-export-editor)
+  (add-hook 'term-mode-hook   'with-editor-export-editor)
+  (add-hook 'eshell-mode-hook 'with-editor-export-editor)
 
   ;; https://github.com/chrisbarrett/osx-bbdb
   (when (equal system-type 'darwin)
@@ -699,7 +769,7 @@ es aber hier stehen.
     (global-prettify-symbols-mode)
     (global-hl-line-mode t)
 
-    (global-linum-mode t)
+    (add-hook 'prog-mode-hook 'linum-mode)
     (setq linum-format " %4i ")
 
     ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
@@ -729,8 +799,6 @@ es aber hier stehen.
 
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
-  (defalias 'list-buffers 'ibuffer-other-window)
-
   (winner-mode)
   ;; Momentan brauche ich das nicht. Entweder läuft Emacs noch oder ich möchte
   ;; komplett neustarten.
@@ -739,6 +807,40 @@ es aber hier stehen.
   (setq pop-up-frame-function (lambda () (split-window-right)))
   (setq split-height-threshold 1400)
   (setq split-width-treshold 1500)
+#+END_SRC
+
+*** ibuffer
+#+BEGIN_SRC emacs-lisp
+  (defalias 'list-buffers 'ibuffer-other-window)
+  ;; (global-set-key (kbd "C-x C-b") 'ibuffer)
+  (setq ibuffer-saved-filter-groups
+        (quote (("default"
+                 ("dired" (mode . dired-mode))
+                 ("org" (name . "^.*org$"))
+                 ("shell" (or (mode . eshell-mode) (mode . shell-mode)))
+                 ("mu4e" (name . "\*mu4e\*"))
+                 ("lisp" (or
+                          (mode . lisp-mode)
+                          (mode . emacs-lisp)
+                          (mode . REPL)))
+                 ("emacs" (or
+                           (name . "^\\*scratch\\*$")
+                           (name . "^\\*Messages\\*$")))
+                 ))))
+
+  (add-hook 'ibuffer-mode-hook
+            (lambda ()
+              (ibuffer-auto-mode 1)
+              (ibuffer-switch-to-saved-filter-groups "default")))
+
+  ;; don't show these
+  ;; (add-to-list 'ibuffer-never-show-predicates "zowie")
+  ;; Don't show filter groups if there are no buffers in that group
+  (setq ibuffer-show-empty-filter-groups nil)
+
+  ;; Don't ask for confirmation to delete marked buffers
+  (setq ibuffer-expert t)
+
 #+END_SRC
 
 *** Editing
@@ -851,6 +953,7 @@ es aber hier stehen.
              (insert filename))))
 #+END_SRC
 
+
 * Spezielle Modi
 
 ** YASnippet
@@ -878,9 +981,9 @@ es aber hier stehen.
     (progn
       (autoload 'paredit-mode "paredit"
         "Minor mode for pseudo-structurally editing Lisp code." t)
-      (add-hook 'slime-mode-hook (lambda () (paredit-mode +1)))
-      (add-hook 'emacs-lisp-mode-hook (lambda () (paredit-mode +1)))
-      (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))))
+      (add-hook 'slime-mode-hook 'enable-paredit-mode)
+      (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+      (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)))
 
   ;; remove XLS-mode and allow "file.lsp" to start lisp-mode
   ;; (setq auto-mode-alist (rassq-delete-all 'XLS-mode auto-mode-alist))
@@ -933,6 +1036,10 @@ es aber hier stehen.
   ;; Hyperspec within Emacs
   (setq browse-url-browser-function
         '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser)))
+
+  (load (expand-file-name
+         "~/quicklisp/dists/quicklisp/software/cl-annot-20150608-git/misc/slime-annot.el"))
+  (require 'slime-annot)
 #+END_SRC
 
 ** AucTeX

@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: pe-file-header
+# key: pefh
+# binding: direct keybinding
+# contributor: Martin Buchmann <Martin.Buchmann@gmail.com>
+# --
+;;;; `(insert (file-name-nondirectory (buffer-file-name)))`
+;;; Time-stamp: <2017-06-24 22:43:16 Martin>
+;;;
+;;; https://projecteuler.net/problem=$0
+;;;
+(in-package :project-euler)
+(annot:enable-annot-syntax)
