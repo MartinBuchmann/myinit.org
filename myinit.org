@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-09-02 14:44:51 Martin>
+# Time-stamp: <2017-09-02 15:08:33 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -110,7 +110,10 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 #+END_SRC
 *** pdf-tools
 #+BEGIN_SRC emacs-lisp
-  (pdf-tools-install)
+  (use-package pdf-tools
+    :ensure t
+    :init
+    (pdf-tools-install))
 #+END_SRC
 *** Farbige Lesezeichen im Buffer
 #+BEGIN_SRC emacs-lisp
@@ -1064,6 +1067,8 @@ konfiguriert ist.
 
   (use-package lorem-ipsum
     :ensure t)
+
+  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 #+END_SRC
 
 ** web-mode
