@@ -1,12 +1,25 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2017-03-19 15:34:40 Martin>
+;; Time-stamp: <2017-10-17 21:04:49 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
 ;; alles in einer Datei zu haben.
 ;;--------------------------------------------------------------------
 ;;
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(require 'package)
+(setq package-enable-at-startup nil)
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
+
+(package-initialize)
+
 (message "Dies ist Martins init.el")
 
 ;;----------------------------------------
@@ -18,20 +31,6 @@
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (tooltip-mode -1))
-
-;; Der Paket-Manager
-(require 'package)
-(setq package-enable-at-startup nil)
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("marmalade" . "https://marmalade-repo.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")))
-
-(package-initialize)
-;; http://cestlaz.github.io/posts/using-emacs-1-setup/#.WJLnDRiX-V4
-;; Bootstrap `use-package'
-(unless (package-installed-p 'use-package)
-	(package-refresh-contents)
-	(package-install 'use-package))
 
 ;; Benchmark-init
 ;; https://github.com/dholm/benchmark-init-el.git

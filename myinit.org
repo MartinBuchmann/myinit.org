@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-09-02 15:08:33 Martin>
+# Time-stamp: <2017-10-21 21:03:40 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -83,7 +83,7 @@ aus, anstatt =init.el= zu erweitern.
 
 #+BEGIN_SRC emacs-lisp
   (use-package beginend
-    :ensure t
+    :defer t
     :config
     (beginend-global-mode))
 #+END_SRC
@@ -95,15 +95,15 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
   (use-package alert
     :ensure t
     :config
-    (setq alert-default-style 'notifier))
+    (setq alert-default-style 'osx-notifier))
 #+END_SRC
 *** Try und which-key
 #+BEGIN_SRC emacs-lisp
   (use-package try
-          :ensure t)
+          :defer t)
 
   (use-package which-key
-          :ensure t
+          :defer t
           :diminish which-key-mode
           :config
           (which-key-mode))
@@ -183,61 +183,77 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
       (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
 
   (use-package ivy-hydra
-    :ensure t)
+    :defer t)
 #+END_SRC
 *** dired
 #+BEGIN_SRC emacs-lisp
   (setq insert-directory-program "/opt/local/bin/gls")
   (setq dired-listing-switches "-aBhl --group-directories-first")
+  ;;; (setq dired-dwim-target t)
 
   (use-package dired-quick-sort
-    :ensure t
+    :defer t
     :config
     (dired-quick-sort-setup))
 
+  (use-package dired-details
+    :disabled t
+    :config
+    (dired-details-install))
+
   ;;; https://fuco1.github.io/2017-05-01-Support-for-imenu-in-dired.html
   (use-package f
-    :ensure t)
+    :defer t)
 
   (use-package dash
-    :ensure t)
+    :defer t)
 
-  (defun my-dired-imenu-prev-index-position (&optional arg)
-    "Go to the header line of previous directory."
-    (interactive "p")
-    (unless (= (line-number-at-pos) 1)
-      (call-interactively 'dired-prev-subdir)
-      t))
+  ;; (defun my-dired-imenu-prev-index-position (&optional arg)
+  ;;   "Go to the header line of previous directory."
+  ;;   (interactive "p")
+  ;;   (unless (= (line-number-at-pos) 1)
+  ;;     (call-interactively 'dired-prev-subdir)
+  ;;     t))
 
-  (defun my-dired-extract-index-name ()
-    "Extract name of the current item for imenu."
-    (save-excursion
-      (back-to-indentation)
-      (buffer-substring-no-properties
-       (point)
-       (1- (re-search-forward ":$")))))
+  ;; (defun my-dired-extract-index-name ()
+  ;;   "Extract name of the current item for imenu."
+  ;;   (save-excursion
+  ;;     (back-to-indentation)
+  ;;     (buffer-substring-no-properties
+  ;;      (point)
+  ;;      (1- (re-search-forward ":$")))))
 
-  (defun my-dired-imenu-create-index ()
-    "Create `imenu' index for dired."
-    (let* ((alist (imenu-default-create-index-function))
-           (uniquified (f-uniquify-alist (-map 'car alist))))
-      (--remove
-       (= 0 (length (car it)))
-       (--map (cons (cdr (assoc (car it) uniquified)) (cdr it))
-              alist))))
+  ;; (defun my-dired-imenu-create-index ()
+  ;;   "Create `imenu' index for dired."
+  ;;   (let* ((alist (imenu-default-create-index-function))
+  ;;          (uniquified (f-uniquify-alist (-map 'car alist))))
+  ;;     (--remove
+  ;;      (= 0 (length (car it)))
+  ;;      (--map (cons (cdr (assoc (car it) uniquified)) (cdr it))
+  ;;             alist))))
 
-  (defun my-dired-imenu-init ()
-    "Initialize `imenu' variables in current buffer."
-    (setq-local imenu-prev-index-position-function
-                'my-dired-imenu-prev-index-position)
-    (setq-local imenu-extract-index-name-function
-                'my-dired-extract-index-name)
-    (setq-local imenu-create-index-function
-                'my-dired-imenu-create-index))
+  ;; (defun my-dired-imenu-init ()
+  ;;   "Initialize `imenu' variables in current buffer."
+  ;;   (setq-local imenu-prev-index-position-function
+  ;;               'my-dired-imenu-prev-index-position)
+  ;;   (setq-local imenu-extract-index-name-function
+  ;;               'my-dired-extract-index-name)
+  ;;   (setq-local imenu-create-index-function
+  ;;               'my-dired-imenu-create-index))
 
-  (add-hook 'dired-mode-hook 'my-dired-imenu-init)
+  ;; (add-hook 'dired-mode-hook 'my-dired-imenu-init)
 #+END_SRC
 
+*** multiple cursors
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package multiple-cursors
+  ;;   :disabled t
+  ;;   :bind
+  ;;     ("C-S-c C-S-c" . mc/edit-lines)
+  ;;     ("C->" . mc/mark-next-like-this)
+  ;;     ("C-<" . mc/mark-previous-like-this)
+  ;;     ("C-c C-<" . mc/mark-all-like-this))
+#+END_SRC
 *** Auto-complete mode
 #+BEGIN_SRC emacs-lisp
   (require 'auto-complete)
@@ -267,7 +283,6 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 *** macrostep
 #+BEGIN_SRC emacs-lisp
   (use-package macrostep
-    :ensure t
     :config
     (define-key emacs-lisp-mode-map (kbd "C-c e") 'macrostep-expand))
 #+END_SRC
@@ -483,6 +498,8 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 
   (setq org-show-notification-handler 'alert)
 
+  (setq org-highlight-latex-and-related '(latex))
+
   ;; http://orgmode.org/worg/org-faq.html
   (defun diary-limited-cyclic (recurrences interval m d y)
     "For use in emacs diary. Cyclic item with limited number of recurrences.
@@ -659,13 +676,13 @@ Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei gel
   (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
 
   (use-package gist
-    :ensure t)
+    :defer t)
 #+END_SRC
 
 *** Avy
 #+BEGIN_SRC emacs-lisp
   (use-package avy
-    :ensure t
+    :defer t
     :bind
     (("C-:" . avy-goto-char)))
 #+END_SRC
@@ -677,12 +694,12 @@ es aber hier stehen.
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
-    :ensure t
+    :disabled t
     :init
     (projectile-mode))
 
   (use-package counsel-projectile
-    :ensure t
+    :disabled t
     :init
     (counsel-projectile-on))
 #+END_SRC
@@ -748,10 +765,6 @@ es aber hier stehen.
   (setq calendar-daylight-time-zone-name "CEST")
 
   (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
-
-  (add-hook 'shell-mode-hook  'with-editor-export-editor)
-  (add-hook 'term-mode-hook   'with-editor-export-editor)
-  (add-hook 'eshell-mode-hook 'with-editor-export-editor)
 
   ;; https://github.com/chrisbarrett/osx-bbdb
   (when (equal system-type 'darwin)
@@ -900,6 +913,9 @@ es aber hier stehen.
     :ensure ;TODO:
     :config
     (global-set-key (kbd "C-=") 'er/expand-region))
+
+  ;;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
+  (setq x-stretch-cursor t)
 #+END_SRC
 
 *** Undo-Tree
@@ -963,7 +979,6 @@ es aber hier stehen.
 [[http://joaotavora.github.io/yasnippet/][Yet another snippet extension]]
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
-    :ensure t
     :config
     (progn
       (yas-global-mode 1)
@@ -1068,14 +1083,16 @@ konfiguriert ist.
   (use-package lorem-ipsum
     :ensure t)
 
-  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+  ;; (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
+  ;;       TeX-source-correlate-start-server t)
+  ;; (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 #+END_SRC
 
 ** web-mode
 Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode.org][web mode]] nutzen.
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
-    :ensure t
+    :disabled t
     :config
     (progn
       (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
@@ -1092,7 +1109,7 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
 *** lass-mode
 #+BEGIN_SRC emacs-lisp
   ;; Der Pfad muss angepasst werden, bei einem Update von lass
-  (add-to-list 'load-path "~/quicklisp/dists/quicklisp/software/lass-20170227-git")
+  (add-to-list 'load-path "~/quicklisp/dists/quicklisp/software/lass-20170830-git")
   (require 'lass)
 #+END_SRC
 * Tastenbelegungen
