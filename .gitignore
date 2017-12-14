@@ -34,3 +34,4 @@ auto-save-list/*
 /image-dired/.image-dired_db
 /projectile-bookmarks.eld
 /url/cookies
+/eshell/history

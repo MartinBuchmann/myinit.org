@@ -1,17 +1,21 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-10-21 21:03:40 Martin>
+# Time-stamp: <2017-12-14 08:38:39 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
 Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
 #+BEGIN_SRC emacs-lisp
-    (setq load-path
-          (mapcar 'expand-file-name
-                  (append '("~/.emacs.d/elisp"
-                            "~/.emacs.d/elisp/redshank")
-                          load-path)))
+  (setq load-path
+        (mapcar 'expand-file-name
+                (append '("~/.emacs.d/elisp"
+                          "~/.emacs.d/elisp/redshank")
+                        load-path)))
+
+  (setenv "INFOPATH"
+          (concat (getenv "INFOPATH") ":"
+                  (expand-file-name "/opt/local/share/info/")))
 #+END_SRC
 ** Das =Customize=-Interface
 Lagert die Einstellungen über das =Customize=-Interface in eine eigene Datei
@@ -453,14 +457,16 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (global-set-key "\C-cc" 'org-capture)
   (global-set-key "\C-cb" 'org-iswitchb)
 
+  ;; Die Agenda nach dem Start anzeigen
+  (add-hook 'after-init-hook 'org-agenda-list)
+
   ;; Allgemeine Einstellungen
   (setq org-directory "~/Dropbox/orgfiles")
   (setq org-default-notes-file (concat org-directory "/Notes.org"))
 
   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
                                "~/Dropbox/orgfiles/Notes.org"
-                               "~/Dropbox/orgfiles/GCal.org"
-                               "~/Dropbox/orgfiles/Wunderlist.org"))
+                               "~/Dropbox/orgfiles/refile-beorg.org"))
 
   (setq org-refile-targets '((org-agenda-files :level . 1)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
@@ -471,9 +477,6 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-startup-indented t)
   (setq org-src-tab-acts-natively t)
   (setq org-src-window-setup 'current-window)
-
-  (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
-  (setq org-mobile-inbox-for-pull "~/Dropbox/orgfiles/flagged.org")
 
   ;; Meine eigenen Agenda-Ansichten
   (setq org-agenda-custom-commands
@@ -708,7 +711,18 @@ es aber hier stehen.
 #+BEGIN_SRC emacs-lisp
   (setq gnus-init-file "~/.emacs.d/gnus.el")
 #+END_SRC
-
+*** gnuplot 
+#+BEGIN_SRC emacs-lisp
+  (use-package gnuplot
+    :ensure t
+    :config
+    (progn
+      (autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
+      (autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot-mode" t)
+      (setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode))
+                                    auto-mode-alist))
+      (global-set-key [(f9)] 'gnuplot-make-buffer)))
+#+END_SRC
 
 * Einstellungen
 ** Umgebungsvariablen, Mac-Spezifika, etc
@@ -933,7 +947,6 @@ es aber hier stehen.
 ** Abkürzungen einschalten
 #+BEGIN_SRC emacs-lisp
   (setq-default abbrev-mode t)
-  (diminish 'abbrev-mode)
   (setq save-abbrevs t)
   (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
   ;; Datei mit Abkürzungen laden
@@ -1123,6 +1136,14 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (global-set-key (kbd "\C-c\C-f") 'find-file-at-point)
 
   (global-set-key (kbd "\C-c i") 'my-insert-file-name)
+#+END_SRC
+
+* Meine Makros
+#+BEGIN_SRC emacs-lisp
+  (fset 'new-problem
+     (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([134217837 67108896 5 134217847 return 25 2 2 backspace backspace] 0 "%d")) arg)))
+
+  (global-set-key "\C-c\C-nP" 'new-problem)
 #+END_SRC
 
 * Ende
