@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-12-18 10:24:30 Martin>
+# Time-stamp: <2017-12-18 10:36:43 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -251,7 +251,7 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 *** multiple cursors
 #+BEGIN_SRC emacs-lisp
   (use-package multiple-cursors
-    :disabled t
+    :ensure t
     :bind
       ("C-S-c C-S-c" . mc/edit-lines)
       ("C->" . mc/mark-next-like-this)
