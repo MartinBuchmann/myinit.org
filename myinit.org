@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-12-14 08:38:39 Martin>
+# Time-stamp: <2017-12-18 10:24:30 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -107,7 +107,7 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
           :defer t)
 
   (use-package which-key
-          :defer t
+          :ensure t
           :diminish which-key-mode
           :config
           (which-key-mode))
@@ -250,13 +250,13 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 
 *** multiple cursors
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package multiple-cursors
-  ;;   :disabled t
-  ;;   :bind
-  ;;     ("C-S-c C-S-c" . mc/edit-lines)
-  ;;     ("C->" . mc/mark-next-like-this)
-  ;;     ("C-<" . mc/mark-previous-like-this)
-  ;;     ("C-c C-<" . mc/mark-all-like-this))
+  (use-package multiple-cursors
+    :disabled t
+    :bind
+      ("C-S-c C-S-c" . mc/edit-lines)
+      ("C->" . mc/mark-next-like-this)
+      ("C-<" . mc/mark-previous-like-this)
+      ("C-c C-<" . mc/mark-all-like-this))
 #+END_SRC
 *** Auto-complete mode
 #+BEGIN_SRC emacs-lisp
