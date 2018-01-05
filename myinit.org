@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2017-12-18 10:36:43 Martin>
+# Time-stamp: <2018-01-04 17:47:20 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -248,6 +248,19 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
   ;; (add-hook 'dired-mode-hook 'my-dired-imenu-init)
 #+END_SRC
 
+*** ace-jump-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-jump-mode
+    :ensure t
+    :bind
+    (("C-0" . ace-jump-mode)))
+
+  (use-package ace-mc
+    :ensure t
+    :bind
+    (("C-ß" . ace-mc-add-multiple-cursors)
+     ("C-M-ß" . ace-mc-add-single-cursor)))
+#+END_SRC
 *** multiple cursors
 #+BEGIN_SRC emacs-lisp
   (use-package multiple-cursors
@@ -466,6 +479,7 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 
   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
                                "~/Dropbox/orgfiles/Notes.org"
+                               "~/Dropbox/orgfiles/gcal.org"
                                "~/Dropbox/orgfiles/refile-beorg.org"))
 
   (setq org-refile-targets '((org-agenda-files :level . 1)))
@@ -649,19 +663,6 @@ dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/iss
 
   ;; (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
   ;; (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
-#+END_SRC
-
-**** org-wunderlist
-Funktioniert bestens, ich hatte nur die Konfiguration aus der falschen Datei geladen.
-[[https://github.com/myuhe/org-wunderlist.el][org-wunderlist]]
-#+BEGIN_SRC emacs-lisp
-  (use-package org-wunderlist
-    :defer t
-    :config
-    (progn
-      (load (expand-file-name "~/.emacs.d/secrets/org.el.gpg") t)
-      (setq org-wunderlist-file  "~/Dropbox/orgfiles/Wunderlist.org"
-           org-wunderlist-dir "~/Dropbox/orgfiles/wunderlist/")))
 #+END_SRC
 
 **** org-mu4e
