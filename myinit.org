@@ -1,21 +1,22 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-01-04 17:47:20 Martin>
+# Time-stamp: <2018-02-28 09:38:28 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
 Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
 #+BEGIN_SRC emacs-lisp
-  (setq load-path
-        (mapcar 'expand-file-name
-                (append '("~/.emacs.d/elisp"
-                          "~/.emacs.d/elisp/redshank")
-                        load-path)))
+    (setq load-path
+          (mapcar 'expand-file-name
+                  (append '("~/.emacs.d/elisp"
+                            "~/.emacs.d/elisp/redshank"
+                            "~/.emacs.d/elisp/sky-color-clock")
+                          load-path)))
 
-  (setenv "INFOPATH"
-          (concat (getenv "INFOPATH") ":"
-                  (expand-file-name "/opt/local/share/info/")))
+    (setenv "INFOPATH"
+            (concat (getenv "INFOPATH") ":"
+                    (expand-file-name "/opt/local/share/info/")))
 #+END_SRC
 ** Das =Customize=-Interface
 Lagert die Einstellungen über das =Customize=-Interface in eine eigene Datei
@@ -831,6 +832,12 @@ es aber hier stehen.
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
   (winner-mode)
+
+  (use-package ace-window
+    :ensure t
+    :config
+    (global-set-key (kbd "M-o") 'ace-window))
+
   ;; Momentan brauche ich das nicht. Entweder läuft Emacs noch oder ich möchte
   ;; komplett neustarten.
   (desktop-save-mode -1)
@@ -838,6 +845,15 @@ es aber hier stehen.
   (setq pop-up-frame-function (lambda () (split-window-right)))
   (setq split-height-threshold 1400)
   (setq split-width-treshold 1500)
+
+  (use-package celestial-mode-line
+    :ensure t
+    :config
+    (setq global-mode-string '("" celestial-mode-line-string display-time-string))
+    (celestial-mode-line-start-timer)
+    ;; (defvar celestial-mode-line-phase-representation-alist '((0 . "○") (1 . "☽") (2 . "●") (3 . "☾")))
+    ;; (defvar celestial-mode-line-sunrise-sunset-alist '((sunrise . "☀↑") (sunset . "☀↓")))
+  )
 #+END_SRC
 
 *** ibuffer
@@ -1137,6 +1153,10 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (global-set-key (kbd "\C-c\C-f") 'find-file-at-point)
 
   (global-set-key (kbd "\C-c i") 'my-insert-file-name)
+
+  ;; http://www.mostlymaths.net/2016/09/more-emacs-configuration-tweaks.html
+  (global-unset-key (kbd "M-<down-mouse-1>"))
+  (global-set-key (kbd "M-<mouse-1>") 'mc/add-cursor-on-click)
 #+END_SRC
 
 * Meine Makros
