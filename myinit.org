@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-02-28 09:38:28 Martin>
+# Time-stamp: <2018-03-03 14:32:40 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -674,7 +674,7 @@ dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/iss
 ;; store link to message if in header view, not to header query
 (setq org-mu4e-link-query-in-headers-mode nil)
 #+END_SRC
-*** Magit, gist
+*** Magit, gist usw.
 #+BEGIN_SRC emacs-lisp
   (global-magit-file-mode t)
   (global-set-key (kbd "C-x g") 'magit-status)
@@ -682,6 +682,28 @@ dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/iss
 
   (use-package gist
     :defer t)
+
+  (use-package git-gutter
+    :ensure t
+    :diminish Git-Gutter-mode
+    :config
+    (global-git-gutter-mode +1)
+    (git-gutter:linum-setup)
+    (custom-set-variables
+     '(git-gutter:window-width 2)
+     '(git-gutter:modified-sign "☁")
+     '(git-gutter:added-sign "☀")
+     '(git-gutter:deleted-sign "☂")
+     '(git-gutter:lighter " GG")
+     '(git-gutter:update-interval 2)
+     '(git-gutter:visual-line t))
+    :bind
+    (("C-x v =" . 'git-gutter:popup-hunk)
+     ("C-x p" . 'git-gutter:previous-hunk)
+     ("C-x n" . 'git-gutter:next-hunk)
+     ("C-x v s" . 'git-gutter:stage-hunk)
+     ("C-x v r" . 'git-gutter:revert-hunk)
+     ("C-x v SPC" . #'git-gutter:mark-hunk)))
 #+END_SRC
 
 *** Avy
@@ -796,12 +818,14 @@ es aber hier stehen.
     (set-frame-size (selected-frame) 220 70)
     (set-frame-position (selected-frame) 165 35)
     (set-default-font
-       "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
+     "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
+    (setq auto-window-vscroll nil)
 
     (global-prettify-symbols-mode)
     (global-hl-line-mode t)
 
     (add-hook 'prog-mode-hook 'linum-mode)
+    (add-hook 'org-mode-hook 'linum-mode)
     (setq linum-format " %4i ")
 
     ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
@@ -812,9 +836,9 @@ es aber hier stehen.
     (setq ns-pop-up-frames nil)
 
     (use-package mode-icons
-         :ensure t 
-         :config
-         (mode-icons-mode t))
+      :ensure t 
+      :config
+      (mode-icons-mode t))
 
     (use-package beacon
       :ensure t
