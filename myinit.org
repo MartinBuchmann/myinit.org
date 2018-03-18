@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-03-03 14:32:40 Martin>
+# Time-stamp: <2018-03-18 16:49:42 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -82,6 +82,11 @@ aus, anstatt =init.el= zu erweitern.
 
 #+BEGIN_SRC emacs-lisp
   (use-package command-log-mode
+    :ensure t)
+#+END_SRC
+*** diminish
+#+BEGIN_SRC emacs-lisp
+  (use-package diminish
     :ensure t)
 #+END_SRC
 *** beginend
@@ -168,10 +173,14 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
      ("M-i" . counsel-imenu)
      ("C-c g" . counsel-git)
      ("C-c j" . counsel-git-grep)
-     ("C-c k" . counsel-ag)
+     ("C-c k" . counsel-rg)
      ("C-x l" . counsel-locate)
      :map ivy-minibuffer-map
-     ("M-y" . ivy-next-line)))
+     ("M-y" . ivy-next-line))
+    :config
+    (setq counsel-git-cmd "rg --files")
+    (setq counsel-rg-base-command
+          "rg -i -M 120 --no-heading --line-number --color never %s ."))
 
   (use-package ivy
     :ensure t
@@ -274,8 +283,11 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 #+END_SRC
 *** Auto-complete mode
 #+BEGIN_SRC emacs-lisp
-  (require 'auto-complete)
-  (global-auto-complete-mode t)
+  (use-package auto-complete
+    :ensure t
+    :diminish ac-mode
+    :config
+    (global-auto-complete-mode t))
 #+END_SRC
 *** readline-completion
 #+BEGIN_SRC emacs-lisp
@@ -685,7 +697,7 @@ dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/iss
 
   (use-package git-gutter
     :ensure t
-    :diminish Git-Gutter-mode
+    :diminish git-gutter-mode
     :config
     (global-git-gutter-mode +1)
     (git-gutter:linum-setup)
@@ -851,9 +863,12 @@ es aber hier stehen.
     (use-package powerline
       :ensure t
       :config
-      (powerline-default-theme)))
+      (powerline-default-theme))
 
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+    (use-package rainbow-delimiters
+      :ensure t
+      :config
+      (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)))
 
   (winner-mode)
 
@@ -977,7 +992,7 @@ es aber hier stehen.
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
     :ensure t
-    :diminish undo-tree
+    :diminish undo-tree-mode
     :init
     (global-undo-tree-mode)
     :config
@@ -988,6 +1003,7 @@ es aber hier stehen.
 ** Abkürzungen einschalten
 #+BEGIN_SRC emacs-lisp
   (setq-default abbrev-mode t)
+  (diminish 'abbrev-mode)
   (setq save-abbrevs t)
   (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
   ;; Datei mit Abkürzungen laden
@@ -1033,12 +1049,12 @@ es aber hier stehen.
 [[http://joaotavora.github.io/yasnippet/][Yet another snippet extension]]
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
+    :diminish yas-minor-mode
     :config
-    (progn
-      (yas-global-mode 1)
-      (unless (boundp 'warning-suppress-types)
-        (setq warning-suppress-types nil))
-      (add-to-list 'warning-suppress-types '(yasnippet backquote-change))))
+    (yas-global-mode 1)
+    (unless (boundp 'warning-suppress-types)
+      (setq warning-suppress-types nil))
+    (add-to-list 'warning-suppress-types '(yasnippet backquote-change)))
 #+END_SRC
 
 ** Slime, quicklisp, paredit
@@ -1049,6 +1065,7 @@ es aber hier stehen.
 
   (use-package paredit
     :ensure t
+    :diminish paredit-mode
     :config
     (progn
       (autoload 'paredit-mode "paredit"
@@ -1097,6 +1114,7 @@ es aber hier stehen.
   ;; emacs-lisp-nav
   (use-package elisp-slime-nav
              :ensure t
+             :diminish elisp-slime-nav-mode
              :config
              (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode))
 
