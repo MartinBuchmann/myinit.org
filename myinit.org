@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-03-18 16:49:42 Martin>
+# Time-stamp: <2018-03-27 19:54:18 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -1022,14 +1022,14 @@ es aber hier stehen.
   ;; https://www.emacswiki.org/emacs/InsertFileName
   (defun my-insert-file-name (filename &optional args)
       "Insert name of file FILENAME into buffer after point.
-  
+
     Prefixed with \\[universal-argument], expand the file name to
     its fully canocalized path.  See `expand-file-name'.
-  
+
     Prefixed with \\[negative-argument], use relative path to file
     name from current directory, `default-directory'.  See
     `file-relative-name'.
-  
+
     The default with no prefix is to insert the file name exactly as
     it appears in the minibuffer prompt."
       ;; Based on insert-file in Emacs -- ashawley 20080926
@@ -1040,8 +1040,15 @@ es aber hier stehen.
              (insert (expand-file-name filename)))
             (t
              (insert filename))))
-#+END_SRC
 
+  (defun config-visit ()
+    (interactive)
+    (find-file "~/.emacs.d/myinit.org"))
+
+  (defun config-reload ()
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org")))
+#+END_SRC
 
 * Spezielle Modi
 
@@ -1067,12 +1074,11 @@ es aber hier stehen.
     :ensure t
     :diminish paredit-mode
     :config
-    (progn
-      (autoload 'paredit-mode "paredit"
-        "Minor mode for pseudo-structurally editing Lisp code." t)
-      (add-hook 'slime-mode-hook 'enable-paredit-mode)
-      (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-      (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)))
+    (autoload 'paredit-mode "paredit"
+      "Minor mode for pseudo-structurally editing Lisp code." t)
+    (add-hook 'slime-mode-hook 'enable-paredit-mode)
+    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+    (add-hook 'slime-repl-mode-hook 'enable-paredit-mode))
 
   ;; remove XLS-mode and allow "file.lsp" to start lisp-mode
   ;; (setq auto-mode-alist (rassq-delete-all 'XLS-mode auto-mode-alist))
@@ -1160,7 +1166,7 @@ konfiguriert ist.
   ;; (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 #+END_SRC
 
-** web-mode
+** web-mode, rainbow-mode
 Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode.org][web mode]] nutzen.
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
@@ -1173,9 +1179,11 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
               ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
       (setq web-mode-enable-auto-closing t)
       (setq web-mode-enable-auto-quoting t)
-      (setq web-mode-enable-css-colorization t)
-      (rainbow-mode 1)))
+      (setq web-mode-enable-css-colorization t)))
 
+  (use-package rainbow-mode
+               :ensure t
+               :init (rainbow-mode 1))
 #+END_SRC
 
 *** lass-mode
@@ -1199,6 +1207,9 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   ;; http://www.mostlymaths.net/2016/09/more-emacs-configuration-tweaks.html
   (global-unset-key (kbd "M-<down-mouse-1>"))
   (global-set-key (kbd "M-<mouse-1>") 'mc/add-cursor-on-click)
+
+  (global-set-key (kbd "C-c r") 'config-reload)
+  (global-set-key (kbd "C-c e") 'config-visit)
 #+END_SRC
 
 * Meine Makros

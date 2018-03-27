@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2018-01-19 15:02:22 Martin>
+;; Time-stamp: <2018-03-27 19:52:29 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -36,12 +36,12 @@
 
 ;; Benchmark-init
 ;; https://github.com/dholm/benchmark-init-el.git
-(add-to-list 'load-path "/Users/Martin/.emacs.d/elisp/benchmark-init-el")
+(add-to-list 'load-path "~/.emacs.d/elisp/benchmark-init-el")
 (require 'benchmark-init-loaddefs)
 (benchmark-init/activate)
 
 ;; Die eigentlichen Anpassungen erfolgen in myinit.org
-(org-babel-load-file "/Users/Martin/.emacs.d/myinit.org")
+(org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org"))
 
 (message "Martins init.el wurde gelesen")
 (message "Have a nice day!")
