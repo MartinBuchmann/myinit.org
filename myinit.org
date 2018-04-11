@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-03-27 19:54:18 Martin>
+# Time-stamp: <2018-04-11 09:34:37 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -505,6 +505,9 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-src-tab-acts-natively t)
   (setq org-src-window-setup 'current-window)
 
+  (add-to-list 'org-structure-template-alist
+               '("el" "#+BEGIN_SRC emacs-lisp\n\?\n#+END_SRC"))
+
   ;; Meine eigenen Agenda-Ansichten
   (setq org-agenda-custom-commands
           '(("h" "Was liegt heute an?"
@@ -836,10 +839,9 @@ es aber hier stehen.
     (global-prettify-symbols-mode)
     (global-hl-line-mode t)
 
-    (add-hook 'prog-mode-hook 'linum-mode)
-    (add-hook 'org-mode-hook 'linum-mode)
-    (setq linum-format " %4i ")
-
+    (setq line-number-mode t)
+    (setq column-number-mode t)
+  
     ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
     (delete-selection-mode t)
 
@@ -889,10 +891,22 @@ es aber hier stehen.
     :ensure t
     :config
     (setq global-mode-string '("" celestial-mode-line-string display-time-string))
-    (celestial-mode-line-start-timer)
-    ;; (defvar celestial-mode-line-phase-representation-alist '((0 . "○") (1 . "☽") (2 . "●") (3 . "☾")))
-    ;; (defvar celestial-mode-line-sunrise-sunset-alist '((sunrise . "☀↑") (sunset . "☀↓")))
-  )
+    (celestial-mode-line-start-timer))
+
+  ;;; https://github.com/daedreth/UncleDavesEmacs/blob/master/config.org
+  (defun split-and-follow-horizontally ()
+    (interactive)
+    (split-window-below)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+
+  (defun split-and-follow-vertically ()
+    (interactive)
+    (split-window-right)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
 #+END_SRC
 
 *** ibuffer
