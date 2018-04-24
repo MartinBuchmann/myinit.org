@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-04-11 10:00:05 Martin>
+# Time-stamp: <2018-04-24 21:04:03 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -197,7 +197,34 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
       (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
 
   (use-package ivy-hydra
-    :defer t)
+    :ensure t
+    :init 
+    (global-set-key
+     (kbd "C-x t")
+     (defhydra toggle (:color blue)
+       "toggle"
+       ("a" abbrev-mode "abbrev")
+       ("s" flyspell-mode "flyspell")
+       ("d" toggle-debug-on-error "debug")
+       ("f" auto-fill-mode "fill")
+       ("t" toggle-truncate-lines "truncate")
+       ("w" whitespace-mode "whitespace")
+       ("q" nil "cancel")))
+    (global-set-key
+     (kbd "C-x j")
+     (defhydra gotoline 
+       ( :pre (linum-mode 1)
+              :post (linum-mode -1))
+       "goto"
+       ("t" (lambda () (interactive)(move-to-window-line-top-bottom 0)) "top")
+       ("b" (lambda () (interactive)(move-to-window-line-top-bottom -1)) "bottom")
+       ("m" (lambda () (interactive)(move-to-window-line-top-bottom)) "middle")
+       ("e" (lambda () (interactive)(end-of-buffer)) "end")
+       ("c" recenter-top-bottom "recenter")
+       ("n" next-line "down")
+       ("p" (lambda () (interactive) (forward-line -1))  "up")
+       ("g" goto-line "goto-line")
+       )))
 #+END_SRC
 *** dired
 #+BEGIN_SRC emacs-lisp
@@ -276,10 +303,33 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
   (use-package multiple-cursors
     :ensure t
     :bind
-      ("C-S-c C-S-c" . mc/edit-lines)
-      ("C->" . mc/mark-next-like-this)
-      ("C-<" . mc/mark-previous-like-this)
-      ("C-c C-<" . mc/mark-all-like-this))
+    ("C->" . mc/mark-next-like-this)
+    ("C-<" . mc/mark-previous-like-this)
+    ("C-c C-<" . mc/mark-all-like-this)
+    :init
+    (defhydra multiple-cursors-hydra (:hint nil)
+    "
+       ^Up^            ^Down^        ^Other^
+  ----------------------------------------------
+  [_p_]   Previous    [_n_]   Next    [_l_] Edit lines
+  [_P_]   Skip        [_N_]   Skip    [_a_] Mark all
+  [_M-p_] Unmark      [_M-n_] Unmark  [_r_] Mark by regexp
+  ^ ^                 ^ ^             [_q_] Quit
+  "
+    ("l" mc/edit-lines :exit t)
+    ("a" mc/mark-all-like-this :exit t)
+    ("n" mc/mark-next-like-this)
+    ("N" mc/skip-to-next-like-this)
+    ("M-n" mc/unmark-next-like-this)
+    ("p" mc/mark-previous-like-this)
+    ("P" mc/skip-to-previous-like-this)
+    ("M-p" mc/unmark-previous-like-this)
+    ("r" mc/mark-all-in-region-regexp :exit t)
+    ("q" nil)
+
+    ("<mouse-1>" mc/add-cursor-on-click)
+    ("<down-mouse-1>" ignore)
+    ("<drag-mouse-1>" ignore)))
 #+END_SRC
 *** Auto-complete mode
 #+BEGIN_SRC emacs-lisp
@@ -490,7 +540,8 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
                                "~/Dropbox/orgfiles/Notes.org"
                                "~/Dropbox/orgfiles/gcal.org"
-                               "~/Dropbox/orgfiles/refile-beorg.org"))
+                               "~/Dropbox/orgfiles/refile-beorg.org"
+                               "~/Dropbox/orgfiles/binnova.org"))
 
   (setq org-refile-targets '((org-agenda-files :level . 1)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
@@ -709,13 +760,41 @@ dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/iss
      '(git-gutter:lighter " GG")
      '(git-gutter:update-interval 2)
      '(git-gutter:visual-line t))
+    (defhydra hydra-git-gutter (:body-pre (git-gutter-mode 1)
+                                          :hint nil)
+    "
+  Git gutter:
+    _j_: next hunk        _s_tage hunk     _q_uit
+    _k_: previous hunk    _r_evert hunk    _Q_uit and deactivate git-gutter
+    ^ ^                   _p_opup hunk
+    _h_: first hunk
+    _l_: last hunk        set start _R_evision
+  "
+    ("j" git-gutter:next-hunk)
+    ("k" git-gutter:previous-hunk)
+    ("h" (progn (goto-char (point-min))
+                (git-gutter:next-hunk 1)))
+    ("l" (progn (goto-char (point-min))
+                (git-gutter:previous-hunk 1)))
+    ("s" git-gutter:stage-hunk)
+    ("r" git-gutter:revert-hunk)
+    ("p" git-gutter:popup-hunk)
+    ("R" git-gutter:set-start-revision)
+    ("q" nil :color blue)
+    ("Q" (progn (git-gutter-mode -1)
+                ;; git-gutter-fringe doesn't seem to
+                ;; clear the markup right away
+                (sit-for 0.1)
+                (git-gutter:clear))
+         :color blue))
     :bind
     (("C-x v =" . 'git-gutter:popup-hunk)
      ("C-x p" . 'git-gutter:previous-hunk)
      ("C-x n" . 'git-gutter:next-hunk)
      ("C-x v s" . 'git-gutter:stage-hunk)
      ("C-x v r" . 'git-gutter:revert-hunk)
-     ("C-x v SPC" . #'git-gutter:mark-hunk)))
+     ("C-x v SPC" . #'git-gutter:mark-hunk)
+     ("M-g M-g" . #'hydra-git-gutter/body)))
 #+END_SRC
 
 *** Avy
@@ -733,14 +812,14 @@ es aber hier stehen.
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
-    :disabled t
+    :ensure t
     :init
     (projectile-mode))
 
   (use-package counsel-projectile
-    :disabled t
+    :ensure t
     :init
-    (counsel-projectile-on))
+    (counsel-projectile-mode t))
 #+END_SRC
 
 *** GNUs
@@ -1028,7 +1107,7 @@ es aber hier stehen.
     ;; "path/to/your/image.png which displays whatever image you would prefer
     (setq dashboard-items '((recents  . 10)
                             (bookmarks . 10)
-                            ; (projects . 5)
+                            (projects . 3)
                             (agenda . 5)
                             ; (registers . 5)
                             )))
@@ -1243,6 +1322,16 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
 
   (global-set-key (kbd "C-c r") 'config-reload)
   (global-set-key (kbd "C-c e") 'config-visit)
+
+  ;;; Meine eigene Keymap
+  ;; Inspiriert von Mike https://github.com/zamansky/using-emacs/blob/master/myinit.org
+  (define-prefix-command 'mb-map)
+  (global-set-key (kbd "C-z") 'mb-map)
+  (define-key mb-map (kbd "c") 'multiple-cursors-hydra/body)
+  (define-key mb-map (kbd "g") 'counsel-ag)
+
+  (define-key mb-map (kbd "s") 'flyspell-correct-word-before-point)
+  (define-key mb-map (kbd "i") (lambda () (interactive) (find-file "~/Dropbox/orgfiles/Martin.org")))
 #+END_SRC
 
 * Meine Makros
