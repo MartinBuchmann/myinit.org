@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-04-24 21:04:03 Martin>
+# Time-stamp: <2018-04-25 12:26:11 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -750,8 +750,7 @@ dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/iss
     :ensure t
     :diminish git-gutter-mode
     :config
-    (global-git-gutter-mode +1)
-    (git-gutter:linum-setup)
+    (global-git-gutter-mode 1)
     (custom-set-variables
      '(git-gutter:window-width 2)
      '(git-gutter:modified-sign "☁")
@@ -806,9 +805,9 @@ dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/iss
 #+END_SRC
 
 *** projectile
-[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].  Vielleicht
+[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].  +Vielleicht
 probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projectile]] aus.  Aktuelle verwende ich es nicht, lasse
-es aber hier stehen.
+es aber hier stehen.+
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
@@ -820,6 +819,17 @@ es aber hier stehen.
     :ensure t
     :init
     (counsel-projectile-mode t))
+
+  (use-package org-projectile
+    :bind (("C-c n p" . org-projectile-project-todo-completing-read)
+           ("C-c c" . org-capture))
+    :config
+    (progn
+      (setq org-projectile-projects-file
+            "~/Documents/src/lisp/Project Euler/ToDo.org")
+      (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+      (push (org-projectile-project-todo-entry) org-capture-templates))
+    :ensure t)
 #+END_SRC
 
 *** GNUs
@@ -917,7 +927,7 @@ es aber hier stehen.
 
     (setq line-number-mode t)
     (setq column-number-mode t)
-  
+
     ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
     (delete-selection-mode t)
 
@@ -968,6 +978,14 @@ es aber hier stehen.
     :config
     (setq global-mode-string '("" celestial-mode-line-string display-time-string))
     (celestial-mode-line-start-timer))
+
+  (use-package yahoo-weather
+               :ensure t
+               :config
+               (yahoo-weather-mode 1)
+               (setq yahoo-weather-format " %(temperature)℃ ")
+               (setq yahoo-weather-temperture-format "%.f")
+               (setq yahoo-weather-location "GMXX1930"))
 
   ;;; https://github.com/daedreth/UncleDavesEmacs/blob/master/config.org
   (defun split-and-follow-horizontally ()
@@ -1174,6 +1192,9 @@ es aber hier stehen.
     (unless (boundp 'warning-suppress-types)
       (setq warning-suppress-types nil))
     (add-to-list 'warning-suppress-types '(yasnippet backquote-change)))
+
+  (use-package yasnippet-snippets
+               :ensure t)
 #+END_SRC
 
 ** Slime, quicklisp, paredit
