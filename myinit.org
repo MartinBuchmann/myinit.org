@@ -1,22 +1,23 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-04-25 12:26:11 Martin>
+# Time-stamp: <2018-05-01 20:30:38 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
 Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
 #+BEGIN_SRC emacs-lisp
-    (setq load-path
-          (mapcar 'expand-file-name
-                  (append '("~/.emacs.d/elisp"
-                            "~/.emacs.d/elisp/redshank"
-                            "~/.emacs.d/elisp/sky-color-clock")
-                          load-path)))
+      (setq load-path
+            (mapcar 'expand-file-name
+                    (append '("~/.emacs.d/elisp"
+                              "~/.emacs.d/elisp/redshank"
+                              "~/.emacs.d/elisp/sky-color-clock"
+                              "~/.emacs.d/elisp/slime-repl-ansi-color")
+                            load-path)))
 
-    (setenv "INFOPATH"
-            (concat (getenv "INFOPATH") ":"
-                    (expand-file-name "/opt/local/share/info/")))
+      (setenv "INFOPATH"
+              (concat (getenv "INFOPATH") ":"
+                      (expand-file-name "/opt/local/share/info/")))
 #+END_SRC
 ** Das =Customize=-Interface
 Lagert die Einstellungen über das =Customize=-Interface in eine eigene Datei
@@ -82,7 +83,7 @@ aus, anstatt =init.el= zu erweitern.
 
 #+BEGIN_SRC emacs-lisp
   (use-package command-log-mode
-    :ensure t)
+    :disabled t)
 #+END_SRC
 *** diminish
 #+BEGIN_SRC emacs-lisp
@@ -337,7 +338,11 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
     :ensure t
     :diminish ac-mode
     :config
-    (global-auto-complete-mode t))
+    (global-auto-complete-mode t)
+    (setq ac-auto-start 4)
+    (setq ac-auto-show-menu 0.8)
+    (setq ac-use-menu-map t))
+
 #+END_SRC
 *** readline-completion
 #+BEGIN_SRC emacs-lisp
@@ -974,13 +979,13 @@ es aber hier stehen.+
   (setq split-width-treshold 1500)
 
   (use-package celestial-mode-line
-    :ensure t
+    :disabled t
     :config
     (setq global-mode-string '("" celestial-mode-line-string display-time-string))
     (celestial-mode-line-start-timer))
 
   (use-package yahoo-weather
-               :ensure t
+               :disabled t
                :config
                (yahoo-weather-mode 1)
                (setq yahoo-weather-format " %(temperature)℃ ")
@@ -1230,7 +1235,8 @@ es aber hier stehen.+
           (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
 
   (setq slime-net-coding-system 'utf-8-unix)
-  (slime-setup '(slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
+  (slime-setup
+   '(slime-repl-ansi-color slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
 
   (define-key slime-mode-map (kbd "C-c s") 'slime-selector)
   (define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)

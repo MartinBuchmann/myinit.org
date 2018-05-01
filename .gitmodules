@@ -1,3 +1,6 @@
 [submodule "elisp/sky-color-clock"]
 	path = elisp/sky-color-clock
 	url = https://github.com/zk-phi/sky-color-clock.git
+[submodule "elisp/slime-repl-ansi-color"]
+	path = elisp/slime-repl-ansi-color
+	url = https://github.com/enriquefernandez/slime-repl-ansi-color.git
