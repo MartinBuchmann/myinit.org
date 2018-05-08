@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-05-01 20:30:38 Martin>
+# Time-stamp: <2018-05-08 21:03:11 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -547,10 +547,21 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
                                "~/Dropbox/orgfiles/gcal.org"
                                "~/Dropbox/orgfiles/refile-beorg.org"
                                "~/Dropbox/orgfiles/binnova.org"))
-
-  (setq org-refile-targets '((org-agenda-files :level . 1)))
+  ;; Zusätzlich inspiriert durch
+  ;; http://lists.gnu.org/archive/html/emacs-orgmode/2010-11/msg01351.html
+  (setq org-refile-targets '((nil :maxlevel . 2)
+                                  ; all top-level headlines in the
+                                  ; current buffer are used (first) as a
+                                  ; refile target
+                             (org-agenda-files :maxlevel . 2)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
   (setq org-refile-use-outline-path 'file)
+  ;; refile only within the current buffer
+  (defun my/org-refile-within-current-buffer ()
+    "Move the entry at point to another heading in the current buffer."
+    (interactive)
+    (let ((org-refile-targets '((nil :maxlevel . 5))))
+      (org-refile)))
 
   (setq org-export-html-postamble nil)
   (setq org-startup-folded (quote overview))
@@ -1099,6 +1110,12 @@ es aber hier stehen.+
 
   ;;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
   (setq x-stretch-cursor t)
+
+  (use-package shift-number
+    :ensure t
+    :config
+    (global-set-key (kbd "M-+") 'shift-number-up)
+    (global-set-key (kbd "M-_") 'shift-number-down))
 #+END_SRC
 
 *** Undo-Tree
