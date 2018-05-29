@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-05-15 20:36:46 Martin>
+# Time-stamp: <2018-05-29 22:31:44 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -380,6 +380,8 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
           recentf-auto-cleanup 'never
           recentf-keep '(file-remote-p file-readable-p))
     (recentf-mode 1)
+    :config
+    (add-to-list 'recentf-exclude (format "%s/\\.emacs\\.d/elpa/.*" (getenv "HOME")))
     :bind ("C-c f f" . recentf-open-files))
 #+END_SRC
 *** Hide/Show
@@ -419,6 +421,7 @@ Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP
   (require 'mu4e)
   ;; (setq send-mail-function 'smtpmail-send-it)
   (setq mail-user-agent 'mu4e-user-agent)
+  (setq mu4e-html2text-command "/opt/local/bin/w3m -T text/html")
 
   (require 'mu4e-maildirs-extension)
   (mu4e-maildirs-extension)
@@ -533,93 +536,94 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 **** Allgemeine Konfiguration von org-mode
 
 #+BEGIN_SRC emacs-lisp
-    ;; Allgemeine Tastenbelegung
-    (global-set-key "\C-cl" 'org-store-link)
-    (global-set-key "\C-ca" 'org-agenda)
-    (global-set-key "\C-cc" 'org-capture)
-    (global-set-key "\C-cb" 'org-iswitchb)
+  ;; Allgemeine Tastenbelegung
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cc" 'org-capture)
+  (global-set-key "\C-cb" 'org-iswitchb)
 
-    ;; Allgemeine Einstellungen
-    (setq org-directory "~/Dropbox/orgfiles")
-    (setq org-default-notes-file (concat org-directory "/Notes.org"))
+  ;; Allgemeine Einstellungen
+  (setq org-directory "~/Dropbox/orgfiles")
+  (setq org-default-notes-file (concat org-directory "/Notes.org"))
 
-    (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
-                                 "~/Dropbox/orgfiles/Notes.org"
-                                 "~/Dropbox/orgfiles/gcal.org"
-                                 "~/Dropbox/orgfiles/refile-beorg.org"
-                                 "~/Dropbox/orgfiles/binnova.org"))
-    ;; Zusätzlich inspiriert durch
-    ;; http://lists.gnu.org/archive/html/emacs-orgmode/2010-11/msg01351.html
-    (setq org-refile-targets '((nil :maxlevel . 2)
-                                    ; all top-level headlines in the
-                                    ; current buffer are used (first) as a
-                                    ; refile target
-                               (org-agenda-files :maxlevel . 2)))
-    (setq org-refile-allow-creating-parent-nodes 'confirm)
-    (setq org-refile-use-outline-path 'file)
-    ;; refile only within the current buffer
-    (defun my/org-refile-within-current-buffer ()
-      "Move the entry at point to another heading in the current buffer."
-      (interactive)
-      (let ((org-refile-targets '((nil :maxlevel . 5))))
-        (org-refile)))
+  (setq org-agenda-files (list "~/Dropbox/orgfiles/Martin.org"
+                               "~/Dropbox/orgfiles/Notes.org"
+                               "~/Dropbox/orgfiles/gcal.org"
+                               "~/Dropbox/orgfiles/beorg.org"
+                               "~/Dropbox/orgfiles/binnova.org"))
+  ;; Zusätzlich inspiriert durch
+  ;; http://lists.gnu.org/archive/html/emacs-orgmode/2010-11/msg01351.html
+  (setq org-refile-targets '((nil :maxlevel . 2)
+                                  ; all top-level headlines in the
+                                  ; current buffer are used (first) as a
+                                  ; refile target
+                             (org-agenda-files :maxlevel . 2)))
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil)
+  ;; refile only within the current buffer
+  (defun my/org-refile-within-current-buffer ()
+    "Move the entry at point to another heading in the current buffer."
+    (interactive)
+    (let ((org-refile-targets '((nil :maxlevel . 5))))
+      (org-refile)))
 
-    (setq org-export-html-postamble nil)
-    (setq org-startup-folded (quote overview))
-    (setq org-startup-indented t)
-    (setq org-src-tab-acts-natively t)
-    (setq org-src-window-setup 'current-window)
+  (setq org-export-html-postamble nil)
+  (setq org-startup-folded (quote overview))
+  (setq org-startup-indented t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-src-window-setup 'current-window)
 
-    (add-to-list 'org-structure-template-alist
-                 '("el" "#+BEGIN_SRC emacs-lisp\n\?\n#+END_SRC"))
+  (add-to-list 'org-structure-template-alist
+               '("el" "#+BEGIN_SRC emacs-lisp\n\?\n#+END_SRC"))
 
-    ;; Meine eigenen Agenda-Ansichten
-    (setq org-agenda-custom-commands
-            '(("h" "Was liegt heute an?"
-               ((tags-todo "Dringend"
-                           ((org-agenda-overriding-header "Dringende Aufgaben")
-                            (org-agenda-files
-                             '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"
-                               "~/Dropbox/orgfiles/refile-beorg.org" "~/Dropbox/orgfiles/binnova.org"))))
-                (tags-todo "Anrufe"
-                           ((org-agenda-overriding-header "Anrufe")
-                            (org-agenda-files
-                             '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"
-                               "~/Dropbox/orgfiles/refile-beorg.org" "~/Dropbox/orgfiles/binnova.org"))))
-                (agenda  ""
-                           ((org-agenda-overriding-header "Heute")
-                            (org-agenda-files
-                             '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"
-                               "~/Dropbox/orgfiles/refile-beorg.org" "~/Dropbox/orgfiles/binnova.org"))
-                             (org-agenda-span 1)
-                             (org-agenda-sorting-stragety '(time-up priority-down))))))
-              ("c" "Einfache Agenda"
-               ((agenda "")
-                (alltodo "")))))
+  ;; Meine eigenen Agenda-Ansichten
+  (setq org-agenda-custom-commands
+          '(("h" "Was liegt heute an?"
+             ((tags-todo "Dringend"
+                         ((org-agenda-overriding-header "Dringende Aufgaben")
+                          (org-agenda-files
+                           '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"
+                             "~/Dropbox/orgfiles/beorg.org" "~/Dropbox/orgfiles/binnova.org"))))
+              (tags-todo "Anrufe"
+                         ((org-agenda-overriding-header "Anrufe")
+                          (org-agenda-files
+                           '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"
+                             "~/Dropbox/orgfiles/beorg.org" "~/Dropbox/orgfiles/binnova.org"))))
+              (agenda  ""
+                         ((org-agenda-overriding-header "Heute")
+                          (org-agenda-files
+                           '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"
+                             "~/Dropbox/orgfiles/beorg.org" "~/Dropbox/orgfiles/binnova.org"))
+                           (org-agenda-span 1)
+                           (org-agenda-sorting-stragety '(time-up priority-down))))))
+            ("c" "Einfache Agenda"
+             ((agenda "")
+              (alltodo "")))))
 
-    (setq org-show-notification-handler 'alert)
+  (setq org-show-notification-handler 'alert)
 
-    (setq org-highlight-latex-and-related '(latex))
+  (setq org-highlight-latex-and-related '(latex))
 
-    ;; http://orgmode.org/worg/org-faq.html
-    (defun diary-limited-cyclic (recurrences interval m d y)
-      "For use in emacs diary. Cyclic item with limited number of recurrences.
-    Occurs every INTERVAL days, starting on YYYY-MM-DD, for a total of
-    RECURRENCES occasions."
-      (let ((startdate (calendar-absolute-from-gregorian (list m d y)))
-            (today (calendar-absolute-from-gregorian date)))
-        (and (not (minusp (- today startdate)))
-             (zerop (% (- today startdate) interval))
-             (< (floor (- today startdate) interval) recurrences))))
+  ;; http://orgmode.org/worg/org-faq.html
+  (defun diary-limited-cyclic (recurrences interval m d y)
+    "For use in emacs diary. Cyclic item with limited number of recurrences.
+  Occurs every INTERVAL days, starting on YYYY-MM-DD, for a total of
+  RECURRENCES occasions."
+    (let ((startdate (calendar-absolute-from-gregorian (list m d y)))
+          (today (calendar-absolute-from-gregorian date)))
+      (and (not (minusp (- today startdate)))
+           (zerop (% (- today startdate) interval))
+           (< (floor (- today startdate) interval) recurrences))))
 
-    (with-eval-after-load "ox-latex"
-      (add-to-list 'org-latex-classes
-                   '("koma-article" "\\documentclass{scrartcl}"
-                     ("\\section{%s}" . "\\section*{%s}")
-                     ("\\subsection{%s}" . "\\subsection*{%s}")
-                     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                     ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+  (with-eval-after-load "ox-latex"
+    (add-to-list 'org-latex-classes
+                 '("koma-article" "\\documentclass{scrartcl}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 #+END_SRC
 
@@ -758,7 +762,19 @@ dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/iss
 (setq org-mu4e-link-query-in-headers-mode nil)
 #+END_SRC
 
-#+RESULTS:
+**** poporg 
+
+org-mode markup in comments
+
+http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
+
+#+BEGIN_SRC emacs-lisp
+  (use-package poporg
+    :ensure t
+    :bind (("C-c e o" . poporg-dwim))
+    ;; *This* works /nicely/!
+    )
+#+END_SRC
 
 *** Magit, gist usw.
 #+BEGIN_SRC emacs-lisp
@@ -1257,10 +1273,41 @@ es aber hier stehen.+
 
   (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
 
+  (setq inferior-lisp-program "/opt/local/bin/sbcl --no-inform --no-linedit")
+
   (setq slime-lisp-implementations
         '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
           (clisp ("/opt/local/bin/clisp"))
           (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
+
+  ;; https://github.com/cbaggers/cepl/blob/master/docs/single-thread-swank.md
+  ;; (setf swank:*communication-style* nil)
+
+  (require 'cl)
+
+  (defun slime-style-init-command (port-filename _coding-system extra-args)
+    "Return a string to initialize Lisp."
+    (let ((loader (if (file-name-absolute-p slime-backend)
+                      slime-backend
+                    (concat slime-path slime-backend))))
+      ;; Return a single form to avoid problems with buffered input.
+      (format "%S\n\n"
+              `(progn
+                 (load ,(slime-to-lisp-filename (expand-file-name loader))
+                       :verbose t)
+                 (funcall (read-from-string "swank-loader:init"))
+                 (funcall (read-from-string "swank:start-server")
+                          ,(slime-to-lisp-filename port-filename)
+              ,@extra-args)))))
+
+  (defun slime-style (&optional style)
+    (interactive
+     (list (intern-soft (read-from-minibuffer "Style: " "nil"))))
+    (lexical-let ((style style))
+      (slime-start
+       :init (lambda (x y)
+           (slime-style-init-command
+            x y `(:style ,style :dont-close t))))))
 
   (setq slime-net-coding-system 'utf-8-unix)
   (slime-setup
@@ -1390,6 +1437,7 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (define-key mb-map (kbd "i") 'my-org)
   (define-key mb-map (kbd "e") 'config-visit)
   (define-key mb-map (kbd "r") 'config-reload)
+  (define-key mb-map (kbd "m") 'mu4e)
 
 #+END_SRC
 
