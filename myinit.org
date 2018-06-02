@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-05-29 22:31:44 Martin>
+# Time-stamp: <2018-06-02 22:52:41 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -569,6 +569,10 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
       (org-refile)))
 
   (setq org-export-html-postamble nil)
+
+  (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
+  (setq org-highlight-latex-and-related '(latex))
+
   (setq org-startup-folded (quote overview))
   (setq org-startup-indented t)
   (setq org-src-tab-acts-natively t)
@@ -602,8 +606,6 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
               (alltodo "")))))
 
   (setq org-show-notification-handler 'alert)
-
-  (setq org-highlight-latex-and-related '(latex))
 
   ;; http://orgmode.org/worg/org-faq.html
   (defun diary-limited-cyclic (recurrences interval m d y)
@@ -844,8 +846,8 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
 #+END_SRC
 
 *** projectile
-[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].  +Vielleicht
-probiere ich später [[https://github.com/IvanMalison/org-projectile][org-projectile]] aus.  Aktuelle verwende ich es nicht, lasse
+[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]]. +Vielleicht
+probiere ich später+ [[https://github.com/IvanMalison/org-projectile][org-projectile]] +aus.  Aktuelle verwende ich es nicht, lasse
 es aber hier stehen.+
 
 #+BEGIN_SRC emacs-lisp
