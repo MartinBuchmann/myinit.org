@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-02 22:52:41 Martin>
+# Time-stamp: <2018-06-03 12:10:43 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -343,6 +343,15 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
     (setq ac-auto-start 4)
     (setq ac-auto-show-menu 0.8)
     (setq ac-use-menu-map t))
+
+  (use-package ac-emoji
+    :ensure t
+    :config
+    (add-hook 'markdown-mode-hook 'ac-emoji-setup)
+    (add-hook 'git-commit-mode-hook 'ac-emoji-setup)
+    (set-fontset-font
+     t 'symbol
+     (font-spec :family "Apple Color Emoji") nil 'prepend))
 
 #+END_SRC
 *** readline-completion
