@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-03 12:10:43 Martin>
+# Time-stamp: <2018-06-05 18:01:32 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -1141,13 +1141,13 @@ es aber hier stehen.+
   (global-set-key "\M-z" 'zap-up-to-char)
   (global-set-key "\M-Z" 'zap-up-char)
 
-  ; expand the marked region in semantic increments (negative prefix to reduce region)
+  ;; expand the marked region in semantic increments (negative prefix to reduce region)
   (use-package expand-region
     :ensure ;TODO:
     :config
     (global-set-key (kbd "C-=") 'er/expand-region))
 
-  ;;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
+  ;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
   (setq x-stretch-cursor t)
 
   (use-package shift-number
@@ -1155,6 +1155,10 @@ es aber hier stehen.+
     :config
     (global-set-key (kbd "M-+") 'shift-number-up)
     (global-set-key (kbd "M-_") 'shift-number-down))
+
+  ;;
+  (setq markdown-programm "/opt/local/bin/pandoc")
+  (setq markdown-command "/opt/local/bin/pandoc")
 #+END_SRC
 
 *** Undo-Tree
