@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-05 18:01:32 Martin>
+# Time-stamp: <2018-06-05 18:16:11 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -250,41 +250,6 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
 
   (use-package dash
     :defer t)
-
-  ;; (defun my-dired-imenu-prev-index-position (&optional arg)
-  ;;   "Go to the header line of previous directory."
-  ;;   (interactive "p")
-  ;;   (unless (= (line-number-at-pos) 1)
-  ;;     (call-interactively 'dired-prev-subdir)
-  ;;     t))
-
-  ;; (defun my-dired-extract-index-name ()
-  ;;   "Extract name of the current item for imenu."
-  ;;   (save-excursion
-  ;;     (back-to-indentation)
-  ;;     (buffer-substring-no-properties
-  ;;      (point)
-  ;;      (1- (re-search-forward ":$")))))
-
-  ;; (defun my-dired-imenu-create-index ()
-  ;;   "Create `imenu' index for dired."
-  ;;   (let* ((alist (imenu-default-create-index-function))
-  ;;          (uniquified (f-uniquify-alist (-map 'car alist))))
-  ;;     (--remove
-  ;;      (= 0 (length (car it)))
-  ;;      (--map (cons (cdr (assoc (car it) uniquified)) (cdr it))
-  ;;             alist))))
-
-  ;; (defun my-dired-imenu-init ()
-  ;;   "Initialize `imenu' variables in current buffer."
-  ;;   (setq-local imenu-prev-index-position-function
-  ;;               'my-dired-imenu-prev-index-position)
-  ;;   (setq-local imenu-extract-index-name-function
-  ;;               'my-dired-extract-index-name)
-  ;;   (setq-local imenu-create-index-function
-  ;;               'my-dired-imenu-create-index))
-
-  ;; (add-hook 'dired-mode-hook 'my-dired-imenu-init)
 #+END_SRC
 
 *** ace-jump-mode
@@ -461,15 +426,6 @@ Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP
       )
     (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line))
 
-  ;; I have my "default" parameters from Gmail
-  ;; (setq mu4e-sent-folder "/Users/Martin/Maildir/Gmail/[Google Mail].Gesendet"
-  ;;       ;; mu4e-sent-messages-behavior 'delete ;; Unsure how this should be configured
-  ;;       mu4e-drafts-folder "/Users/Martin/Maildir/Drafts"
-  ;;       user-mail-address "Martin.Buchmann@googlemail.com"
-  ;;       smtpmail-default-smtp-server "smtp.googlemail.com"
-  ;;       smtpmail-smtp-server "smtp.googlemail.com"
-  ;;       smtpmail-smtp-service 587)
-
   ;; Now I set a list of 
   (defvar my-mu4e-account-alist
     '(("Gmail"
@@ -521,13 +477,6 @@ Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP
          :action (lambda (docid msg target) 
                    (mu4e~proc-move docid
                       (mu4e~mark-check-target target) "-N"))))
-
-  ;; Include a bookmark to open all of my inboxes
-  ;; (add-to-list 'mu4e-bookmarks
-  ;;        (make-mu4e-bookmark
-  ;;         :name "All Inboxes"
-  ;;         :query "maildir:/Gmail/INBOX"
-  ;;         :key ?i))
 
   ;; This allows me to use 'helm' to select mailboxes
   (setq mu4e-completing-read-function 'completing-read)
@@ -746,24 +695,6 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
               (org-capture)))
 #+END_SRC
 
-**** org-gcal
-Ich brauche das eigentlich nicht. Es gibt auch noch zahlreiche Fehler, z.B. mit
-dem Kodieren von Sonderzeichen(!), s. [[https://github.com/myuhe/org-gcal.el/issues][Issues]]. Deshalb setze ich es erst einmal aus...
-#+BEGIN_SRC emacs-lisp
-  (use-package org-gcal
-    :disabled t
-    :config
-    (progn
-      (setq org-gcal-file-alist '(("Martin.Buchmann@gmail.com" . 
-                                   "~/Dropbox/orgfiles/GCal.org")))
-      (load (expand-file-name "~/.emacs.d/secrets/org-gcal.el.gpg") t))
-    :bind
-    (("C-c C-g" . org-gcal-fetch)))
-
-  ;; (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
-  ;; (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
-#+END_SRC
-
 **** org-mu4e
 #+BEGIN_SRC emacs-lisp
 ;; http://pragmaticemacs.com/emacs/master-your-inbox-with-mu4e-and-org-mode/
@@ -855,9 +786,7 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
 #+END_SRC
 
 *** projectile
-[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]]. +Vielleicht
-probiere ich später+ [[https://github.com/IvanMalison/org-projectile][org-projectile]] +aus.  Aktuelle verwende ich es nicht, lasse
-es aber hier stehen.+
+[[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
@@ -1015,10 +944,6 @@ es aber hier stehen.+
     :config
     (global-set-key (kbd "M-o") 'ace-window))
 
-  ;; Momentan brauche ich das nicht. Entweder läuft Emacs noch oder ich möchte
-  ;; komplett neustarten.
-  (desktop-save-mode -1)
-
   (setq pop-up-frame-function (lambda () (split-window-right)))
   (setq split-height-threshold 1400)
   (setq split-width-treshold 1500)
@@ -1077,8 +1002,6 @@ es aber hier stehen.+
               (ibuffer-auto-mode 1)
               (ibuffer-switch-to-saved-filter-groups "default")))
 
-  ;; don't show these
-  ;; (add-to-list 'ibuffer-never-show-predicates "zowie")
   ;; Don't show filter groups if there are no buffers in that group
   (setq ibuffer-show-empty-filter-groups nil)
 
@@ -1389,10 +1312,6 @@ konfiguriert ist.
 
   (use-package lorem-ipsum
     :ensure t)
-
-  ;; (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
-  ;;       TeX-source-correlate-start-server t)
-  ;; (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 #+END_SRC
 
 ** web-mode, rainbow-mode
@@ -1421,6 +1340,7 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (add-to-list 'load-path "~/quicklisp/dists/quicklisp/software/lass-20170830-git")
   (require 'lass)
 #+END_SRC
+
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
   (global-set-key [f5] 'revert-buffer)
