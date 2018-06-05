@@ -1143,9 +1143,9 @@ es aber hier stehen.+
 
   ;; expand the marked region in semantic increments (negative prefix to reduce region)
   (use-package expand-region
-    :ensure ;TODO:
-    :config
-    (global-set-key (kbd "C-=") 'er/expand-region))
+    :ensure t
+    :bind
+    ("C-:" . er/expand-region))
 
   ;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
   (setq x-stretch-cursor t)
