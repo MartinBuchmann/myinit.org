@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-05 18:16:11 Martin>
+# Time-stamp: <2018-06-18 10:17:38 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -192,10 +192,10 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
      ("C-r" . swiper)
      ("C-x b" . ivy-switch-buffer))
     :config
-    (progn
-      (ivy-mode 1)
-      (setq ivy-use-virtual-buffers t)
-      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
+    (ivy-mode 1)
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-use-selectable-prompt t)
+    (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
 
   (use-package ivy-hydra
     :ensure t
@@ -395,20 +395,21 @@ Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP
   (require 'mu4e)
   ;; (setq send-mail-function 'smtpmail-send-it)
   (setq mail-user-agent 'mu4e-user-agent)
-  (setq mu4e-html2text-command "/opt/local/bin/w3m -T text/html")
+  ;; (setq mu4e-html2text-command "/opt/local/bin/w3m -T text/html")
+  (setq mu4e-mu-binary "/opt/local/bin/mu")
 
   (require 'mu4e-maildirs-extension)
   (mu4e-maildirs-extension)
 
   (setq mu4e-contexts
         `( ,(make-mu4e-context
-	     :name "Gmail"
-	     :match-func (lambda (msg) (when msg
-				         (string-prefix-p
-					  "/Gmail" (mu4e-message-field msg :maildir))))
-	     :vars '(
-		     (mu4e-trash-folder . "/Gmail/[Google Mail].Papierkorb")
-		     (mu4e-refile-folder . "/Gmail/[Google Mail].Alle Nachrichten")))))
+             :name "Gmail"
+             :match-func (lambda (msg) (when msg
+                                         (string-prefix-p
+                                          "/Gmail" (mu4e-message-field msg :maildir))))
+             :vars '(
+                     (mu4e-trash-folder . "/Gmail/[Google Mail].Papierkorb")
+                     (mu4e-refile-folder . "/Gmail/[Google Mail].Alle Nachrichten")))))
 
   (use-package mu4e-alert
     :ensure t
@@ -530,6 +531,10 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 
   (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
   (setq org-highlight-latex-and-related '(latex))
+
+  (setq org-display-inline-images t)
+  (setq org-redisplay-inline-images t)
+  (setq org-startup-with-inline-images "inlineimages")
 
   (setq org-startup-folded (quote overview))
   (setq org-startup-indented t)
@@ -1341,6 +1346,31 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (require 'lass)
 #+END_SRC
 
+** EMMS
+
+[[https://www.gnu.org/software/emms/quickstart.html][EMMS]] erlaubt es Musik direkt aus Emacs abzuspielen :smiley: Ich weiß noch nicht,
+ob alles korrekt konfiguriert ist, aber habe [[https://www.emacswiki.org/emacs/EMMS][hier]] viele Tipps gefunden.
+#+BEGIN_SRC emacs-lisp
+  (use-package emms
+    :ensure t
+    :config
+    (require 'emms-setup)
+    (emms-all)
+    (require 'emms-source-file)
+    (require 'emms-source-playlist)
+    (define-emms-simple-player afplay '(file)
+      (regexp-opt '(".mp3" ".m4a" ".aac"))
+      "afplay")
+    (add-hook 'kill-emacs-hook 'emms-stop)
+    (setq emms-player-list `(,emms-player-afplay))
+    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
+    (setq emms-source-list '((emms-directory-tree "/Users/Martin/Music/iTunes/iTunes Media/Music/"))))
+
+  (use-package emms-state
+    :ensure t
+    :config
+    (eval-after-load 'emms '(emms-state-mode)))
+#+END_SRC
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
   (global-set-key [f5] 'revert-buffer)
@@ -1382,6 +1412,9 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
      (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([134217837 67108896 5 134217847 return 25 2 2 backspace backspace] 0 "%d")) arg)))
 
   (global-set-key "\C-c\C-nP" 'new-problem)
+
+  (fset 'dkb-import
+     [?\C-  ?\C-n ?\C-n ?\C-n ?\C-n ?\C-n ?\C-n ?\C-w ?\M-% ?\; return tab return ?! ?\M-< ?\M-% ?\" return return ?!])
 #+END_SRC
 
 * Ende
