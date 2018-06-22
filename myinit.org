@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-18 10:17:38 Martin>
+# Time-stamp: <2018-06-22 09:23:19 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -426,6 +426,11 @@ Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP
       (mu4e-alert-enable-mode-line-display)
       )
     (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line))
+
+  (use-package mu4e-conversation
+    :ensure t
+    :config
+    (setq mu4e-view-func 'mu4e-conversation))
 
   ;; Now I set a list of 
   (defvar my-mu4e-account-alist
