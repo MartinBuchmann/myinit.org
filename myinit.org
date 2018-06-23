@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-22 09:23:19 Martin>
+# Time-stamp: <2018-06-23 13:58:23 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -80,7 +80,6 @@ aus, anstatt =init.el= zu erweitern.
 #+END_SRC
 ** Grundlegende Pakete
 *** Command log mode
-
 #+BEGIN_SRC emacs-lisp
   (use-package command-log-mode
     :disabled t)
@@ -89,6 +88,19 @@ aus, anstatt =init.el= zu erweitern.
 #+BEGIN_SRC emacs-lisp
   (use-package diminish
     :ensure t)
+#+END_SRC
+*** Helpful
+[[https://github.com/Wilfred/helpful][Helpful]] erweitert die Informationen im Help-Buffer.
+#+BEGIN_SRC emacs-lisp
+  (use-package helpful
+    :ensure t
+    :bind
+    ("C-h f" . helpful-callable)
+    ("C-h v" . helpful-variable)
+    ("C-h k" . helpful-key)
+    ("C-c C-d" . helpful-at-point)
+    ("C-h F" . helpful-function)
+    ("C-h C" . helpful-command))
 #+END_SRC
 *** beginend
 
@@ -138,27 +150,26 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
      ("<S-f4>" . bm-previous)
      ("<M-S-f4>" . bm-bookmark-annotate))
     :config
-    (progn
-      ;; make bookmarks persistent as default
-      (setq-default bm-buffer-persistence t)
-      ;; Loading the repository from file when on start up.
-      (add-hook' after-init-hook 'bm-repository-load)
-      ;; Restoring bookmarks when on file find.
-      (add-hook 'find-file-hooks 'bm-buffer-restore)
-      ;; Saving bookmark data on killing a buffer
-      (add-hook 'kill-buffer-hook 'bm-buffer-save)
-      ;; Saving the repository to file when on exit.
-      ;; kill-buffer-hook is not called when emacs is killed, so we
-      ;; must save all bookmarks first.
-      (add-hook 'kill-emacs-hook '(lambda nil
-                                    (bm-buffer-save-all)
-                                    (bm-repository-save)))
-      ;; Update bookmark repository when saving the file.
-      (add-hook 'after-save-hook 'bm-buffer-save)
-      ;; Restore bookmarks when buffer is reverted.
-      (add-hook 'after-revert-hook 'bm-buffer-restore)
-      ;; make sure bookmarks is saved before check-in (and revert-buffer)
-      (add-hook 'vc-before-checkin-hook 'bm-buffer-save)))
+    ;; make bookmarks persistent as default
+    (setq-default bm-buffer-persistence t)
+    ;; Loading the repository from file when on start up.
+    (add-hook' after-init-hook 'bm-repository-load)
+    ;; Restoring bookmarks when on file find.
+    (add-hook 'find-file-hooks 'bm-buffer-restore)
+    ;; Saving bookmark data on killing a buffer
+    (add-hook 'kill-buffer-hook 'bm-buffer-save)
+    ;; Saving the repository to file when on exit.
+    ;; kill-buffer-hook is not called when emacs is killed, so we
+    ;; must save all bookmarks first.
+    (add-hook 'kill-emacs-hook '(lambda nil
+                                  (bm-buffer-save-all)
+                                  (bm-repository-save)))
+    ;; Update bookmark repository when saving the file.
+    (add-hook 'after-save-hook 'bm-buffer-save)
+    ;; Restore bookmarks when buffer is reverted.
+    (add-hook 'after-revert-hook 'bm-buffer-restore)
+    ;; make sure bookmarks is saved before check-in (and revert-buffer)
+    (add-hook 'vc-before-checkin-hook 'bm-buffer-save))
 #+END_SRC
 
 *** counsel/ivy/swiper
