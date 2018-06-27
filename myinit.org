@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-23 13:58:23 Martin>
+# Time-stamp: <2018-06-27 22:09:37 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -172,6 +172,11 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
     (add-hook 'vc-before-checkin-hook 'bm-buffer-save))
 #+END_SRC
 
+*** define word
+#+BEGIN_SRC emacs-lisp
+  (use-package define-word
+    :ensure t)
+#+END_SRC
 *** counsel/ivy/swiper
 #+BEGIN_SRC emacs-lisp
   ;; http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/
@@ -342,14 +347,11 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
      (add-to-list 'ac-modes 'shell-mode)
      (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
 #+END_SRC
-*** el-doc und smart-comment
+*** smart-comment
 #+BEGIN_SRC emacs-lisp
   (use-package smart-comment
+    :ensure t
     :bind ("M-;" . smart-comment))
- 
-  (use-package eldoc
-    :diminish eldoc-mode
-    :init  (setq eldoc-idle-delay 0.1))
 #+END_SRC
 *** macrostep
 #+BEGIN_SRC emacs-lisp
@@ -1419,6 +1421,7 @@ ob alles korrekt konfiguriert ist, aber habe [[https://www.emacswiki.org/emacs/E
   (define-key mb-map (kbd "e") 'config-visit)
   (define-key mb-map (kbd "r") 'config-reload)
   (define-key mb-map (kbd "m") 'mu4e)
+  (define-key mb-map (kbd "w") 'define-word-at-point)
 
 #+END_SRC
 

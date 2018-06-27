@@ -1,9 +1,9 @@
 ;;; emms history -*- mode: emacs-lisp; coding: utf-8; -*-
 (
 ;; active playlist
-" *EMMS Playlist*"
+" *temp*"
 ;; playlists: ((BUFFER_NAME SELECT_POSITION TRACKS) ...)
-((" *EMMS Playlist*" 1 ((*track* (type . file) (name . "/Volumes/MUSIK/10_Diverses/Der_Ramos-Song.mp3") (metadata) (last-played 23342 11914 808897 0) (play-count . 1) (info-mtime 23342 11874 0 0)))))
+nil
 ;; play method
 ((emms-repeat-track) (emms-repeat-playlist))
 )
