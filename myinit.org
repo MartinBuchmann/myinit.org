@@ -1,7 +1,7 @@
 #+STARTUP: content
 #+TITLE: My Emacs Customization
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-27 22:09:37 Martin>
+# Time-stamp: <2018-06-29 15:08:39 Martin>
 
 * Allgemeines
 ** Mein eigener Pfad für Erweiterungen
@@ -346,12 +346,6 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
      (setq comint-process-echoes t)
      (add-to-list 'ac-modes 'shell-mode)
      (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
-#+END_SRC
-*** smart-comment
-#+BEGIN_SRC emacs-lisp
-  (use-package smart-comment
-    :ensure t
-    :bind ("M-;" . smart-comment))
 #+END_SRC
 *** macrostep
 #+BEGIN_SRC emacs-lisp
@@ -1207,110 +1201,66 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
                :ensure t)
 #+END_SRC
 
-** Slime, quicklisp, paredit
-   http://common-lisp.net/project/slime/
-   http://www.emacswiki.org/emacs/ParEdit
+** Meine Lisp-Umgebung
+
+*** Slime
+
+Ich installiere [[http://common-lisp.net/project/slime/][Slime]] direkt von Melpa, um immer die neuste Version zu
+verwenden. 
 #+BEGIN_SRC emacs-lisp
-  (load (expand-file-name "~/quicklisp/slime-helper.el"))
-
-  (use-package paredit
+  (use-package slime
     :ensure t
-    :diminish paredit-mode
     :config
-    (autoload 'paredit-mode "paredit"
-      "Minor mode for pseudo-structurally editing Lisp code." t)
-    (add-hook 'slime-mode-hook 'enable-paredit-mode)
-    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'slime-repl-mode-hook 'enable-paredit-mode))
+    (setq inferior-lisp-program "/opt/local/bin/sbcl --no-inform --no-linedit")
+    (setq slime-lisp-implementations
+          '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
+            (clisp ("/opt/local/bin/clisp"))
+            (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
+    (setq slime-net-coding-system 'utf-8-unix)
+    (slime-setup
+     '(slime-repl-ansi-color slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
+    ;; Hyperspec within Emacs
+    (setq browse-url-browser-function
+          '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser)))
+    ;; slime-annot
+    (load (expand-file-name
+           "~/quicklisp/dists/quicklisp/software/cl-annot-20150608-git/misc/slime-annot.el"))
+    (require 'slime-annot)
+    ;; key bindings
+    :bind (:map slime-mode-map
+           ("C-c s" . slime-selector)
+           :map slime-repl-mode-map
+           ("C-c s" . slime-selector))
+    ;; start slime when opening a lisp file
+    :hook (slime-mode-hook . (lambda ()
+                               (unless (slime-connected-p)
+                                 (save-excursion (slime))))))
+#+END_SRC
 
-  ;; remove XLS-mode and allow "file.lsp" to start lisp-mode
-  ;; (setq auto-mode-alist (rassq-delete-all 'XLS-mode auto-mode-alist))
+*** ac-slime
 
-  ;; Stop SLIME's REPL from grabbing DEL,
-  ;; which is annoying when backspacing over a '('
-  (defun override-slime-repl-bindings-with-paredit ()
-    (define-key slime-repl-mode-map
-      (read-kbd-macro paredit-backward-delete-key) nil))
-
-  (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
-
-  (setq inferior-lisp-program "/opt/local/bin/sbcl --no-inform --no-linedit")
-
-  (setq slime-lisp-implementations
-        '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
-          (clisp ("/opt/local/bin/clisp"))
-          (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
-
-  ;; https://github.com/cbaggers/cepl/blob/master/docs/single-thread-swank.md
-  ;; (setf swank:*communication-style* nil)
-
-  (require 'cl)
-
-  (defun slime-style-init-command (port-filename _coding-system extra-args)
-    "Return a string to initialize Lisp."
-    (let ((loader (if (file-name-absolute-p slime-backend)
-                      slime-backend
-                    (concat slime-path slime-backend))))
-      ;; Return a single form to avoid problems with buffered input.
-      (format "%S\n\n"
-              `(progn
-                 (load ,(slime-to-lisp-filename (expand-file-name loader))
-                       :verbose t)
-                 (funcall (read-from-string "swank-loader:init"))
-                 (funcall (read-from-string "swank:start-server")
-                          ,(slime-to-lisp-filename port-filename)
-              ,@extra-args)))))
-
-  (defun slime-style (&optional style)
-    (interactive
-     (list (intern-soft (read-from-minibuffer "Style: " "nil"))))
-    (lexical-let ((style style))
-      (slime-start
-       :init (lambda (x y)
-           (slime-style-init-command
-            x y `(:style ,style :dont-close t))))))
-
-  (setq slime-net-coding-system 'utf-8-unix)
-  (slime-setup
-   '(slime-repl-ansi-color slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
-
-  (define-key slime-mode-map (kbd "C-c s") 'slime-selector)
-  (define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
-  (define-key slime-mode-map [(return)] 'paredit-newline)
-
-  (require 'mic-paren)
-  (paren-activate)
-  (setf paren-priority 'close)
-
-  ;; ac-slime
+Using autocomplete for slime
+#+BEGIN_SRC emacs-lisp
   (use-package ac-slime
     :ensure t
     :config
-    (progn
-      (add-hook 'slime-mode-hook 'set-up-slime-ac)
-      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
-      (eval-after-load "auto-complete"
-        '(add-to-list 'ac-modes 'slime-repl-mode))))
+    (add-hook 'slime-mode-hook 'set-up-slime-ac)
+    (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+    (eval-after-load "auto-complete"
+      '(add-to-list 'ac-modes 'slime-repl-mode)))
+#+END_SRC
 
-  ;; emacs-lisp-nav
-  (use-package elisp-slime-nav
-             :ensure t
-             :diminish elisp-slime-nav-mode
-             :config
-             (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode))
+*** paredit
 
-  (add-hook 'slime-mode-hook
-          (lambda ()
-            (unless (slime-connected-p)
-              (save-excursion (slime)))))
-
-  ;; Hyperspec within Emacs
-  (setq browse-url-browser-function
-        '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser)))
-
-  (load (expand-file-name
-         "~/quicklisp/dists/quicklisp/software/cl-annot-20150608-git/misc/slime-annot.el"))
-  (require 'slime-annot)
+Ich verwende immer noch [[http://www.emacswiki.org/emacs/ParEdit][paredit]].
+#+BEGIN_SRC emacs-lisp
+  (use-package paredit
+     :ensure t
+     :diminish paredit-mode
+     :config
+     (add-hook 'slime-mode-hook #'enable-paredit-mode)
+     (add-hook 'slime-repl-mode-hook #'enable-paredit-mode)
+     (add-hook 'emacs-lisp-mode #'enable-paredit-mode))
 #+END_SRC
 
 ** AucTeX
