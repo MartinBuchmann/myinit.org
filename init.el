@@ -1,13 +1,12 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2018-06-29 09:19:25 Martin>
+;; Time-stamp: <2018-07-07 18:52:02 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
 ;; alles in einer Datei zu haben.
 ;;--------------------------------------------------------------------
 ;;
-
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
@@ -20,6 +19,12 @@
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 
 (package-initialize)
+
+;; Bootstrap `use-package`
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(require 'use-package)
 
 (message "Dies ist Martins init.el")
 

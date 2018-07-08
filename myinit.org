@@ -1,9 +1,18 @@
 #+STARTUP: content
-#+TITLE: My Emacs Customization
+#+TITLE: Martins Anpassungen für GNU Emacs
 #+AUTHOR: Martin Buchmann
-# Time-stamp: <2018-06-29 15:08:39 Martin>
+#+OPTIONS: toc:nil
+# Time-stamp: <2018-07-07 18:55:07 Martin>
 
 * Allgemeines
+** Überprüfe, ob obsolete Pakete geladen werden
+#+BEGIN_SRC emacs-lisp
+  (defun debug-on-load-obsolete (filename)
+    (when (equal (car (last (split-string filename "[/\\]") 2))
+                 "obsolete")
+      (debug)))
+  ;; (add-to-list 'after-load-functions #'debug-on-load-obsolete)
+#+END_SRC
 ** Mein eigener Pfad für Erweiterungen
 Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
 #+BEGIN_SRC emacs-lisp
@@ -111,7 +120,7 @@ aus, anstatt =init.el= zu erweitern.
     (beginend-global-mode))
 #+END_SRC
 *** alert
-Ich verwende [[https://github.com/jwiegley/alert][alert]] um Benachrichtigungen anzuzeigen.  Da [[growl.info][Growl]] nicht
+Ich verwende [[https://github.com/jwiegley/alert][alert]] um Benachrichtigungen anzuzeigen.  Da [[http://growl.info][Growl]] nicht
 funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][terminal-notifier]].
 
 #+BEGIN_SRC emacs-lisp
@@ -910,74 +919,28 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
 
 *** Windows und Frames
 #+BEGIN_SRC emacs-lisp
-  (when window-system
-    ;; I like it this way.
-    (set-frame-size (selected-frame) 220 70)
-    (set-frame-position (selected-frame) 165 35)
-    (set-default-font
-     "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
-    (setq auto-window-vscroll nil)
+  (set-frame-size (selected-frame) 220 70)
+  (set-frame-position (selected-frame) 165 35)
+  (set-default-font                    
+   "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
+  (setq auto-window-vscroll nil)
 
-    (global-prettify-symbols-mode)
-    (global-hl-line-mode t)
+  ;; Fancy titlebar for MacOS
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (setq ns-use-proxy-icon  t)
+  (setq frame-title-format t)
+  (setq ns-pop-up-frames nil)
 
-    (setq line-number-mode t)
-    (setq column-number-mode t)
-
-    ;; Wenn Text ausgewählt ist, lösche diese bei der nächsten Eingabe.
-    (delete-selection-mode t)
-
-    (global-font-lock-mode t)
-
-    (setq ns-pop-up-frames nil)
-
-    (use-package mode-icons
-      :ensure t 
-      :config
-      (mode-icons-mode t))
-
-    (use-package beacon
-      :ensure t
-      :config
-      (progn 
-        (beacon-mode 1)
-        (setq beacon-push-mark 35)
-        (setq beacon-color "#666600")))
-
-    (use-package powerline
-      :ensure t
-      :config
-      (powerline-default-theme))
-
-    (use-package rainbow-delimiters
-      :ensure t
-      :config
-      (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)))
+  (global-hl-line-mode t)
+  (delete-selection-mode t)
+  (global-font-lock-mode t)
 
   (winner-mode)
-
-  (use-package ace-window
-    :ensure t
-    :config
-    (global-set-key (kbd "M-o") 'ace-window))
 
   (setq pop-up-frame-function (lambda () (split-window-right)))
   (setq split-height-threshold 1400)
   (setq split-width-treshold 1500)
-
-  (use-package celestial-mode-line
-    :disabled t
-    :config
-    (setq global-mode-string '("" celestial-mode-line-string display-time-string))
-    (celestial-mode-line-start-timer))
-
-  (use-package yahoo-weather
-               :disabled t
-               :config
-               (yahoo-weather-mode 1)
-               (setq yahoo-weather-format " %(temperature)℃ ")
-               (setq yahoo-weather-temperture-format "%.f")
-               (setq yahoo-weather-location "GMXX1930"))
 
   ;;; https://github.com/daedreth/UncleDavesEmacs/blob/master/config.org
   (defun split-and-follow-horizontally ()
@@ -993,6 +956,48 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
     (balance-windows)
     (other-window 1))
   (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+#+END_SRC
+
+*** ace-window
+
+Schnellere Wechsel zwischen Fenstern usw.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ace-window
+    :ensure t
+    :config
+    (global-set-key (kbd "M-o") 'ace-window))
+#+END_SRC
+
+*** Customizing the mode-line 
+
+Die Standard mode-line ist nicht so übersichtlich. 
+#+BEGIN_SRC emacs-lisp
+  (use-package mode-icons
+        :ensure t 
+        :config
+        (mode-icons-mode t))
+
+  (use-package powerline
+      :ensure t
+      :config
+      (powerline-default-theme))
+
+  (setq line-number-mode t)
+  (setq column-number-mode t)
+#+END_SRC
+
+*** beacon-mode
+
+Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
+#+BEGIN_SRC emacs-lisp
+  (use-package beacon
+    :ensure t
+    :config
+    (progn 
+      (beacon-mode 1)
+      (setq beacon-push-mark 35)
+      (setq beacon-color "#666600")))
 #+END_SRC
 
 *** ibuffer
@@ -1260,7 +1265,20 @@ Ich verwende immer noch [[http://www.emacswiki.org/emacs/ParEdit][paredit]].
      :config
      (add-hook 'slime-mode-hook #'enable-paredit-mode)
      (add-hook 'slime-repl-mode-hook #'enable-paredit-mode)
-     (add-hook 'emacs-lisp-mode #'enable-paredit-mode))
+     (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode))
+#+END_SRC
+
+*** Sonstiges 
+
+Hervorheben der Klammern usw.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+      :ensure t
+      :config
+      (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
+  (global-prettify-symbols-mode)
 #+END_SRC
 
 ** AucTeX
