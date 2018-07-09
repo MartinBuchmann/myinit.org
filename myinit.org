@@ -1,11 +1,13 @@
-#+STARTUP: content
 #+TITLE: Martins Anpassungen für GNU Emacs
 #+AUTHOR: Martin Buchmann
+#+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-07-07 18:55:07 Martin>
+# Time-stamp: <2018-07-09 18:47:12 Martin>
 
-* Allgemeines
+* Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
+
+Nachdem Update auf Emacs 26 hatte ich vereinzelt [[https://emacs.stackexchange.com/questions/42343/package-html2text-is-obsolete][Probleme]] mit veralteten Pakete. Diese Funktion gibt einen spezifischen Fehler aus, der hilft den Übeltäter zu identifizieren.
 #+BEGIN_SRC emacs-lisp
   (defun debug-on-load-obsolete (filename)
     (when (equal (car (last (split-string filename "[/\\]") 2))
@@ -16,17 +18,15 @@
 ** Mein eigener Pfad für Erweiterungen
 Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
 #+BEGIN_SRC emacs-lisp
-      (setq load-path
-            (mapcar 'expand-file-name
-                    (append '("~/.emacs.d/elisp"
-                              "~/.emacs.d/elisp/redshank"
-                              "~/.emacs.d/elisp/sky-color-clock"
-                              "~/.emacs.d/elisp/slime-repl-ansi-color")
-                            load-path)))
+  (setq load-path
+        (mapcar 'expand-file-name
+                (append '("~/.emacs.d/elisp"
+                          "~/.emacs.d/elisp/slime-repl-ansi-color")
+                        load-path)))
 
-      (setenv "INFOPATH"
-              (concat (getenv "INFOPATH") ":"
-                      (expand-file-name "/opt/local/share/info/")))
+  (setenv "INFOPATH"
+          (concat (getenv "INFOPATH") ":"
+                  (expand-file-name "/opt/local/share/info/")))
 #+END_SRC
 ** Das =Customize=-Interface
 Lagert die Einstellungen über das =Customize=-Interface in eine eigene Datei
@@ -65,6 +65,9 @@ aus, anstatt =init.el= zu erweitern.
 #+END_SRC
 
 ** Grundlegende Einstellungen
+
+Wie der Name schon sagt, Grundlegendes, das zu Beginn und global geregelt werden soll.
+
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-message t)
   (setq initial-scratch-message nil)
@@ -87,13 +90,39 @@ aus, anstatt =init.el= zu erweitern.
   ;; auto refresh dired when file changes
   (add-hook 'dired-mode-hook 'auto-revert-mode)
 #+END_SRC
-** Grundlegende Pakete
-*** Command log mode
+
+*** Abkürzungen einschalten
 #+BEGIN_SRC emacs-lisp
-  (use-package command-log-mode
-    :disabled t)
+  (setq-default abbrev-mode t)
+  (diminish 'abbrev-mode)
+  (setq save-abbrevs t)
+  (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
+  ;; Datei mit Abkürzungen laden
+  (read-abbrev-file "~/.emacs.d/abbrev_defs")
 #+END_SRC
+*** Wo sollen Dateien-Backup gespeichert werden?
+#+BEGIN_SRC emacs-lisp
+  (defconst use-backup-dir t)             ; use backup directory
+  (setq make-backup-files t)
+  (setq backup-directory-alist (quote ((".*" . "~/.emacs.d/backups"))))
+#+END_SRC
+** Grundlegende Pakete
+
+Viele kleine Helfer, die unabhängig vom Modus sinnvoll sind.
+
+*** dash
+
+Grundlegendes Paket um Listen zu handhaben.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package dash
+    :ensure t)
+#+END_SRC
+
 *** diminish
+
+Unterdrückt überflüssige Anzeigen in der =mode-line".
+
 #+BEGIN_SRC emacs-lisp
   (use-package diminish
     :ensure t)
@@ -113,6 +142,8 @@ aus, anstatt =init.el= zu erweitern.
 #+END_SRC
 *** beginend
 
+Schnelleres Springen an den Beginn/das Ende des Buffers.
+
 #+BEGIN_SRC emacs-lisp
   (use-package beginend
     :defer t
@@ -129,25 +160,121 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
     :config
     (setq alert-default-style 'osx-notifier))
 #+END_SRC
-*** Try und which-key
-#+BEGIN_SRC emacs-lisp
-  (use-package try
-          :defer t)
+*** which-key
 
-  (use-package which-key
-          :ensure t
-          :diminish which-key-mode
-          :config
-          (which-key-mode))
-#+END_SRC
-*** pdf-tools
+Zeigt mögliche Tastenkombinationen an, wenn ich nicht mehr weiter weiß.
+
 #+BEGIN_SRC emacs-lisp
-  (use-package pdf-tools
-    :ensure t
-    :init
-    (pdf-tools-install))
+  (use-package which-key
+        :ensure t
+        :diminish which-key-mode
+        :config
+        (which-key-mode))
 #+END_SRC
-*** Farbige Lesezeichen im Buffer
+*** expand-region
+
+Erlaubt eine schnelle Erweiterung der aktuellen Auswahl.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package expand-region
+    :ensure t
+    :bind
+    ("C-?" . er/expand-region))
+#+END_SRC
+*** shift-numbers
+
+Manipuliert Zahlen unter dem Cursor.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package shift-number
+    :ensure t
+    :config
+    (global-set-key (kbd "M-+") 'shift-number-up)
+    (global-set-key (kbd "M-_") 'shift-number-down))
+#+END_SRC
+*** Undo-Tree
+
+Einfache Darstellung der letzten Zustände des =Buffers=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :ensure t
+    :diminish undo-tree-mode
+    :init
+    (global-undo-tree-mode)
+    :config
+    (with-eval-after-load 'undo-tree
+      (define-key undo-tree-map (kbd "<S-wheel-down>") 'undo-tree-redo)
+      (define-key undo-tree-map (kbd "<S-wheel-up>") 'undo-tree-undo)))
+#+END_SRC
+
+*** Auto-complete mode
+
+Ich bevorzuge aktuell =autocomplete= gegenüber company.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-complete
+    :ensure t
+    :diminish ac-mode
+    :config
+    (global-auto-complete-mode t)
+    (setq ac-auto-start 4)
+    (setq ac-auto-show-menu 0.8)
+    (setq ac-use-menu-map t))
+
+  (use-package ac-emoji
+    :ensure t
+    :config
+    (add-hook 'markdown-mode-hook 'ac-emoji-setup)
+    (add-hook 'git-commit-mode-hook 'ac-emoji-setup)
+    (set-fontset-font
+     t 'symbol
+     (font-spec :family "Apple Color Emoji") nil 'prepend))
+
+#+END_SRC
+
+*** Recent files
+
+Für meinen Workflow immer wieder hilfreich.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package recentf
+    :init
+    (setq recentf-max-menu-items 25
+          recentf-auto-cleanup 'never
+          recentf-keep '(file-remote-p file-readable-p))
+    (recentf-mode 1)
+    :config
+    (add-to-list 'recentf-exclude (format "%s/\\.emacs\\.d/elpa/.*" (getenv "HOME")))
+    :bind ("C-c f f" . recentf-open-files))
+#+END_SRC
+*** dired
+
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Eine]] der grundlegenden Funktionen, die Emacs so effizient macht.
+
+#+BEGIN_SRC emacs-lisp
+  (setq insert-directory-program "/opt/local/bin/gls")
+  (setq dired-listing-switches "-aBhl --group-directories-first")
+  ;;; (setq dired-dwim-target t)
+
+  (use-package dired-quick-sort
+    :defer t
+    :config
+    (dired-quick-sort-setup))
+
+  (use-package dired-details
+    :disabled t
+    :config
+    (dired-details-install))
+
+  ;;; https://fuco1.github.io/2017-05-01-Support-for-imenu-in-dired.html
+  (use-package f
+    :ensure t)
+
+#+END_SRC
+*** Farbige Lesezeichen im =Buffer=
+
+Hier weiß ich nicht, ob ich das wirklich brauche, aber es klingt jedesmal wieder interessant.
 #+BEGIN_SRC emacs-lisp
   ;; Make sure the repository is loaded as early as possible
   (setq bm-restore-repository-on-load t)
@@ -180,15 +307,71 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
     ;; make sure bookmarks is saved before check-in (and revert-buffer)
     (add-hook 'vc-before-checkin-hook 'bm-buffer-save))
 #+END_SRC
+*** pdf-tools
+
+Darstellung von pdfs direkt in =Emacs= 
+#+BEGIN_SRC emacs-lisp
+  (use-package pdf-tools
+    :ensure t
+    :init
+    (pdf-tools-install))
+#+END_SRC
 
 *** define word
+
+Ein Thesarus für das aktuelle Wort mittels ~C-z w~ , s. =define-word= im =Customize=-Interface.
+
 #+BEGIN_SRC emacs-lisp
   (use-package define-word
     :ensure t)
 #+END_SRC
-*** counsel/ivy/swiper
+*** multiple cursors
+
+Ich setze es immer noch zu wenig ein, aber alleine das [[http://emacsrocks.com/e13.html][Video]] ist wunderbar.
+
 #+BEGIN_SRC emacs-lisp
-  ;; http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/
+  (use-package multiple-cursors
+    :ensure t
+    :bind
+    ("C->" . mc/mark-next-like-this)
+    ("C-<" . mc/mark-previous-like-this)
+    ("C-c C-<" . mc/mark-all-like-this)
+    :init
+    (defhydra multiple-cursors-hydra (:hint nil)
+      "
+         ^Up^            ^Down^        ^Other^
+    ----------------------------------------------
+    [_p_]   Previous    [_n_]   Next    [_l_] Edit lines
+    [_P_]   Skip        [_N_]   Skip    [_a_] Mark all
+    [_M-p_] Unmark      [_M-n_] Unmark  [_r_] Mark by regexp
+    ^ ^                 ^ ^             [_q_] Quit
+    "
+      ("l" mc/edit-lines :exit t)
+      ("a" mc/mark-all-like-this :exit t)
+      ("n" mc/mark-next-like-this)
+      ("N" mc/skip-to-next-like-this)
+      ("M-n" mc/unmark-next-like-this)
+      ("p" mc/mark-previous-like-this)
+      ("P" mc/skip-to-previous-like-this)
+      ("M-p" mc/unmark-previous-like-this)
+      ("r" mc/mark-all-in-region-regexp :exit t)
+      ("q" nil)
+    
+      ("<mouse-1>" mc/add-cursor-on-click)
+      ("<down-mouse-1>" ignore)
+      ("<drag-mouse-1>" ignore)))
+
+  (use-package ace-mc
+    :ensure t
+    :bind
+    (("C-ß" . ace-mc-add-multiple-cursors)
+     ("C-M-ß" . ace-mc-add-single-cursor)))
+#+END_SRC
+*** counsel/ivy/swiper/hydra
+
+Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.org/blog/?p=5340][Tipps]], [[http://cestlaz.github.io/posts/using-emacs-6-swiper/#.W0NUoMkyWUl][Videos]] [[http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/][usw]].
+
+#+BEGIN_SRC emacs-lisp
   (use-package counsel
     :ensure t
     :bind
@@ -253,98 +436,38 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
        ("g" goto-line "goto-line")
        )))
 #+END_SRC
-*** dired
+
+*** Avy
+
+Ich setze nur noch [[http://emacsredux.com/blog/2015/07/19/ace-jump-mode-is-dead-long-live-avy/][Avy]] ein statt ace-jump-mode.
+
 #+BEGIN_SRC emacs-lisp
-  (setq insert-directory-program "/opt/local/bin/gls")
-  (setq dired-listing-switches "-aBhl --group-directories-first")
-  ;;; (setq dired-dwim-target t)
-
-  (use-package dired-quick-sort
-    :defer t
-    :config
-    (dired-quick-sort-setup))
-
-  (use-package dired-details
-    :disabled t
-    :config
-    (dired-details-install))
-
-  ;;; https://fuco1.github.io/2017-05-01-Support-for-imenu-in-dired.html
-  (use-package f
-    :defer t)
-
-  (use-package dash
-    :defer t)
-#+END_SRC
-
-*** ace-jump-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package ace-jump-mode
+  (use-package avy
     :ensure t
+    :config
+    (avy-setup-default)
     :bind
-    (("C-0" . ace-jump-mode)))
-
-  (use-package ace-mc
-    :ensure t
-    :bind
-    (("C-ß" . ace-mc-add-multiple-cursors)
-     ("C-M-ß" . ace-mc-add-single-cursor)))
+    (("C-:" . avy-goto-char)
+     ("M-g w" . avy-goto-word-1)
+     ("M-g f" . avy-goto-line)
+     ("M-g h" . avy-org-goto-heading-timer)))
 #+END_SRC
-*** multiple cursors
-#+BEGIN_SRC emacs-lisp
-  (use-package multiple-cursors
-    :ensure t
-    :bind
-    ("C->" . mc/mark-next-like-this)
-    ("C-<" . mc/mark-previous-like-this)
-    ("C-c C-<" . mc/mark-all-like-this)
-    :init
-    (defhydra multiple-cursors-hydra (:hint nil)
-    "
-       ^Up^            ^Down^        ^Other^
-  ----------------------------------------------
-  [_p_]   Previous    [_n_]   Next    [_l_] Edit lines
-  [_P_]   Skip        [_N_]   Skip    [_a_] Mark all
-  [_M-p_] Unmark      [_M-n_] Unmark  [_r_] Mark by regexp
-  ^ ^                 ^ ^             [_q_] Quit
-  "
-    ("l" mc/edit-lines :exit t)
-    ("a" mc/mark-all-like-this :exit t)
-    ("n" mc/mark-next-like-this)
-    ("N" mc/skip-to-next-like-this)
-    ("M-n" mc/unmark-next-like-this)
-    ("p" mc/mark-previous-like-this)
-    ("P" mc/skip-to-previous-like-this)
-    ("M-p" mc/unmark-previous-like-this)
-    ("r" mc/mark-all-in-region-regexp :exit t)
-    ("q" nil)
 
-    ("<mouse-1>" mc/add-cursor-on-click)
-    ("<down-mouse-1>" ignore)
-    ("<drag-mouse-1>" ignore)))
-#+END_SRC
-*** Auto-complete mode
-#+BEGIN_SRC emacs-lisp
-  (use-package auto-complete
-    :ensure t
-    :diminish ac-mode
-    :config
-    (global-auto-complete-mode t)
-    (setq ac-auto-start 4)
-    (setq ac-auto-show-menu 0.8)
-    (setq ac-use-menu-map t))
+*** ace-window
 
-  (use-package ac-emoji
+Schnellere Wechsel zwischen Fenstern usw.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ace-window
     :ensure t
     :config
-    (add-hook 'markdown-mode-hook 'ac-emoji-setup)
-    (add-hook 'git-commit-mode-hook 'ac-emoji-setup)
-    (set-fontset-font
-     t 'symbol
-     (font-spec :family "Apple Color Emoji") nil 'prepend))
-
+    (global-set-key (kbd "M-o") 'ace-window))
 #+END_SRC
+
 *** readline-completion
+
+Ich benutze =shell-mode= relativ viel.
+
 #+BEGIN_SRC emacs-lisp
   (use-package readline-complete
     :ensure t
@@ -356,49 +479,6 @@ funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][term
      (add-to-list 'ac-modes 'shell-mode)
      (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
 #+END_SRC
-*** macrostep
-#+BEGIN_SRC emacs-lisp
-  (use-package macrostep
-    :config
-    (define-key emacs-lisp-mode-map (kbd "C-c M-e") 'macrostep-expand))
-#+END_SRC
-*** Recent files
-#+BEGIN_SRC emacs-lisp
-  (use-package recentf
-    :init
-    (setq recentf-max-menu-items 25
-          recentf-auto-cleanup 'never
-          recentf-keep '(file-remote-p file-readable-p))
-    (recentf-mode 1)
-    :config
-    (add-to-list 'recentf-exclude (format "%s/\\.emacs\\.d/elpa/.*" (getenv "HOME")))
-    :bind ("C-c f f" . recentf-open-files))
-#+END_SRC
-*** Hide/Show
-#+BEGIN_SRC emacs-lisp
-  (defun ha/hs-show-all ()
-    (interactive)
-    (hs-minor-mode 1)
-    (hs-show-all))
- 
-  (defun ha/hs-hide-all ()
-    (interactive)
-    (hs-minor-mode 1)
-    (hs-hide-all))
- 
-  (defun ha/hs-toggle-hiding ()
-    (interactive)
-    (hs-minor-mode 1)
-    (hs-toggle-hiding))
-
-  (use-package hs-minor-mode
-    :bind
-    ("C-c T h" . hs-minor-mode)
-    ("C-c h a" . ha/hs-hide-all)
-    ("C-c h s" . ha/hs-show-all)
-    ("C-c h h" . ha/hs-toggle-hiding))
-#+END_SRC
-
 *** mu4e
 Ich wusste, daß es irgendwann passieren wird...
 
@@ -510,6 +590,7 @@ Klartext speichern zu müssen, habe ich diesen [[http://quotenil.com/OfflineIMAP
   (setq mu4e-confirm-quit nil)
 #+END_SRC
 *** org-mode
+
 Ich habe viele Tipps zu [[http://orgmode.org][Org-mode]] bei [[https://github.com/zamansky/using-emacs/tree/lesson-2-org][Mike]] gefunden.  Die Feineinstellungen und
 viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][Rainer]].
 
@@ -617,9 +698,6 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 #+BEGIN_SRC emacs-lisp
 (use-package htmlize
   :ensure t)
-
-(use-package mic-paren
-  :ensure t)
 #+END_SRC
 ***** Zusätzliche TODO-Keywords und Tags
 #+BEGIN_SRC emacs-lisp
@@ -649,7 +727,9 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
      (emacs-lisp . t)))
 #+END_SRC
 **** org-bullets
-     Displaying nice bullets instead of just the asterics
+ 
+Ersetzt die einfachen =*= durch etwas hübschere Zeichen.
+
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
     :ensure t
@@ -667,6 +747,9 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 #+END_SRC
 
 **** org-capture
+
+Ein sehr wertvolles Feature, auf meine Bedürfnisse angepasst.
+
 #+BEGIN_SRC emacs-lisp
   (setq org-capture-templates
         '(("l" "Link" entry (file+headline "~/Dropbox/orgfiles/Links.org" "Links")
@@ -722,9 +805,10 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 #+END_SRC
 
 **** org-mu4e
+
+[[http://pragmaticemacs.com/emacs/master-your-inbox-with-mu4e-and-org-mode/][Ermöglicht]] Links zu E-Mails in =org-Dateien= zu speichern.
+
 #+BEGIN_SRC emacs-lisp
-;; http://pragmaticemacs.com/emacs/master-your-inbox-with-mu4e-and-org-mode/
-;; store org-mode links to messages
 (require 'org-mu4e)
 ;; store link to message if in header view, not to header query
 (setq org-mu4e-link-query-in-headers-mode nil)
@@ -732,9 +816,7 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 
 **** poporg 
 
-org-mode markup in comments
-
-http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
+=org mode= /markup/ innerhalb von [[http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/%0A%0A][Kommentaren]].
 
 #+BEGIN_SRC emacs-lisp
   (use-package poporg
@@ -743,8 +825,10 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
     ;; *This* works /nicely/!
     )
 #+END_SRC
-
 *** Magit, gist usw.
+
+Nach =org mode= der zweite wichtige Grund =Emacs= zu verwenden.
+
 #+BEGIN_SRC emacs-lisp
   (global-magit-file-mode t)
   (global-set-key (kbd "C-x g") 'magit-status)
@@ -803,14 +887,6 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
      ("M-g M-g" . #'hydra-git-gutter/body)))
 #+END_SRC
 
-*** Avy
-#+BEGIN_SRC emacs-lisp
-  (use-package avy
-    :defer t
-    :bind
-    (("C-:" . avy-goto-char)))
-#+END_SRC
-
 *** projectile
 [[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].
 
@@ -837,26 +913,11 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
     :ensure t)
 #+END_SRC
 
-*** GNUs
-#+BEGIN_SRC emacs-lisp
-  (setq gnus-init-file "~/.emacs.d/gnus.el")
-#+END_SRC
-*** gnuplot 
-#+BEGIN_SRC emacs-lisp
-  (use-package gnuplot
-    :ensure t
-    :config
-    (progn
-      (autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
-      (autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot-mode" t)
-      (setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode))
-                                    auto-mode-alist))
-      (global-set-key [(f9)] 'gnuplot-make-buffer)))
-#+END_SRC
 
-* Einstellungen
-** Umgebungsvariablen, Mac-Spezifika, etc
-   Zurück zur Standardtastenbelegung
+** Umgebungsvariablen, Mac-Spezifika etc
+
+Verschiedenes, das sich über die Zeit angesammelt hat.
+
 #+BEGIN_SRC emacs-lisp
   ;; Startet einen Server, um sich mit emacsclient verbinden zu können.
   (when window-system
@@ -958,20 +1019,10 @@ http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/
   (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
 #+END_SRC
 
-*** ace-window
+*** Anpassung der =mode-line=
 
-Schnellere Wechsel zwischen Fenstern usw.
+Die =mode-line= ist üblicherweise nicht so übersichtlich. 
 
-#+BEGIN_SRC emacs-lisp
-(use-package ace-window
-    :ensure t
-    :config
-    (global-set-key (kbd "M-o") 'ace-window))
-#+END_SRC
-
-*** Customizing the mode-line 
-
-Die Standard mode-line ist nicht so übersichtlich. 
 #+BEGIN_SRC emacs-lisp
   (use-package mode-icons
         :ensure t 
@@ -1086,13 +1137,7 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
   (global-set-key "\M-z" 'zap-up-to-char)
   (global-set-key "\M-Z" 'zap-up-char)
 
-  ;; expand the marked region in semantic increments (negative prefix to reduce region)
-  (use-package expand-region
-    :ensure t
-    :bind
-    ("C-:" . er/expand-region))
-
-  ;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
+    ;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
   (setq x-stretch-cursor t)
 
   (use-package shift-number
@@ -1101,23 +1146,10 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
     (global-set-key (kbd "M-+") 'shift-number-up)
     (global-set-key (kbd "M-_") 'shift-number-down))
 
-  ;;
   (setq markdown-programm "/opt/local/bin/pandoc")
   (setq markdown-command "/opt/local/bin/pandoc")
 #+END_SRC
 
-*** Undo-Tree
-#+BEGIN_SRC emacs-lisp
-  (use-package undo-tree
-    :ensure t
-    :diminish undo-tree-mode
-    :init
-    (global-undo-tree-mode)
-    :config
-    (with-eval-after-load 'undo-tree
-      (define-key undo-tree-map (kbd "<S-wheel-down>") 'undo-tree-redo)
-      (define-key undo-tree-map (kbd "<S-wheel-up>") 'undo-tree-undo)))
-#+END_SRC
 *** Dashboard
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
@@ -1139,22 +1171,6 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
                             (agenda . 5)
                             ; (registers . 5)
                             )))
-#+END_SRC
-** Abkürzungen einschalten
-#+BEGIN_SRC emacs-lisp
-  (setq-default abbrev-mode t)
-  (diminish 'abbrev-mode)
-  (setq save-abbrevs t)
-  (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
-  ;; Datei mit Abkürzungen laden
-  (read-abbrev-file "~/.emacs.d/abbrev_defs")
-#+END_SRC
-
-** Wo sollen Dateien-Backup gespeichert werden?
-#+BEGIN_SRC emacs-lisp
-  (defconst use-backup-dir t)             ; use backup directory
-  (setq make-backup-files t)
-  (setq backup-directory-alist (quote ((".*" . "~/.emacs.d/backups"))))
 #+END_SRC
 
 ** Eigene Funktionen
@@ -1190,9 +1206,10 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
     (org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org")))
 #+END_SRC
 * Spezielle Modi
-
 ** YASnippet
+
 [[http://joaotavora.github.io/yasnippet/][Yet another snippet extension]]
+
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :diminish yas-minor-mode
@@ -1206,6 +1223,21 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
                :ensure t)
 #+END_SRC
 
+** gnuplot 
+
+Ich benutze =gnuplot= nur selten, aber wenn, dann von =Emacs= aus.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package gnuplot
+    :ensure t
+    :config
+    (progn
+      (autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
+      (autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot-mode" t)
+      (setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode))
+                                    auto-mode-alist))
+      (global-set-key [(f9)] 'gnuplot-make-buffer)))
+#+END_SRC
 ** Meine Lisp-Umgebung
 
 *** Slime
@@ -1282,9 +1314,11 @@ Hervorheben der Klammern usw.
 #+END_SRC
 
 ** AucTeX
+
 Ich verwende LaTeX immer noch für Briefe, Bewerbung usw. und habe durch [[https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/][Piotrs]]
 Artikel Lust bekommen mal zu schauen, ob alles zu meiner Zufriedenheit
 konfiguriert ist.
+
 #+BEGIN_SRC emacs-lisp
   ;; AucTeX wurde über den Paketmanager installiert.  Hier gibt es nur noch ein
   ;; paar zusätzliche Konfigurationen.
@@ -1414,4 +1448,6 @@ ob alles korrekt konfiguriert ist, aber habe [[https://www.emacswiki.org/emacs/E
 #  LocalWords:  projectile Keywords wunderlist Avy Try gcal YASnippet quicklisp
 #  LocalWords:  complete Templates Workflow paredit Editing Undo el doc comment
 #  LocalWords:  Recent files Hide AucTeX ivy GNUs macrostep Magit mu web Slime
-#  LocalWords:  gist dired autocomplete
+#  LocalWords:  gist dired autocomplete diminish beginend key dash define word
+#  LocalWords:  Buffer cursors counsel readline completion window Customizing
+#  LocalWords:  the expand region shift numbers Tree ace hydra Dashboard
