@@ -27,13 +27,16 @@
  '(nrepl-message-colors
    (quote
     ("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
+ '(org-agenda-files
+   (quote
+    ("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org" "~/Dropbox/orgfiles/beorg.org" "~/Dropbox/orgfiles/binnova.org")))
  '(org-modules
    (quote
     (org-bbdb org-bibtex org-docview org-gnus org-habit org-info org-irc org-mhe org-rmail org-w3m)))
  '(osxb-import-with-timer nil)
  '(package-selected-packages
    (quote
-    (mu4e-conversation mic-paren define-word helpful emms-state emms-mode-line-cycle emms ac-emoji cdlatex poporg shift-number yasnippet-snippets yahoo-weather org-projectile dashboard linum-relative diminish git-gutter ace-window celestial-mode-line ace-mc ace-jump-mode gnuplot dired-details multiple-cursors pdf-tools wc-mode beginend finder+ wgrep f git-timemachine rainbow-mode rainbow-delimiters nord-theme dired-quick-sort gist web-mode osx-dictionary osx-org-clock-menubar mu4e-maildirs-extension mu4e mu4e-alert lorem-ipsum auto-complete-auctex auctex smart-comment org-beautify-theme zenburn-theme ac-math ac-ispell org-wunderlist osx-bbdb osx-lib alert readline-complete htmlize org-ac counsel-projectile counsel-osx-app bbdb-handy bbdb org-gcal noflet w3m yasnippet which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell counsel command-log-mode bm beacon avy ac-slime)))
+    (ace-link mu4e-conversation mic-paren define-word helpful emms-state emms-mode-line-cycle emms ac-emoji cdlatex poporg shift-number yasnippet-snippets yahoo-weather org-projectile dashboard linum-relative diminish git-gutter ace-window celestial-mode-line ace-mc gnuplot dired-details multiple-cursors pdf-tools wc-mode beginend finder+ wgrep f git-timemachine rainbow-mode rainbow-delimiters nord-theme dired-quick-sort gist web-mode osx-dictionary osx-org-clock-menubar mu4e-maildirs-extension mu4e mu4e-alert lorem-ipsum auto-complete-auctex auctex smart-comment org-beautify-theme zenburn-theme ac-math ac-ispell org-wunderlist osx-bbdb osx-lib alert readline-complete htmlize org-ac counsel-projectile counsel-osx-app bbdb-handy bbdb org-gcal noflet w3m yasnippet which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell counsel command-log-mode bm beacon avy ac-slime)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(recentf-exclude
    (quote
