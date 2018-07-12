@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-07-10 16:58:57 Martin>
+# Time-stamp: <2018-07-10 18:08:43 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -217,6 +217,7 @@ Ich bevorzuge aktuell =autocomplete= gegenüber company.
     :ensure t
     :diminish ac-mode
     :config
+    (ac-config-default)
     (global-auto-complete-mode t)
     (setq ac-auto-start 4)
     (setq ac-auto-show-menu 0.8)
@@ -1123,16 +1124,19 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
   (add-hook 'org-mode-hook (lambda () (visual-line-mode 1)))
 
   ;; Completion words longer than 4 characters
-  (custom-set-variables
-   '(ac-ispell-requires 4)
-   '(ac-ispell-fuzzy-limit 4))
-
-  (eval-after-load "auto-complete"
-    '(progn
-       (ac-ispell-setup)))
-
-  (add-hook 'git-commit-mode-hook 'ac-ispell-ac-setup)
-  (add-hook 'mail-mode-hook 'ac-ispell-ac-setup)
+  (use-package ac-ispell
+    :ensure t
+    :config
+    (custom-set-variables
+     '(ac-ispell-requires 4)
+     '(ac-ispell-fuzzy-limit 4))
+  
+    (eval-after-load "auto-complete"
+      '(progn
+         (ac-ispell-setup)))
+  
+    (add-hook 'git-commit-mode-hook 'ac-ispell-ac-setup)
+    (add-hook 'mail-mode-hook 'ac-ispell-ac-setup))
 
   (add-hook 'before-save-hook 'time-stamp) ; Aktiviert die Time-stamp-Funktion
 
@@ -1264,7 +1268,7 @@ verwenden.
             (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
     (setq slime-net-coding-system 'utf-8-unix)
     (slime-setup
-     '(slime-repl-ansi-color slime-fancy slime-banner slime-indentation slime-asdf slime-tramp))
+     '(slime-repl-ansi-color slime-fancy slime-banner slime-indentation slime-asdf slime-tramp slime-fuzzy))
     ;; Hyperspec within Emacs
     (setq browse-url-browser-function
           '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser)))
@@ -1334,7 +1338,8 @@ konfiguriert ist.
   (add-hook 'LaTeX-mode-hook 'flyspell-mode)
   (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
 
-  (require 'auto-complete-auctex)
+  (use-package auto-complete-auctex
+    :ensure t)
 
   (add-hook 'LaTeX-mode-hook 'turn-on-outline-minor-mode)
   (add-hook 'LaTeX-mode-hook 'tex-fold-mode)
@@ -1460,4 +1465,4 @@ ob alles korrekt konfiguriert ist, aber habe [[https://www.emacswiki.org/emacs/E
 #  LocalWords:  gist dired autocomplete diminish beginend key dash define word
 #  LocalWords:  Buffer cursors counsel readline completion window Customizing
 #  LocalWords:  the expand region shift numbers Tree ace hydra Dashboard jump
-#  LocalWords:  link
+#  LocalWords:  link slime
