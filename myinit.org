@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-07-10 18:08:43 Martin>
+d# Time-stamp: <2018-08-06 16:28:00 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -1225,6 +1225,7 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
 
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
+    :ensure t
     :diminish yas-minor-mode
     :config
     (yas-global-mode 1)
@@ -1380,31 +1381,6 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (require 'lass)
 #+END_SRC
 
-** EMMS
-
-[[https://www.gnu.org/software/emms/quickstart.html][EMMS]] erlaubt es Musik direkt aus Emacs abzuspielen :smiley: Ich weiß noch nicht,
-ob alles korrekt konfiguriert ist, aber habe [[https://www.emacswiki.org/emacs/EMMS][hier]] viele Tipps gefunden.
-#+BEGIN_SRC emacs-lisp
-  (use-package emms
-    :ensure t
-    :config
-    (require 'emms-setup)
-    (emms-all)
-    (require 'emms-source-file)
-    (require 'emms-source-playlist)
-    (define-emms-simple-player afplay '(file)
-      (regexp-opt '(".mp3" ".m4a" ".aac"))
-      "afplay")
-    (add-hook 'kill-emacs-hook 'emms-stop)
-    (setq emms-player-list `(,emms-player-afplay))
-    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
-    (setq emms-source-list '((emms-directory-tree "/Users/Martin/Music/iTunes/iTunes Media/Music/"))))
-
-  (use-package emms-state
-    :ensure t
-    :config
-    (eval-after-load 'emms '(emms-state-mode)))
-#+END_SRC
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
   (global-set-key [f5] 'revert-buffer)
