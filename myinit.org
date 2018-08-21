@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-d# Time-stamp: <2018-08-06 16:28:00 Martin>
+# Time-stamp: <2018-08-06 16:28:00 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -405,6 +405,12 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
     (setq ivy-use-virtual-buffers t)
     (setq ivy-use-selectable-prompt t)
     (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
+    
+  (use-package ivy-prescient
+    :ensure t
+    :config
+    (ivy-prescient-mode t)
+    (prescient-persist-mode t))
 
   (use-package ivy-hydra
     :ensure t
