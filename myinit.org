@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-08-06 16:28:00 Martin>
+# Time-stamp: <2018-08-22 15:15:33 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -256,7 +256,7 @@ Für meinen Workflow immer wieder hilfreich.
 #+BEGIN_SRC emacs-lisp
   (setq insert-directory-program "/opt/local/bin/gls")
   (setq dired-listing-switches "-aBhl --group-directories-first")
-  ;;; (setq dired-dwim-target t)
+  (setq dired-dwim-target t)
 
   (use-package dired-quick-sort
     :defer t
