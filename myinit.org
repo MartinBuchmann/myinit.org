@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-d# Time-stamp: <2018-08-06 16:28:00 Martin>
+# Time-stamp: <2018-08-12 18:14:44 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -383,7 +383,7 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
      ("M-i" . counsel-imenu)
      ("C-c g" . counsel-git)
      ("C-c j" . counsel-git-grep)
-     ("C-c k" . counsel-rg)
+     ("C-c k" . counsel-ag)
      ("C-x l" . counsel-locate)
      :map ivy-minibuffer-map
      ("M-y" . ivy-next-line))
