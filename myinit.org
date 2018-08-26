@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-08-22 15:15:33 Martin>
+# Time-stamp: <2018-08-26 21:51:30 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -106,9 +106,6 @@ Wie der Name schon sagt, Grundlegendes, das zu Beginn und global geregelt werden
 [http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Hier gefunden.]
 
 #+BEGIN_SRC emacs-lisp
-  (define-key  mb-map "\C-i"
-    #'endless/ispell-word-then-abbrev)
-
   (defun endless/simple-get-word ()
     (car-safe (save-excursion (ispell-get-word nil))))
 
@@ -1457,6 +1454,8 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (define-key mb-map (kbd "g") 'counsel-ag)
 
   (define-key mb-map (kbd "s") 'flyspell-correct-word-before-point)
+  (define-key  mb-map "\C-i" #'endless/ispell-word-then-abbrev)
+
   (defun my-org ()
     "A short-cut function to open my main org file."
     (interactive)

@@ -41,3 +41,4 @@ auto-save-list/*
 emms/*
 emms/*
 /myinit.html
+/var/prescient-save.el
