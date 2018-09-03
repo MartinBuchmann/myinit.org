@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-08-26 21:51:30 Martin>
+# Time-stamp: <2018-09-03 21:36:16 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -523,6 +523,15 @@ Schnelleres Folgen von Links.
     :ensure t
     :config
     (ace-link-setup-default))
+#+END_SRC
+
+*** ace-zap
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-jump-zap
+    :ensure t
+    :bind
+    ("M-z" . ace-jump-zap-up-to-char))
 #+END_SRC
 *** readline-completion
 
@@ -1179,27 +1188,17 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
     (custom-set-variables
      '(ac-ispell-requires 4)
      '(ac-ispell-fuzzy-limit 4))
-  
+
     (eval-after-load "auto-complete"
       '(progn
          (ac-ispell-setup)))
-  
+
     (add-hook 'git-commit-mode-hook 'ac-ispell-ac-setup)
     (add-hook 'mail-mode-hook 'ac-ispell-ac-setup))
 
   (add-hook 'before-save-hook 'time-stamp) ; Aktiviert die Time-stamp-Funktion
 
-  ;; zap-up-up-char
-  (autoload 'zap-up-to-char "misc"
-      "Kill up to, but not including ARGth occurrence of CHAR.
-
-    \(fn arg char)"
-      'interactive)
-
-  (global-set-key "\M-z" 'zap-up-to-char)
-  (global-set-key "\M-Z" 'zap-up-char)
-
-    ;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
+  ;; http://pragmaticemacs.com/emacs/adaptive-cursor-width/
   (setq x-stretch-cursor t)
 
   (use-package shift-number
