@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-09-03 21:36:16 Martin>
+# Time-stamp: <2018-09-04 21:34:02 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -531,7 +531,7 @@ Schnelleres Folgen von Links.
   (use-package ace-jump-zap
     :ensure t
     :bind
-    ("M-z" . ace-jump-zap-up-to-char))
+    ("M-Z" . ace-jump-zap-up-to-char))
 #+END_SRC
 *** readline-completion
 
@@ -1444,6 +1444,15 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   ;; http://www.mostlymaths.net/2016/09/more-emacs-configuration-tweaks.html
   (global-unset-key (kbd "M-<down-mouse-1>"))
   (global-set-key (kbd "M-<mouse-1>") 'mc/add-cursor-on-click)
+
+  ;; zap-up-up-char
+  (autoload 'zap-up-to-char "misc"
+    "Kill up to, but not including ARGth occurrence of CHAR.
+
+      \(fn arg char)"
+    'interactive)
+
+  (global-set-key "\M-z" 'zap-up-to-char)
 
   ;;; Meine eigene Keymap
   ;; Inspiriert von Mike https://github.com/zamansky/using-emacs/blob/master/myinit.org
