@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-09-04 21:34:02 Martin>
+# Time-stamp: <2018-09-10 20:55:47 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -953,6 +953,17 @@ Nach =org mode= der zweite wichtige Grund =Emacs= zu verwenden.
      ("C-x v r" . 'git-gutter:revert-hunk)
      ("C-x v SPC" . #'git-gutter:mark-hunk)
      ("M-g M-g" . #'hydra-git-gutter/body)))
+#+END_SRC
+
+**** =magit-todos=
+
+Die Dokumentation ist [[http://github.com/alphapapa/magit-todos][hier]] zu finden. Sieht sehr interessant aus.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit-todos
+    :ensure t
+    :config
+    (magit-todos-mode 1))
 #+END_SRC
 
 *** projectile
