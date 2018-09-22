@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-09-16 10:45:33 Martin>
+# Time-stamp: <2018-09-22 12:16:07 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -732,7 +732,7 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
                           (org-agenda-files
                            '("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org"
                              "~/Dropbox/orgfiles/beorg.org" "~/Dropbox/orgfiles/binnova.org"))
-                           (org-agenda-span 1)
+                           (org-agenda-span 'day)
                            (org-agenda-sorting-stragety '(time-up priority-down))))))
             ("c" "Einfache Agenda"
              ((agenda "")
