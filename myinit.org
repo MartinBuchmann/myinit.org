@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-09-22 12:16:07 Martin>
+# Time-stamp: <2018-09-25 21:36:28 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -783,8 +783,10 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 
 ***** Einstellungen für das Loggen und die Archivierung
 #+BEGIN_SRC emacs-lisp
-  (setq org-log-reschedule 'note)  
-  (setq org-log-into-drawer t)
+  (setq org-log-into-drawer t)  
+  (setq org-log-reschedule 'time)
+  (setq org-log-redeadline 'note)
+  (setq org-log-note-clock-out t)
   (setq org-archive-location    "~/Dropbox/orgfiles/archive.org::* From %s")
 #+END_SRC 
 **** org-babel

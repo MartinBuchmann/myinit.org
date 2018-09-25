@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2018-07-07 18:52:02 Martin>
+;; Time-stamp: <2018-09-25 21:34:31 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -37,6 +37,9 @@
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (tooltip-mode -1))
+
+;; Immer neuere Dateien laden
+(setq load-prefer-newer t)
 
 ;; Benchmark-init
 ;; https://github.com/dholm/benchmark-init-el.git
