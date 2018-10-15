@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-10-05 10:26:16 Martin>
+# Time-stamp: <2018-10-15 19:57:16 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -974,6 +974,46 @@ Verschiedenes, das sich über die Zeit angesammelt hat.
     (balance-windows)
     (other-window 1))
   (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+#+END_SRC
+
+Im [[https://www.reddit.com/r/emacs/comments/9llbrm/a_hydra_to_scroll_the_other_window_by_half/][anderen]] Fenster scrollen.
+
+#+BEGIN_SRC emacs-lisp
+  (defun vl/window-half-height (&optional window)
+    (max 1 (/ (1- (window-height window)) 2)))
+
+  (defun vl/scroll-down-half-other-window ()
+    (interactive)
+    (scroll-other-window
+     (vl/window-half-height (other-window-for-scrolling))))
+
+  (defun vl/scroll-up-half-other-window ()
+    (interactive)
+    (scroll-other-window-down
+     (vl/window-half-height (other-window-for-scrolling))))
+
+  (defhydra vl/hydra-scroll-other-window
+    (:base-map (make-sparse-keymap))
+    "Scroll the *other* window."
+    ("d" vl/scroll-down-half-other-window "down")
+    ("v" vl/scroll-down-half-other-window "down")
+    ("u" vl/scroll-up-half-other-window "up")
+    ("V" vl/scroll-up-half-other-window "up"))
+
+  (defun vl/smart-scroll-down-other-window ()
+    "Scroll down the other window and activate a hydra menu."
+    (interactive)
+    (vl/scroll-down-half-other-window)
+    (vl/hydra-scroll-other-window/body))
+
+  (defun vl/smart-scroll-up-other-window ()
+    "Scroll up the other window and activate a hydra menu."
+    (interactive)
+    (vl/scroll-up-half-other-window)
+    (vl/hydra-scroll-other-window/body))
+
+  (global-set-key (kbd "C-M-v")   #'vl/smart-scroll-down-other-window)
+  (global-set-key (kbd "C-M-S-v") #'vl/smart-scroll-up-other-window)
 #+END_SRC
 
 *** Anpassung der =mode-line=
