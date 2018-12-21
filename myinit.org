@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-10-15 19:57:16 Martin>
+# Time-stamp: <2018-12-21 12:52:21 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -148,6 +148,68 @@ Wie der Name schon sagt, Grundlegendes, das zu Beginn und global geregelt werden
   (defconst use-backup-dir t)             ; use backup directory
   (setq make-backup-files t)
   (setq backup-directory-alist (quote ((".*" . "~/.emacs.d/backups"))))
+#+END_SRC
+
+** Umgebungsvariablen, Mac-Spezifika etc
+
+Verschiedenes, das sich über die Zeit angesammelt hat.
+
+#+BEGIN_SRC emacs-lisp
+  ;; Startet einen Server, um sich mit emacsclient verbinden zu können.
+  (when window-system
+    (server-start))
+
+  ;; https://github.com/purcell/exec-path-from-shell
+  (when (memq window-system '(mac ns))
+    (exec-path-from-shell-initialize))
+
+  (setq
+   ns-command-modifier 'meta         ; Apple/Command key is Meta
+   ns-alternate-modifier nil         ; Option is the Mac Option key
+   ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
+   )
+
+  (setq locate-command "mdfind")  ;; Use Mac OS X's Spotlight
+  (global-set-key (kbd "C-c f l") 'locate)
+
+  ;; exchanging clipboard content with other applications
+  (setq select-enable-clipboard t)
+
+  (setq
+   initial-major-mode 'emacs-lisp-mode    ; *scratch* shows up in emacs-lisp-mode
+   )
+
+  (setq cursor-type (quote (box)))        ; box cursor
+  (put 'downcase-region 'disabled nil)    ; Erlaubt up/downcase Befehle
+  (put 'upcase-region 'disabled nil)
+  (put 'scroll-left 'disabled nil)        ; Erlaubt horizontales Scrollen
+  (put 'narrow-to-region 'disabled nil)   ; Erlaubt narrow/wide
+
+  (setq delete-by-moving-to-trash t
+        trash-directory "~/.Trash/emacs")
+
+  (setq shell-file-name           "bash")
+  (setq sh-shell-file             "/bin/bash")
+  (setq tex-shell-file-name       "bash")
+
+  (setq user-full-name "Martin Buchmann")
+  (setq user-login-name "Martin")
+  (setq user-mail-address "Martin.Buchmann@gmail.com")
+  (setq smtpmail-smtp-user "Martin.Buchmann")
+
+  (setq calendar-latitude 50.9271)
+  (setq calendar-longitude 11.5892)
+  (setq calendar-location-name "Jena, Germany")
+
+  (setq calendar-time-zone +60)
+  (setq calendar-standard-time-zone-name "CET")
+  (setq calendar-daylight-time-zone-name "CEST")
+
+  (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
+
+  ;; https://github.com/chrisbarrett/osx-bbdb
+  (when (equal system-type 'darwin)
+    (require 'osx-bbdb))
 #+END_SRC
 ** Grundlegende Pakete
 
@@ -426,10 +488,15 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
      ("M-i" . counsel-imenu)
      ("C-c g" . counsel-git)
      ("C-c j" . counsel-git-grep)
-     ("C-c k" . counsel-ag)
+     ("C-c k" . counsel-rg)
+     ("C-c K" . counsel-ag)
      ("C-x l" . counsel-locate)
      :map ivy-minibuffer-map
-     ("M-y" . ivy-next-line)))
+     ("M-y" . ivy-next-line))
+    :config
+    (setq counsel-git-cmd "rg --files")
+    (setq counsel-rg-base-command
+          "rg -i -M 120 --no-heading --line-number --color never %s ."))
 
   (use-package ivy
     :ensure t
@@ -449,7 +516,13 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
     :ensure t
     :config
     (ivy-prescient-mode t)
-    (prescient-persist-mode t))
+    (prescient-persist-mode t)
+    (setq ivy-re-builders-alist
+          '((swiper . ivy--regex)
+            (counsel-ag . ivy--regex-plus)
+            (counsel-rg . ivy--regex-plus)
+            (t      . ivy-prescient-re-builder)))
+    (add-to-list 'ivy-prescient-excluded-commands 'counsel-rg))
 
   (use-package ivy-hydra
     :ensure t
@@ -868,69 +941,6 @@ Die Dokumentation ist [[http://github.com/alphapapa/magit-todos][hier]] zu finde
       (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
       (push (org-projectile-project-todo-entry) org-capture-templates))
     :ensure t)
-#+END_SRC
-
-
-** Umgebungsvariablen, Mac-Spezifika etc
-
-Verschiedenes, das sich über die Zeit angesammelt hat.
-
-#+BEGIN_SRC emacs-lisp
-  ;; Startet einen Server, um sich mit emacsclient verbinden zu können.
-  (when window-system
-    (server-start))
-
-  ;; https://github.com/purcell/exec-path-from-shell
-  (when (memq window-system '(mac ns))
-    (exec-path-from-shell-initialize))
-
-  (setq
-   ns-command-modifier 'meta         ; Apple/Command key is Meta
-   ns-alternate-modifier nil         ; Option is the Mac Option key
-   ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
-   )
-
-  (setq locate-command "mdfind")  ;; Use Mac OS X's Spotlight
-  (global-set-key (kbd "C-c f l") 'locate)
-
-  ;; exchanging clipboard content with other applications
-  (setq select-enable-clipboard t)
-
-  (setq
-   initial-major-mode 'emacs-lisp-mode    ; *scratch* shows up in emacs-lisp-mode
-   )
-
-  (setq cursor-type (quote (box)))        ; box cursor
-  (put 'downcase-region 'disabled nil)    ; Erlaubt up/downcase Befehle
-  (put 'upcase-region 'disabled nil)
-  (put 'scroll-left 'disabled nil)        ; Erlaubt horizontales Scrollen
-  (put 'narrow-to-region 'disabled nil)   ; Erlaubt narrow/wide
-
-  (setq delete-by-moving-to-trash t
-        trash-directory "~/.Trash/emacs")
-
-  (setq shell-file-name           "bash")
-  (setq sh-shell-file             "/bin/bash")
-  (setq tex-shell-file-name       "bash")
-
-  (setq user-full-name "Martin Buchmann")
-  (setq user-login-name "Martin")
-  (setq user-mail-address "Martin.Buchmann@gmail.com")
-  (setq smtpmail-smtp-user "Martin.Buchmann")
-
-  (setq calendar-latitude 50.9271)
-  (setq calendar-longitude 11.5892)
-  (setq calendar-location-name "Jena, Germany")
-
-  (setq calendar-time-zone +60)
-  (setq calendar-standard-time-zone-name "CET")
-  (setq calendar-daylight-time-zone-name "CEST")
-
-  (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
-
-  ;; https://github.com/chrisbarrett/osx-bbdb
-  (when (equal system-type 'darwin)
-    (require 'osx-bbdb))
 #+END_SRC
 
 ** Erscheinung
@@ -1374,8 +1384,6 @@ Ein Interface für [[https://github.com/walseb/blimp][ImageMagick]].
 
   (global-set-key (kbd "C-x k") 'kill-this-buffer)
 
-  (global-set-key (kbd "C-c j") 'flyspell-check-previous-highlighted-word)
-
   (global-set-key (kbd "\C-c\C-f") 'find-file-at-point)
 
   (global-set-key (kbd "\C-c i") 'my-insert-file-name)
@@ -1398,8 +1406,6 @@ Ein Interface für [[https://github.com/walseb/blimp][ImageMagick]].
   (define-prefix-command 'mb-map)
   (global-set-key (kbd "C-z") 'mb-map)
   (define-key mb-map (kbd "c") 'multiple-cursors-hydra/body)
-  (define-key mb-map (kbd "g") 'counsel-ag)
-
   (define-key mb-map (kbd "s") 'flyspell-correct-word-before-point)
   (define-key  mb-map "\C-i" #'endless/ispell-word-then-abbrev)
 
