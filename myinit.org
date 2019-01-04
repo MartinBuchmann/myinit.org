@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2018-12-21 12:52:21 Martin>
+# Time-stamp: <2019-01-04 19:36:50 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -103,7 +103,7 @@ Wie der Name schon sagt, Grundlegendes, das zu Beginn und global geregelt werden
 
 *** Automatische Korrekur von regelmäßigen Tippfehlern
 
-[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Hier gefunden.]
+[[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Hier gefunden]]
 
 #+BEGIN_SRC emacs-lisp
   (defun endless/simple-get-word ()
@@ -670,8 +670,9 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-src-tab-acts-natively t)
   (setq org-src-window-setup 'current-window)
 
+  (require 'org-tempo)
   (add-to-list 'org-structure-template-alist
-               '("el" "#+BEGIN_SRC emacs-lisp\n\?\n#+END_SRC"))
+               '("el" . "src emacs-lisp"))
 
   ;; Meine eigenen Agenda-Ansichten
   (setq org-agenda-custom-commands
@@ -806,7 +807,7 @@ Ein sehr wertvolles Feature, auf meine Bedürfnisse angepasst.
 	  ("f" "Film" entry (file+headline "~/Dropbox/orgfiles/Filme.org" "Filme")
 	   "** Irgendwann %^{Titel}\n:PROPERTIES:\n:GENRE: %^{Genre}\n:END:\n- Empfohlen von: %^{Empfohlen von:}\n:LOGBOOK:\n - Added: %U\n:END:\n")))
 
-    ;; Capturing from outside of a runnign emacs
+    ;; Capturing from outside of a running emacs
     ;; http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WJzewBiX-V4
     (defadvice org-capture-finalize
         (after delete-capture-frame activate)
@@ -839,19 +840,39 @@ Ein sehr wertvolles Feature, auf meine Bedürfnisse angepasst.
 
 #+BEGIN_SRC emacs-lisp
   (use-package poporg
-    :ensure t
+    :disabled t
     :bind (("C-c e o" . poporg-dwim))
     ;; *This* works /nicely/!
     )
 #+END_SRC
+
+**** Outshine Mode
+
+Ein [[https://github.com/alphapapa/outshine/blob/master/README.org][schlanker Versuch]] von /Literate Programming/. Funktioniert leider aktuell
+nicht richtig, deshalb erst einmal deaktiviert.
+
+#+begin_src emacs-lisp
+  (use-package outshine
+    :disabled t
+    :init
+    (defvar outline-minor-mode-prefix (kbd "M-x"))
+    :config
+    (setq outshine-use-speed-commands t)
+    :hook
+    ((emacs-lisp-mode lisp-mode) . outshine-mode))
+#+end_src
+
 *** Magit, gist usw.
 
 Nach =org mode= der zweite wichtige Grund =Emacs= zu verwenden.
 
 #+BEGIN_SRC emacs-lisp
-  (global-magit-file-mode t)
-  (global-set-key (kbd "C-x g") 'magit-status)
-  (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
+  (use-package magit
+    :ensure t
+    :config
+    (global-magit-file-mode t)
+    (global-set-key (kbd "C-x g") 'magit-status)
+    (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256"))))
 
   (use-package gist
     :defer t)
@@ -1314,6 +1335,17 @@ Hervorheben der Klammern usw.
   (global-prettify-symbols-mode)
 #+END_SRC
 
+*** log4cl
+
+Ich +verwende+ /habe/ [[https://github.com/sharplispers/log4cl/][log4cl]] zur besseren Ausgabe von Statusinformationen usw
+verwendet, aber die Emacs-Integration klappt noch nicht. Deshalb deaktiviere ich
+das Paket erst einmal wieder.
+
+#+BEGIN_SRC emacs-lisp
+;; (load "~/quicklisp/log4slime-setup.el")
+;; (global-log4slime-mode 0)
+#+END_SRC
+
 ** AucTeX
 
 Ich verwende LaTeX immer noch für Briefe, Bewerbung usw. und habe durch [[https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/][Piotrs]]
@@ -1445,4 +1477,4 @@ Ein Interface für [[https://github.com/walseb/blimp][ImageMagick]].
 #  LocalWords:  gist dired autocomplete diminish beginend key dash define word
 #  LocalWords:  Buffer cursors counsel readline completion window Customizing
 #  LocalWords:  the expand region shift numbers Tree ace hydra Dashboard jump
-#  LocalWords:  link slime Blimp
+#  LocalWords:  link slime Blimp poporg Outshine Literate Programming
