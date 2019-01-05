@@ -30,9 +30,7 @@
  '(org-agenda-files
    (quote
     ("~/Dropbox/orgfiles/Martin.org" "~/Dropbox/orgfiles/Notes.org" "~/Dropbox/orgfiles/beorg.org" "~/Dropbox/orgfiles/binnova.org")))
- '(org-modules
-   (quote
-    (org-bbdb org-bibtex org-docview org-gnus org-habit org-info org-irc org-mhe org-rmail org-w3m)))
+ '(org-modules (quote (org-bbdb org-habit org-info)))
  '(osxb-import-with-timer nil)
  '(package-selected-packages
    (quote

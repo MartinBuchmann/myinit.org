@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-01-04 19:36:50 Martin>
+# Time-stamp: <2019-01-05 14:21:43 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -34,13 +34,13 @@ aus, anstatt =init.el= zu erweitern.
 #+BEGIN_SRC emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file)
+  (mb/sections)
 #+END_SRC
 ** Sicherheit
    Einige grundlegende Einstellungen, um sicherzustellen, dass über das
    Paketmanager keine allzu großen Sicherheitslücken entstehen. Inspiriert von
    [[https://glyph.twistedmatrix.com/2015/11/editor-malware.html][Your editor is malware]]
 #+BEGIN_SRC emacs-lisp
-  (require 'cl)
   (setq tls-checktrust t)
 
   (setq python "/opt/local/bin/python")
@@ -148,6 +148,7 @@ Wie der Name schon sagt, Grundlegendes, das zu Beginn und global geregelt werden
   (defconst use-backup-dir t)             ; use backup directory
   (setq make-backup-files t)
   (setq backup-directory-alist (quote ((".*" . "~/.emacs.d/backups"))))
+  (mb/sections)
 #+END_SRC
 
 ** Umgebungsvariablen, Mac-Spezifika etc
@@ -210,6 +211,7 @@ Verschiedenes, das sich über die Zeit angesammelt hat.
   ;; https://github.com/chrisbarrett/osx-bbdb
   (when (equal system-type 'darwin)
     (require 'osx-bbdb))
+  (mb/sections)
 #+END_SRC
 ** Grundlegende Pakete
 
@@ -472,6 +474,8 @@ Ich setze es immer noch zu wenig ein, aber alleine das [[http://emacsrocks.com/e
     :bind
     (("C-ß" . ace-mc-add-multiple-cursors)
      ("C-M-ß" . ace-mc-add-single-cursor)))
+
+  (mb/sections)
 #+END_SRC
 *** counsel/ivy/swiper/hydra
 
@@ -554,6 +558,7 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
        ("p" (lambda () (interactive) (forward-line -1))  "up")
        ("g" goto-line "goto-line")
        )))
+    (mb/sections)
 #+END_SRC
 
 *** Avy
@@ -853,9 +858,9 @@ nicht richtig, deshalb erst einmal deaktiviert.
 
 #+begin_src emacs-lisp
   (use-package outshine
-    :disabled t
+    :ensure t
     :init
-    (defvar outline-minor-mode-prefix (kbd "M-x"))
+    (defvar outline-minor-mode-prefix "\M-x")
     :config
     (setq outshine-use-speed-commands t)
     :hook
@@ -962,6 +967,8 @@ Die Dokumentation ist [[http://github.com/alphapapa/magit-todos][hier]] zu finde
       (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
       (push (org-projectile-project-todo-entry) org-capture-templates))
     :ensure t)
+
+  (mb/sections)
 #+END_SRC
 
 ** Erscheinung
@@ -1192,6 +1199,8 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
                             (agenda . 5)
                             ; (registers . 5)
                             )))
+
+  (mb/sections)
 #+END_SRC
 
 ** Eigene Funktionen
@@ -1225,6 +1234,8 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
   (defun config-reload ()
     (interactive)
     (org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org")))
+
+  (mb/sections)
 #+END_SRC
 * Spezielle Modi
 ** YASnippet
@@ -1409,6 +1420,8 @@ Ein Interface für [[https://github.com/walseb/blimp][ImageMagick]].
     :ensure t
     :config
     (add-hook 'image-mode-hook 'blimp-mode))
+
+  (mb/sections)
 #+END_SRC
 * Tastenbelegungen
 #+BEGIN_SRC emacs-lisp
@@ -1448,9 +1461,9 @@ Ein Interface für [[https://github.com/walseb/blimp][ImageMagick]].
   (define-key mb-map (kbd "i") 'my-org)
   (define-key mb-map (kbd "e") 'config-visit)
   (define-key mb-map (kbd "r") 'config-reload)
-  (define-key mb-map (kbd "m") 'mu4e)
   (define-key mb-map (kbd "w") 'define-word-at-point)
 
+  (mb/sections)
 #+END_SRC
 
 * Meine Makros
@@ -1462,12 +1475,15 @@ Ein Interface für [[https://github.com/walseb/blimp][ImageMagick]].
 
   (fset 'dkb-import
      [?\C-  ?\C-n ?\C-n ?\C-n ?\C-n ?\C-n ?\C-n ?\C-w ?\M-% ?\; return tab return ?! ?\M-< ?\M-% ?\" return return ?!])
+
+  (mb/sections)
 #+END_SRC
 
 * Ende
 #+BEGIN_SRC emacs-lisp
   (message "Martins myinit.org wurde gelesen.")
   (alert "Emacs ist gestartet..." :title "Emacs says:" :severity 'highest :persistent t)
+  (mb/sections)
 #+END_SRC
 
 #  LocalWords:  utf German hook trackpad mode Frames capture org swiper babel

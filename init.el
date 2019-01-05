@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2019-01-04 19:31:21 Martin>
+;; Time-stamp: <2019-01-05 14:27:25 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -27,7 +27,6 @@
 (require 'use-package)
 
 (message "Dies ist Martins init.el")
-
 ;;----------------------------------------
 ;; Neu strukturiert und ergänzt nach
 ;; https://github.com/durantschoon/.emacs.d/tree/boilerplate-sane-defaults_v1.0
@@ -47,6 +46,30 @@
 (require 'benchmark-init-loaddefs)
 (benchmark-init/activate)
 
+;;; For some simple debugging
+(require 'cl)
+(defvar mb/section-counter 0
+  "A counter for the Section of my config, for debugging mostly")
+
+(defun mb/sections ()
+  "A simple message function for chekcing the loading of my config."
+  (message "Section %d loaded" mb/section-counter)
+  (incf mb/section-counter))
+
+(defun mb/find-outline-bug ()
+  "Checking where outline-minor-mode-prefix is defined."
+  (if (boundp 'outline-minor-mode-prefix)
+      (message "outline-minor-mode-prefix is defined!")
+    (message "outline-minor-mode-prefix is NOT defined!")))
+
+(advice-add #'mb/sections :before #'mb/find-outline-bug)
+
+;; Output of the current section number to the *Message* buffer 
+(mb/sections)
+
+(defvar outline-minor-mode-prefix "\M-#")
+
+(mb/sections)
 ;; Die eigentlichen Anpassungen erfolgen in myinit.org
 (org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org"))
 
