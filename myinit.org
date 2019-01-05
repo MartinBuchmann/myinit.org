@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-01-05 14:21:43 Martin>
+# Time-stamp: <2019-01-05 14:30:01 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -845,27 +845,11 @@ Ein sehr wertvolles Feature, auf meine Bedürfnisse angepasst.
 
 #+BEGIN_SRC emacs-lisp
   (use-package poporg
-    :disabled t
+    :ensure t
     :bind (("C-c e o" . poporg-dwim))
     ;; *This* works /nicely/!
     )
 #+END_SRC
-
-**** Outshine Mode
-
-Ein [[https://github.com/alphapapa/outshine/blob/master/README.org][schlanker Versuch]] von /Literate Programming/. Funktioniert leider aktuell
-nicht richtig, deshalb erst einmal deaktiviert.
-
-#+begin_src emacs-lisp
-  (use-package outshine
-    :ensure t
-    :init
-    (defvar outline-minor-mode-prefix "\M-x")
-    :config
-    (setq outshine-use-speed-commands t)
-    :hook
-    ((emacs-lisp-mode lisp-mode) . outshine-mode))
-#+end_src
 
 *** Magit, gist usw.
 

@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2019-01-05 14:27:25 Martin>
+;; Time-stamp: <2019-01-05 14:29:04 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -56,20 +56,9 @@
   (message "Section %d loaded" mb/section-counter)
   (incf mb/section-counter))
 
-(defun mb/find-outline-bug ()
-  "Checking where outline-minor-mode-prefix is defined."
-  (if (boundp 'outline-minor-mode-prefix)
-      (message "outline-minor-mode-prefix is defined!")
-    (message "outline-minor-mode-prefix is NOT defined!")))
-
-(advice-add #'mb/sections :before #'mb/find-outline-bug)
-
 ;; Output of the current section number to the *Message* buffer 
 (mb/sections)
 
-(defvar outline-minor-mode-prefix "\M-#")
-
-(mb/sections)
 ;; Die eigentlichen Anpassungen erfolgen in myinit.org
 (org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org"))
 
