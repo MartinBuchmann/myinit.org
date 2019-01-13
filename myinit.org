@@ -2,12 +2,14 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-01-05 14:30:01 Martin>
+# Time-stamp: <2019-01-13 14:51:36 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
 
-Nachdem Update auf Emacs 26 hatte ich vereinzelt [[https://emacs.stackexchange.com/questions/42343/package-html2text-is-obsolete][Probleme]] mit veralteten Pakete. Diese Funktion gibt einen spezifischen Fehler aus, der hilft den Übeltäter zu identifizieren.
+Nachdem Update auf Emacs 26 hatte ich vereinzelt [[https://emacs.stackexchange.com/questions/42343/package-html2text-is-obsolete][Probleme]] mit veralteten
+Pakete. Diese Funktion gibt einen spezifischen Fehler aus, der hilft den
+Übeltäter zu identifizieren.
 #+BEGIN_SRC emacs-lisp
   (defun debug-on-load-obsolete (filename)
     (when (equal (car (last (split-string filename "[/\\]") 2))
@@ -27,14 +29,6 @@ Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
   (setenv "INFOPATH"
           (concat (getenv "INFOPATH") ":"
                   (expand-file-name "/opt/local/share/info/")))
-#+END_SRC
-** Das =Customize=-Interface
-Lagert die Einstellungen über das =Customize=-Interface in eine eigene Datei
-aus, anstatt =init.el= zu erweitern.
-#+BEGIN_SRC emacs-lisp
-  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-  (load custom-file)
-  (mb/sections)
 #+END_SRC
 ** Sicherheit
    Einige grundlegende Einstellungen, um sicherzustellen, dass über das
@@ -64,6 +58,14 @@ aus, anstatt =init.el= zu erweitern.
 	      '((:source "~/.emacs.d/secrets/.authinfo.gpg")))
 #+END_SRC
 
+** Das =Customize=-Interface
+Lagert die Einstellungen über das =Customize=-Interface in eine eigene Datei
+aus, anstatt =init.el= zu erweitern.
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+  (mb/sections)
+#+END_SRC
 ** Grundlegende Einstellungen
 
 Wie der Name schon sagt, Grundlegendes, das zu Beginn und global geregelt werden soll.
@@ -89,6 +91,16 @@ Wie der Name schon sagt, Grundlegendes, das zu Beginn und global geregelt werden
 
   ;; auto refresh dired when file changes
   (add-hook 'dired-mode-hook 'auto-revert-mode)
+  (mb/sections)
+
+  (setq initial-major-mode 'emacs-lisp-mode)     ; *scratch* shows up in emacs-lisp-mode
+
+  (setq cursor-type (quote (box)))        ; box cursor
+  (put 'downcase-region 'disabled nil)    ; Erlaubt up/downcase Befehle
+  (put 'upcase-region 'disabled nil)
+  (put 'scroll-left 'disabled nil)        ; Erlaubt horizontales Scrollen
+  (put 'narrow-to-region 'disabled nil)   ; Erlaubt narrow/wide
+
 #+END_SRC
 
 *** Abkürzungen einschalten
@@ -156,35 +168,27 @@ Wie der Name schon sagt, Grundlegendes, das zu Beginn und global geregelt werden
 Verschiedenes, das sich über die Zeit angesammelt hat.
 
 #+BEGIN_SRC emacs-lisp
-  ;; Startet einen Server, um sich mit emacsclient verbinden zu können.
   (when window-system
-    (server-start))
+    ;; Startet einen Server, um sich mit emacsclient verbinden zu können.
+    (server-start) 
+
+    ;; exchanging clipboard content with other applications
+    (setq select-enable-clipboard t))
 
   ;; https://github.com/purcell/exec-path-from-shell
   (when (memq window-system '(mac ns))
-    (exec-path-from-shell-initialize))
+    (exec-path-from-shell-initialize)
 
-  (setq
-   ns-command-modifier 'meta         ; Apple/Command key is Meta
-   ns-alternate-modifier nil         ; Option is the Mac Option key
-   ns-use-mac-modifier-symbols  nil  ; display standard Emacs (and not standard Mac) modifier symbols)
-   )
+    (setq ns-command-modifier 'meta         ; Apple/Command key is Meta
+          ns-alternate-modifier nil         ; Option is the Mac Option key
+          ns-use-mac-modifier-symbols  nil) ; display standard Emacs (and not standard Mac) modifier symbols)
 
-  (setq locate-command "mdfind")  ;; Use Mac OS X's Spotlight
-  (global-set-key (kbd "C-c f l") 'locate)
+    (setq locate-command "mdfind") ; Use Mac OS X's Spotlight
+    (global-set-key (kbd "C-c f l") 'locate)
 
-  ;; exchanging clipboard content with other applications
-  (setq select-enable-clipboard t)
-
-  (setq
-   initial-major-mode 'emacs-lisp-mode    ; *scratch* shows up in emacs-lisp-mode
-   )
-
-  (setq cursor-type (quote (box)))        ; box cursor
-  (put 'downcase-region 'disabled nil)    ; Erlaubt up/downcase Befehle
-  (put 'upcase-region 'disabled nil)
-  (put 'scroll-left 'disabled nil)        ; Erlaubt horizontales Scrollen
-  (put 'narrow-to-region 'disabled nil)   ; Erlaubt narrow/wide
+    ;; https://github.com/chrisbarrett/osx-bbdb
+    (when (equal system-type 'darwin)
+      (require 'osx-bbdb)))
 
   (setq delete-by-moving-to-trash t
         trash-directory "~/.Trash/emacs")
@@ -208,9 +212,6 @@ Verschiedenes, das sich über die Zeit angesammelt hat.
 
   (setq bookmark-default-file (expand-file-name "~/.emacs.d/emacs.bmk"))
 
-  ;; https://github.com/chrisbarrett/osx-bbdb
-  (when (equal system-type 'darwin)
-    (require 'osx-bbdb))
   (mb/sections)
 #+END_SRC
 ** Grundlegende Pakete
@@ -234,6 +235,7 @@ Unterdrückt überflüssige Anzeigen in der =mode-line=.
   (use-package diminish
     :ensure t)
 #+END_SRC
+
 *** Helpful
 [[https://github.com/Wilfred/helpful][Helpful]] erweitert die Informationen im Help-Buffer.
 #+BEGIN_SRC emacs-lisp
@@ -257,6 +259,7 @@ Schnelleres Springen an den Beginn/das Ende des Buffers.
     :config
     (beginend-global-mode))
 #+END_SRC
+
 *** alert
 Ich verwende [[https://github.com/jwiegley/alert][alert]] um Benachrichtigungen anzuzeigen.  Da [[http://growl.info][Growl]] nicht
 funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][terminal-notifier]].
@@ -380,41 +383,7 @@ Für meinen Workflow immer wieder hilfreich.
     :ensure t)
 
 #+END_SRC
-*** Farbige Lesezeichen im =Buffer=
 
-Hier weiß ich nicht, ob ich das wirklich brauche, aber es klingt jedesmal wieder interessant.
-#+BEGIN_SRC emacs-lisp
-  ;; Make sure the repository is loaded as early as possible
-  (setq bm-restore-repository-on-load t)
-  (use-package bm
-    :ensure t
-    :bind
-    (("<M-f4>" . bm-toggle)
-     ("<f4>" . bm-next)
-     ("<S-f4>" . bm-previous)
-     ("<M-S-f4>" . bm-bookmark-annotate))
-    :config
-    ;; make bookmarks persistent as default
-    (setq-default bm-buffer-persistence t)
-    ;; Loading the repository from file when on start up.
-    (add-hook' after-init-hook 'bm-repository-load)
-    ;; Restoring bookmarks when on file find.
-    (add-hook 'find-file-hooks 'bm-buffer-restore)
-    ;; Saving bookmark data on killing a buffer
-    (add-hook 'kill-buffer-hook 'bm-buffer-save)
-    ;; Saving the repository to file when on exit.
-    ;; kill-buffer-hook is not called when emacs is killed, so we
-    ;; must save all bookmarks first.
-    (add-hook 'kill-emacs-hook '(lambda nil
-                                  (bm-buffer-save-all)
-                                  (bm-repository-save)))
-    ;; Update bookmark repository when saving the file.
-    (add-hook 'after-save-hook 'bm-buffer-save)
-    ;; Restore bookmarks when buffer is reverted.
-    (add-hook 'after-revert-hook 'bm-buffer-restore)
-    ;; make sure bookmarks is saved before check-in (and revert-buffer)
-    (add-hook 'vc-before-checkin-hook 'bm-buffer-save))
-#+END_SRC
 *** pdf-tools
 
 Darstellung von pdfs direkt in =Emacs= 
@@ -432,7 +401,58 @@ Ein Thesarus für das aktuelle Wort mittels ~C-z w~ , s. =define-word= im =Custo
 #+BEGIN_SRC emacs-lisp
   (use-package define-word
     :ensure t)
+
+  ;; https://github.com/abo-abo/define-word/issues/16
+  ;; TODO: Umlaute komplett dekodieren
+  (defun de-escape (string)
+    "Replaces html encoded umlauts with their proper character."
+    (let ((replacements '(("&Auml;" "Ä")
+                          ("&auml;" "ä")
+                          ("&Eacute;" "É")
+                          ("&eacute;" "é")
+                          ("&Ouml;" "Ö")
+                          ("&ouml;" "ö")
+                          ("&Uuml;" "Ü")
+                          ("&uuml;" "ü")
+                          ("&szlig;" "ß")
+                          ("\303\244" "ä")
+                          ("\342\200\236" "„")
+                          ("\342\200\234" "“")))
+          (case-fold-search nil))
+      (with-temp-buffer
+        (insert string)
+        (dolist (replacement replacements)
+          (cl-destructuring-bind (old new) replacement
+            (goto-char (point-min))
+            (while (search-forward old nil t)
+              (replace-match new))))
+        (buffer-string))))
+
+  (defun define-word--parse-openthesaurus ()
+    "Parse output from openthesaurus site and return formatted list"
+    (save-match-data
+      (let (results part beg)
+        (goto-char (point-min))
+        (nxml-mode)
+        (while (re-search-forward "<sup>" nil t)
+          (goto-char (match-beginning 0))
+          (setq beg (point))
+          (nxml-forward-element)
+          (delete-region beg (point)))
+        (goto-char (point-min))
+        (while (re-search-forward
+                "<span class='wiktionaryItem'> [0-9]+.</span>\\([^<]+\\)<" nil t)
+          (setq part (match-string 1))
+          (backward-char)
+          (push (string-trim part) results))
+        (setq results (nreverse results))
+        (if (= 0 (length results))
+            (message "0 definitions found")
+          (when (> (length results) define-word-limit)
+            (setq results (cl-subseq results 0 define-word-limit)))
+          (mapconcat #'de-escape results "\n")))))
 #+END_SRC
+
 *** multiple cursors
 
 Ich setze es immer noch zu wenig ein, aber alleine das [[http://emacsrocks.com/e13.html][Video]] ist wunderbar.
@@ -477,6 +497,7 @@ Ich setze es immer noch zu wenig ein, aber alleine das [[http://emacsrocks.com/e
 
   (mb/sections)
 #+END_SRC
+
 *** counsel/ivy/swiper/hydra
 
 Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.org/blog/?p=5340][Tipps]], [[http://cestlaz.github.io/posts/using-emacs-6-swiper/#.W0NUoMkyWUl][Videos]] [[http://pragmaticemacs.com/emacs/counsel-yank-pop-with-a-tweak/][usw]].
@@ -607,6 +628,7 @@ Schnelleres Folgen von Links.
     :bind
     ("M-Z" . ace-jump-zap-up-to-char))
 #+END_SRC
+
 *** readline-completion
 
 Ich benutze =shell-mode= relativ viel.
@@ -622,6 +644,7 @@ Ich benutze =shell-mode= relativ viel.
      (add-to-list 'ac-modes 'shell-mode)
      (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
 #+END_SRC
+
 *** org-mode
 
 Ich habe viele Tipps zu [[http://orgmode.org][Org-mode]] bei [[https://github.com/zamansky/using-emacs/tree/lesson-2-org][Mike]] gefunden.  Die Feineinstellungen und
@@ -732,14 +755,15 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
 (use-package htmlize
   :ensure t)
 #+END_SRC
+
 ***** Zusätzliche TODO-Keywords und Tags
 #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
-	'((sequence "TODO(t@/!)" "Nächstes(n)" "Warten(w@/!)" "Projekt(p)" "Irgendwann(i)"
-		    "|" "DONE(d@/!)" "Gestoppt(g/!)")))
+        '((sequence "TODO(t@/!)" "Nächstes(n)" "Warten(w@/!)" "Projekt(p)" "Irgendwann(i)"
+                    "|" "DONE(d@/!)" "Gestoppt(g/!)")))
 
   (setq org-tag-alist '(("@Arbeit" . ?a) ("@Zuhause" . ?z)
-			("Hobby" . ?h) ("Reichardtstieg" . ?r) ("Anrufe" . ?A) ("Dringend" . ?d)))
+                        ("Hobby" . ?h) ("Reichardtstieg" . ?r) ("Anrufe" . ?A) ("Dringend" . ?d)))
 
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-checkbox-dependencies t)
@@ -753,7 +777,8 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (setq org-log-redeadline 'note)
   (setq org-log-note-clock-out t)
   (setq org-archive-location    "~/Dropbox/orgfiles/archive.org::* From %s")
-#+END_SRC 
+#+END_SRC
+ 
 **** org-babel
 #+BEGIN_SRC emacs-lisp
   (org-babel-do-load-languages
@@ -761,6 +786,7 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
    '((lisp . t)
      (emacs-lisp . t)))
 #+END_SRC
+
 **** org-bullets
  
 Ersetzt die einfachen =*= durch etwas hübschere Zeichen.
@@ -777,7 +803,6 @@ Ersetzt die einfachen =*= durch etwas hübschere Zeichen.
   (use-package org-ac
     :ensure t
     :init 
-    (require 'org-ac)
     (org-ac/config-default))
 #+END_SRC
 
@@ -851,6 +876,23 @@ Ein sehr wertvolles Feature, auf meine Bedürfnisse angepasst.
     )
 #+END_SRC
 
+**** Outshine Mode
+
+Trotz einiger [[https://github.com/alphapapa/outshine/issues/45#issuecomment-452328451][Probleme]] eine sehr interessante Ergänzung.
+
+#+begin_src emacs-lisp
+  (use-package outshine
+      :disabled t
+      ;; :init
+      ;; (defvar outline-minor-mode-prefix "\M-#")
+      ;; Schon in init.el definiert.
+      :config
+      (setq outshine-use-speed-commands t)
+      (ad-deactivate 'org-store-log-note)
+      :hook
+      ((emacs-lisp-mode lisp-mode) . outshine-mode))
+#+end_src
+
 *** Magit, gist usw.
 
 Nach =org mode= der zweite wichtige Grund =Emacs= zu verwenden.
@@ -864,7 +906,7 @@ Nach =org mode= der zweite wichtige Grund =Emacs= zu verwenden.
     (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256"))))
 
   (use-package gist
-    :defer t)
+    :ensure t)
 
   (use-package git-gutter
     :ensure t
@@ -959,43 +1001,44 @@ Die Dokumentation ist [[http://github.com/alphapapa/magit-todos][hier]] zu finde
 
 *** Windows und Frames
 #+BEGIN_SRC emacs-lisp
-  (set-frame-size (selected-frame) 220 70)
-  (set-frame-position (selected-frame) 165 35)
-  (set-default-font                    
-   "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
-  (setq auto-window-vscroll nil)
+  (when window-system
+    (set-frame-size (selected-frame) 220 70)
+    (set-frame-position (selected-frame) 165 35)
+    (set-default-font                    
+     "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
+    (setq auto-window-vscroll nil)
 
-  ;; Fancy titlebar for MacOS
-  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  (add-to-list 'default-frame-alist '(ns-appearance . dark))
-  (setq ns-use-proxy-icon  t)
-  (setq frame-title-format t)
-  (setq ns-pop-up-frames nil)
+    ;; Fancy titlebar for MacOS
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (add-to-list 'default-frame-alist '(ns-appearance . dark))
+    (setq ns-use-proxy-icon  t)
+    (setq frame-title-format t)
+    (setq ns-pop-up-frames nil)
 
-  (global-hl-line-mode t)
-  (delete-selection-mode t)
-  (global-font-lock-mode t)
+    (global-hl-line-mode t)
+    (delete-selection-mode t)
+    (global-font-lock-mode t)
 
-  (winner-mode)
+    (winner-mode)
 
-  (setq pop-up-frame-function (lambda () (split-window-right)))
-  (setq split-height-threshold 1400)
-  (setq split-width-treshold 1500)
+    (setq pop-up-frame-function (lambda () (split-window-right)))
+    (setq split-height-threshold 1400)
+    (setq split-width-treshold 1500)
 
   ;;; https://github.com/daedreth/UncleDavesEmacs/blob/master/config.org
-  (defun split-and-follow-horizontally ()
-    (interactive)
-    (split-window-below)
-    (balance-windows)
-    (other-window 1))
-  (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+    (defun split-and-follow-horizontally ()
+      (interactive)
+      (split-window-below)
+      (balance-windows)
+      (other-window 1))
+    (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
 
-  (defun split-and-follow-vertically ()
-    (interactive)
-    (split-window-right)
-    (balance-windows)
-    (other-window 1))
-  (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+    (defun split-and-follow-vertically ()
+      (interactive)
+      (split-window-right)
+      (balance-windows)
+      (other-window 1))
+    (global-set-key (kbd "C-x 3") 'split-and-follow-vertically))
 #+END_SRC
 
 Im [[https://www.reddit.com/r/emacs/comments/9llbrm/a_hydra_to_scroll_the_other_window_by_half/][anderen]] Fenster scrollen.
@@ -1255,6 +1298,7 @@ Ich benutze =gnuplot= nur selten, aber wenn, dann von =Emacs= aus.
                                     auto-mode-alist))
       (global-set-key [(f9)] 'gnuplot-make-buffer)))
 #+END_SRC
+
 ** Meine Lisp-Umgebung
 
 *** Slime

@@ -1,6 +1,6 @@
 ;;; init.el
 ;;--------------------------------------------------------------------
-;; Time-stamp: <2019-01-05 14:29:04 Martin>
+;; Time-stamp: <2019-01-13 14:20:55 Martin>
 ;;
 ;; Ich habe versucht alles hier zu konfigurieren,
 ;; d.h. soweit wie möglich auf das custom-Interface zu verzichten, um
@@ -56,11 +56,29 @@
   (message "Section %d loaded" mb/section-counter)
   (incf mb/section-counter))
 
-;; Output of the current section number to the *Message* buffer 
+(defun mb/find-outshine-issue ()
+  "Checking where outline-minor-mode-prefix is defined."
+  (if (boundp 'outline-minor-mode-prefix)
+      (message "outline-minor-mode-prefix is defined: %s"
+	       outline-minor-mode-prefix)
+    (message "outline-minor-mode-prefix is NOT defined!")))
+
+;;; I will leave this for the moment here commented out.
+;;; (advice-add #'mb/sections :before #'mb/find-outshine-issue)
+
+;;; Output of the current section number to the *Message* buffer 
+(mb/sections)
+
+;;; I have to define this variable here already to make sure it is changed
+;;; correctly. Not sure if it is a bug or just a interference with org-babel...
+(defvar outline-minor-mode-prefix "\M-#")
+
 (mb/sections)
 
 ;; Die eigentlichen Anpassungen erfolgen in myinit.org
-(org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org"))
+(org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org") nil)
+
+(mb/sections)
 
 (message "Martins init.el wurde gelesen")
 (message "Have a nice day!")
