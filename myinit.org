@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-01-17 19:54:12 Martin>
+# Time-stamp: <2019-01-18 19:54:11 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -1388,12 +1388,14 @@ Hervorheben der Klammern usw.
 
 *** log4cl
 
-Ich +verwende+ /habe/ [[https://github.com/sharplispers/log4cl/][log4cl]] zur besseren Ausgabe von Statusinformationen usw
-verwendet, aber die Emacs-Integration klappt noch nicht. Deshalb deaktiviere ich
-das Paket erst einmal wieder.
+Ich verwende [[https://github.com/sharplispers/log4cl/][log4cl]] zur besseren Ausgabe von Statusinformationen usw verwendet,
+aber die Emacs-Integration klappt noch nicht. Deshalb deaktiviere ich das Paket
+erst einmal wieder.
 
 #+BEGIN_SRC emacs-lisp
-  ;; (load "~/quicklisp/log4slime-setup.el")
+  (defvar log4slime-mode t) ; Simple work-around?!
+  (load "~/quicklisp/log4slime-setup.el")
+  (global-log4slime-mode 0)
 #+END_SRC
 
 ** AucTeX
