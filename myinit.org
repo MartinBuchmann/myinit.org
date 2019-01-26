@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-01-18 19:54:11 Martin>
+# Time-stamp: <2019-01-26 08:51:01 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -453,6 +453,23 @@ Ein Thesarus für das aktuelle Wort mittels ~C-z w~ , s. =define-word= im =Custo
           (mapconcat #'de-escape results "\n")))))
 #+END_SRC
 
+*** fancy-narrow
+#+begin_src emacs-lisp
+  (use-package fancy-narrow
+    :ensure t
+    :diminish fancy-narrow-mode
+    :hook
+    ((emacs-lisp-mode lisp-mode) . fancy-narrow-mode))
+#+end_src
+
+*** hide-show
+#+begin_src emacs-lisp
+  (defun my-hide-all()
+    (interactive)
+    (hs-minor-mode 1)
+    (hs-hide-all))
+  (add-hook 'prog-mode-hook 'my-hide-all)
+#+end_src
 *** multiple cursors
 
 Ich setze es immer noch zu wenig ein, aber alleine das [[http://emacsrocks.com/e13.html][Video]] ist wunderbar.
@@ -659,6 +676,8 @@ viele Tricks sind von [[https://www.youtube.com/playlist?list=PLVtKhBrRV_ZkPnBtt
   (global-set-key "\C-cc" 'org-capture)
   (global-set-key "\C-cb" 'org-iswitchb)
 
+  (setq org-use-speed-commands t)
+
   ;; Allgemeine Einstellungen
   (setq org-directory "~/Dropbox/orgfiles")
   (setq org-default-notes-file (concat org-directory "/Notes.org"))
@@ -864,18 +883,6 @@ Ein sehr wertvolles Feature, auf meine Bedürfnisse angepasst.
               (org-capture)))
 #+END_SRC
 
-**** poporg 
-
-=org mode= /markup/ innerhalb von [[http://pragmaticemacs.com/emacs/write-code-comments-in-org-mode-with-poporg/%0A%0A][Kommentaren]].
-
-#+BEGIN_SRC emacs-lisp
-  (use-package poporg
-    :ensure t
-    :bind (("C-c e o" . poporg-dwim))
-    ;; *This* works /nicely/!
-    )
-#+END_SRC
-
 **** Outshine Mode
 
 Trotz einiger [[https://github.com/alphapapa/outshine/issues/45#issuecomment-452328451][Probleme]] eine sehr interessante Ergänzung.
@@ -979,7 +986,7 @@ Bessere [[https://github.com/vermiculus/magithub/][Integration]] von github.
     :after magit
     :config
     (magithub-feature-autoinject t)
-    (setq magithub-clone-default-directory "~/github"))
+    (setq magithub-clone-default-directory "~/Documents/src/github"))
 #+end_src
 *** projectile
 [[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].
@@ -1530,4 +1537,5 @@ Ein Interface für [[https://github.com/walseb/blimp][ImageMagick]].
 #  LocalWords:  gist dired autocomplete diminish beginend key dash define word
 #  LocalWords:  Buffer cursors counsel readline completion window Customizing
 #  LocalWords:  the expand region shift numbers Tree ace hydra Dashboard jump
-#  LocalWords:  link slime Blimp poporg Outshine Literate Programming
+#  LocalWords:  link slime Blimp poporg Outshine Literate Programming fancy
+#  LocalWords:  narrow hide show
