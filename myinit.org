@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-01-26 08:51:01 Martin>
+# Time-stamp: <2019-01-27 17:45:04 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -417,7 +417,10 @@ Ein Thesarus für das aktuelle Wort mittels ~C-z w~ , s. =define-word= im =Custo
                           ("&szlig;" "ß")
                           ("\303\244" "ä")
                           ("\342\200\236" "„")
-                          ("\342\200\234" "“")))
+                          ("\342\200\234" "“")
+                          ("\303\237" "ß")
+                          ("\303\274" "ü")
+                          ("\303\266" "ö")))
           (case-fold-search nil))
       (with-temp-buffer
         (insert string)
@@ -889,14 +892,15 @@ Trotz einiger [[https://github.com/alphapapa/outshine/issues/45#issuecomment-452
 
 #+begin_src emacs-lisp
   (use-package outshine
-      :ensure t
-      ;; :init
-      ;; (defvar outline-minor-mode-prefix "\M-#")
-      ;; Schon in init.el definiert.
-      :config
-      (setq outshine-use-speed-commands t)
-      :hook
-      ((emacs-lisp-mode lisp-mode) . outshine-mode))
+    :ensure t
+    :diminish 'outshine-mode
+    ;; :init
+    ;; (defvar outline-minor-mode-prefix "\M-#")
+    ;; Schon in init.el definiert.
+    :config
+    (setq outshine-use-speed-commands t)
+    :hook
+    ((emacs-lisp-mode lisp-mode) . outshine-mode))
 #+end_src
 
 *** Magit, gist usw.
