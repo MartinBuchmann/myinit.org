@@ -44,3 +44,4 @@ emms/*
 /var/prescient-save.el
 /.#recentf
 /bookmarks
+/transient/history.el
