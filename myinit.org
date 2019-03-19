@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-02-23 14:05:43 Martin>
+# Time-stamp: <2019-03-19 18:43:19 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -241,19 +241,6 @@ Unterdrückt überflüssige Anzeigen in der =mode-line=.
     :ensure t)
 #+END_SRC
 
-*** Helpful
-[[https://github.com/Wilfred/helpful][Helpful]] erweitert die Informationen im Help-Buffer.
-#+BEGIN_SRC emacs-lisp
-  (use-package helpful
-    :ensure t
-    :bind
-    ("C-h f" . helpful-callable)
-    ("C-h v" . helpful-variable)
-    ("C-h k" . helpful-key)
-    ("C-c C-d" . helpful-at-point)
-    ("C-h F" . helpful-function)
-    ("C-h C" . helpful-command))
-#+END_SRC
 *** beginend
 
 Schnelleres Springen an den Beginn/das Ende des Buffers.
@@ -265,6 +252,19 @@ Schnelleres Springen an den Beginn/das Ende des Buffers.
     (beginend-global-mode))
 #+END_SRC
 
+*** Move where I mean
+
+[[https://github.com/alezost/mwim.el/blob/master/README.org][Improving]] the movment within a line. 
+
+#+begin_src emacs-lisp
+  (use-package mwim
+    :ensure t
+    :bind
+    ("C-a" . mwim-beginning-of-code-or-line)
+    ("C-e" . 'mwim-end-of-code-or-line)
+    ("<home>" . 'mwim-beginning-of-line-or-code)
+    ("<end>" . 'mwim-end-of-line-or-code))
+#+end_src
 *** alert
 Ich verwende [[https://github.com/jwiegley/alert][alert]] um Benachrichtigungen anzuzeigen.  Da [[http://growl.info][Growl]] nicht
 funktioniert, verwende ich [[https://github.com/julienXX/terminal-notifier][terminal-notifier]].
@@ -362,6 +362,7 @@ Für meinen Workflow immer wieder hilfreich.
     (recentf-mode 1)
     :config
     (add-to-list 'recentf-exclude (format "%s/\\.emacs\\.d/elpa/.*" (getenv "HOME")))
+    (add-to-list 'recentf-exclude "/var/.*")
     :bind ("C-c f f" . recentf-open-files))
 #+END_SRC
 *** dired
@@ -461,14 +462,6 @@ Ein Thesarus für das aktuelle Wort mittels ~C-z w~ , s. =define-word= im =Custo
           (mapconcat #'de-escape results "\n")))))
 #+END_SRC
 
-*** hide-show
-#+begin_src emacs-lisp
-  (defun my-hide-all()
-    (interactive)
-    (hs-minor-mode 1)
-    (hs-hide-all))
-  (add-hook 'prog-mode-hook (lambda () (hs-minor-mode 1)))
-#+end_src
 *** multiple cursors
 
 Ich setze es immer noch zu wenig ein, aber alleine das [[http://emacsrocks.com/e13.html][Video]] ist wunderbar.
@@ -500,7 +493,7 @@ Ich setze es immer noch zu wenig ein, aber alleine das [[http://emacsrocks.com/e
       ("M-p" mc/unmark-previous-like-this)
       ("r" mc/mark-all-in-region-regexp :exit t)
       ("q" nil)
-    
+
       ("<mouse-1>" mc/add-cursor-on-click)
       ("<down-mouse-1>" ignore)
       ("<drag-mouse-1>" ignore)))
@@ -562,8 +555,7 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
           '((swiper . ivy--regex)
             (counsel-ag . ivy--regex-plus)
             (counsel-rg . ivy--regex-plus)
-            (t      . ivy-prescient-re-builder)))
-    (add-to-list 'ivy-prescient-excluded-commands 'counsel-rg))
+            (t      . ivy-prescient-re-builder))))
 
   (use-package ivy-hydra
     :ensure t
@@ -1173,6 +1165,17 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
 
 #+END_SRC
 
+*** Focus mode
+
+I will try if [[https://github.com/larstvei/Focus/blob/master/README.md][this]] helps me keeping the focus...
+
+#+begin_src emacs-lisp
+  (use-package focus
+    :ensure t
+    :hook
+    (prog-mode . focus-mode))
+#+end_src
+
 *** Editing
 #+BEGIN_SRC emacs-lisp
   ;; Ich arbeite in einer deutschen Umgebung
@@ -1342,10 +1345,11 @@ Ich verwende [[http://common-lisp.net/project/slime/][Slime]] wieder von quickli
   (setq slime-lisp-implementations
         '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
           (clisp ("/opt/local/bin/clisp"))
-          (ccl   ("/opt/local/bin/ccl64 -K utf8"))))
+          (ccl   ("/opt/local/bin/ccl64") :coding-system utf-8-unix)))
   (setq slime-net-coding-system 'utf-8-unix)
   (slime-setup
    '(slime-repl-ansi-color slime-fancy slime-banner slime-indentation slime-asdf slime-tramp slime-fuzzy))
+  (slime-require 'swank-listener-hooks)
   ;; Hyperspec within Emacs
   (setq browse-url-browser-function
         '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser)))
@@ -1353,7 +1357,7 @@ Ich verwende [[http://common-lisp.net/project/slime/][Slime]] wieder von quickli
   (load (expand-file-name
          "~/quicklisp/dists/quicklisp/software/cl-annot-20150608-git/misc/slime-annot.el"))
   (require 'slime-annot)
-  
+
   (define-key slime-mode-map (kbd "C-c s") 'slime-selector)
   (define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
 #+END_SRC
@@ -1469,8 +1473,6 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
 
   (global-set-key (kbd "C-x k") 'kill-this-buffer)
 
-  (global-set-key (kbd "\C-c\C-f") 'find-file-at-point)
-
   (global-set-key (kbd "\C-c i") 'my-insert-file-name)
 
   ;; zap-up-up-char
@@ -1496,6 +1498,7 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (define-key mb-map (kbd "e") 'config-visit)
   (define-key mb-map (kbd "r") 'config-reload)
   (define-key mb-map (kbd "w") 'define-word-at-point)
+  (define-key mb-map (kbd "f") 'find-file-at-point)
 
   (mb/sections)
 #+END_SRC

@@ -34,14 +34,15 @@
  '(osxb-import-with-timer nil)
  '(package-selected-packages
    (quote
-    (org-tree-slide demo-it magithub outshine magit-todos git-commit zenburn-theme projectile ace-jump-zap mu4e-conversation ivy-prescient auto-complete-auctex yasnippet ac-slime ac-ispell ace-link mic-paren define-word helpful ac-emoji cdlatex poporg shift-number org-projectile dashboard linum-relative diminish git-gutter ace-window ace-mc gnuplot dired-details multiple-cursors pdf-tools wc-mode beginend finder+ wgrep f git-timemachine rainbow-mode rainbow-delimiters dired-quick-sort gist web-mode osx-dictionary osx-org-clock-menubar mu4e-maildirs-extension mu4e mu4e-alert lorem-ipsum auctex smart-comment org-beautify-theme ac-math org-wunderlist osx-bbdb osx-lib alert readline-complete htmlize org-ac counsel-projectile bbdb-handy bbdb org-gcal noflet w3m which-key use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell counsel beacon avy)))
+    (focus counsel-projectile all-the-icons-ivy all-the-icons magit-popup mwim org-tree-slide demo-it magithub outshine magit-todos git-commit zenburn-theme projectile ace-jump-zap mu4e-conversation ivy-prescient auto-complete-auctex yasnippet ac-slime ac-ispell ace-link mic-paren define-word helpful ac-emoji cdlatex poporg shift-number org-projectile dashboard linum-relative diminish git-gutter ace-window ace-mc gnuplot dired-details multiple-cursors pdf-tools wc-mode beginend finder+ wgrep f git-timemachine rainbow-mode rainbow-delimiters dired-quick-sort gist osx-dictionary osx-org-clock-menubar mu4e-maildirs-extension mu4e mu4e-alert lorem-ipsum auctex smart-comment org-beautify-theme ac-math org-wunderlist osx-bbdb osx-lib alert readline-complete htmlize org-ac bbdb-handy bbdb org-gcal noflet use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell counsel beacon avy)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(recentf-exclude
    (quote
     ("/\\(\\(\\(COMMIT\\|NOTES\\|PULLREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\\|\\(BRANCH\\|EDIT\\)_DESCRIPTION\\)\\'" "/\\(autoloads\\|loaddefs\\)\\'")))
  '(safe-local-variable-values
    (quote
-    ((eval flyspell-mode-off)
+    ((indent-tabs)
+     (eval flyspell-mode-off)
      (ispell-local-dictionary . de)
      (Syntax . Common-Lisp)
      (TeX-master . t)

@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: defgeneric
+# key: dfgn
+# binding: direct keybinding
+# contributor: Martin Buchmann <Martin.Buchmann@gmail.com>
+# --
+(defgeneric $1 ($2)
+  (:documentation "$3"))
