@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-03-19 18:43:19 Martin>
+# Time-stamp: <2019-04-01 21:54:17 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -23,7 +23,9 @@ Durch den Paketmanager muss ich kaum noch Pakete manuell installieren.
   (setq load-path
         (mapcar 'expand-file-name
                 (append '("~/.emacs.d/elisp"
-                          "~/.emacs.d/elisp/slime-repl-ansi-color")
+                          "~/.emacs.d/elisp/slime-repl-ansi-color"
+                          "~/.emacs.d/elisp/commoji.el"
+                          "~/.emacs.d/elisp/move-lines")
                         load-path)))
 
   (setenv "INFOPATH"
@@ -532,6 +534,9 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
     (setq counsel-rg-base-command
           "rg -i -M 120 --no-heading --line-number --color never %s ."))
 
+  (use-package swiper
+    :ensure t)
+
   (use-package ivy
     :ensure t
     :diminish ivy-mode
@@ -989,6 +994,14 @@ Bessere [[https://github.com/vermiculus/magithub/][Integration]] von github.
     (magithub-feature-autoinject t)
     (setq magithub-clone-default-directory "~/Documents/src/github"))
 #+end_src
+
+**** Einfügen von Emojis in Commit-Meldungen
+
+[[https://github.com/davep/commoji.el][Commoji.el]] wie [[https://gist.github.com/parmentf/035de27d6ed1dce0b36a][hier]] beschrieben.
+
+#+begin_src emacs-lisp
+  (require 'commoji)
+#+end_src
 *** projectile
 [[http://projectile.readthedocs.io/en/latest/][Dokumentation]] für projectile und die Erweiterungen für [[https://github.com/ericdanan/counsel-projectile][Counsel]].
 
@@ -1176,6 +1189,14 @@ I will try if [[https://github.com/larstvei/Focus/blob/master/README.md][this]] 
     (prog-mode . focus-mode))
 #+end_src
 
+*** Vertauschen von Linien
+
+[[https://github.com/targzeta/move-lines][Move Lines]]
+
+#+begin_src emacs-lisp
+(require 'move-lines)
+(move-lines-binding)
+#+end_src
 *** Editing
 #+BEGIN_SRC emacs-lisp
   ;; Ich arbeite in einer deutschen Umgebung
@@ -1413,28 +1434,28 @@ erst einmal wieder.
   (global-log4slime-mode 1)
 #+END_SRC
 
-** AucTeX
+** AUCTeX
 
 Ich verwende LaTeX immer noch für Briefe, Bewerbung usw. und habe durch [[https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/][Piotrs]]
 Artikel Lust bekommen mal zu schauen, ob alles zu meiner Zufriedenheit
 konfiguriert ist.
 
 #+BEGIN_SRC emacs-lisp
-  ;; AucTeX wurde über den Paketmanager installiert.  Hier gibt es nur noch ein
-  ;; paar zusätzliche Konfigurationen.
-  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-  (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
+  (use-package tex
+    :ensure auctex
+    :config
+    (setq TeX-auto-save t
+          TeX-parse-self t
+          TeX-save-query nil)
+    (setq-default TeX-master nil)
+    :hook
+    (LaTeX-mode . flyspell-mode)
+    (LaTeX-mode . flyspell-buffer)
+    (LaTeX-mode . tex-fold-mode)
+    (LaTeX-mode . turn-on-reftex))
 
   (use-package auto-complete-auctex
     :ensure t)
-
-  (add-hook 'LaTeX-mode-hook 'turn-on-outline-minor-mode)
-  (add-hook 'LaTeX-mode-hook 'tex-fold-mode)
-  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-
-  (setq TeX-auto-save t
-        TeX-parse-self t
-        TeX-save-query nil)
 
   (use-package lorem-ipsum
     :ensure t)

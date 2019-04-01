@@ -4,3 +4,9 @@
 [submodule "elisp/slime-repl-ansi-color"]
 	path = elisp/slime-repl-ansi-color
 	url = https://github.com/enriquefernandez/slime-repl-ansi-color.git
+[submodule "elisp/commoji.el"]
+	path = elisp/commoji.el
+	url = https://github.com/davep/commoji.el.git
+[submodule "elisp/move-lines"]
+	path = elisp/move-lines
+	url = https://github.com/targzeta/move-lines.git
