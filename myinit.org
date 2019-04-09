@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-04-01 21:54:17 Martin>
+# Time-stamp: <2019-04-09 21:09:36 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -225,6 +225,15 @@ Verschiedenes, das sich über die Zeit angesammelt hat.
 
 Viele kleine Helfer, die unabhängig vom Modus sinnvoll sind.
 
+*** f
+
+Vielleicht brauche ich [[https://fuco1.github.io/2017-05-01-Support-for-imenu-in-dired.html][das]] später...
+ 
+#+begin_src emacs-lisp
+(use-package f
+  :ensure t)
+#+end_src
+
 *** dash
 
 Grundlegendes Paket um Listen zu handhaben.
@@ -298,6 +307,35 @@ Erlaubt eine schnelle Erweiterung der aktuellen Auswahl.
     :bind
     ("C-*" . er/expand-region))
 #+END_SRC
+*** Narrow-dwim
+
+Bei [[https://github.com/zamansky/using-emacs/blob/master/myinit.org][Mike]] gefunden...
+
+#+begin_src emacs-lisp
+  (defun narrow-or-widen-dwim (p)
+  "If the buffer is narrowed, it widens. Otherwise, it narrows intelligently.
+  Intelligently means: region, org-src-block, org-subtree, or
+  defun, whichever applies first.  Narrowing to org-src-block
+  actually calls `org-edit-src-code'.
+
+  With prefix P, don't widen, just narrow even if buffer is already
+  narrowed."
+   (interactive "P")
+   (declare (interactive-only))
+   (cond ((and (buffer-narrowed-p) (not p)) (widen))
+   ((region-active-p)
+   ((derived-mode-p 'org-mode)
+   ;; `org-edit-src-code' is not a real narrowing command.
+   ;; Remove this first conditional if you don't want it.
+   (cond ((ignore-errors (org-edit-src-code))
+   (delete-other-windows))
+   ((org-at-block-p)
+   (org-narrow-to-block))
+   (t (org-narrow-to-subtree))))
+   (t (narrow-to-defun))))
+   (narrow-to-region (region-beginning) (region-end)))
+  #+end_src
+
 *** shift-numbers
 
 Manipuliert Zahlen unter dem Cursor.
@@ -376,21 +414,75 @@ Für meinen Workflow immer wieder hilfreich.
   (setq dired-listing-switches "-aBhl --group-directories-first")
   (setq dired-dwim-target t)
 
-  (use-package dired-quick-sort
-    :defer t
-    :config
-    (dired-quick-sort-setup))
-
-  (use-package dired-details
-    :disabled t
-    :config
-    (dired-details-install))
-
-  ;;; https://fuco1.github.io/2017-05-01-Support-for-imenu-in-dired.html
-  (use-package f
-    :ensure t)
-
+  (setq diredp-hide-details-initially-flag nil)
+  (require 'dired+)
+  (toggle-diredp-find-file-reuse-dir 1)
 #+END_SRC
+
+**** dired-quick-sort
+
+[[https://gitlab.com/xuhdev/dired-quick-sort][A quick sort]] hydra for dired.
+
+#+begin_src emacs-lisp
+(use-package dired-quick-sort
+  :config
+  (dired-quick-sort-setup))
+#+end_src
+
+**** dired-details
+
+Einfachere Handhabung von [[https://www.emacswiki.org/emacs/DiredDetails][Details]] in dired buffer.
+
+#+begin_src emacs-lisp
+(use-package dired-details
+  :ensure t
+  :config
+  (dired-details-install))
+#+end_src
+
+**** dired-narrow & dired-subtree
+
+[[https://www.youtube.com/watch?v=pZzDayi5lRo][Ein weiterer guter Tipp von Mike...]]
+
+#+begin_src emacs-lisp
+(use-package dired-narrow
+  :ensure t
+  :config
+  (bind-key "C-c C-n" #'dired-narrow)
+  (bind-key "C-c C-f" #'dired-narrow-fuzzy)
+  (bind-key "C-x C-N" #'dired-narrow-regexp))
+
+(use-package dired-subtree
+  :ensure t
+  :after dired
+  :config
+  (bind-key "<tab>" #'dired-subtree-toggle dired-mode-map)
+  (bind-key "<backtab>" #'dired-subtree-cycle dired-mode-map))
+#+end_src
+
+**** dired-subtree
+
+Ich werde [[https://github.com/jojojames/dired-sidebar][das]] einmal probieren...
+
+#+begin_src emacs-lisp
+(use-package dired-sidebar
+  :bind (("C-x C-n" . dired-sidebar-toggle-sidebar))
+  :ensure t
+  :commands (dired-sidebar-toggle-sidebar)
+  :init
+  (add-hook 'dired-sidebar-mode-hook
+            (lambda ()
+              (unless (file-remote-p default-directory)
+                (auto-revert-mode))))
+  :config
+  (push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
+  (push 'rotate-windows dired-sidebar-toggle-hidden-commands)
+
+  (setq dired-sidebar-subtree-line-prefix "__")
+  (setq dired-sidebar-theme 'icons)
+  (setq dired-sidebar-use-term-integration t)
+  (setq dired-sidebar-use-custom-font t))
+#+end_src
 
 *** pdf-tools
 
@@ -542,7 +634,7 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
     :diminish ivy-mode
     :bind
     (("C-c C-r" . ivy-resume)
-     ("C-s" . swiper)
+     ("C-s" . swiper-isearch)
      ("C-r" . swiper)
      ("C-x b" . ivy-switch-buffer))
     :config
@@ -1114,6 +1206,31 @@ Im [[https://www.reddit.com/r/emacs/comments/9llbrm/a_hydra_to_scroll_the_other_
   (global-set-key (kbd "C-M-S-v") #'vl/smart-scroll-up-other-window)
 #+END_SRC
 
+**** All the icons
+
+Even more [[https://github.com/domtronn/all-the-icons.el][visual sugar]]...
+
+#+begin_src emacs-lisp
+  (use-package all-the-icons 
+    :ensure t
+    :defer 0.5)
+
+  (use-package all-the-icons-ivy
+    :ensure t
+    :after (all-the-icons ivy)
+    :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
+    :config
+    (add-to-list 'all-the-icons-ivy-file-commands 'counsel-dired-jump)
+    (add-to-list 'all-the-icons-ivy-file-commands 'counsel-find-library)
+    (all-the-icons-ivy-setup))
+
+  (use-package all-the-icons-dired
+    :ensure t
+    :hook
+    (dired-mode . all-the-icons-dired-mode))
+  ;; (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+
+#+end_src
 *** Anpassung der =mode-line=
 
 Die =mode-line= ist üblicherweise nicht so übersichtlich. 
@@ -1177,17 +1294,6 @@ Hebt die aktuellen Zeilen beim Wechseln von Windows hervor.
   (setq ibuffer-expert t)
 
 #+END_SRC
-
-*** Focus mode
-
-I will try if [[https://github.com/larstvei/Focus/blob/master/README.md][this]] helps me keeping the focus...
-
-#+begin_src emacs-lisp
-  (use-package focus
-    :ensure t
-    :hook
-    (prog-mode . focus-mode))
-#+end_src
 
 *** Vertauschen von Linien
 
@@ -1259,6 +1365,14 @@ I will try if [[https://github.com/larstvei/Focus/blob/master/README.md][this]] 
   (setq markdown-programm "/opt/local/bin/pandoc")
   (setq markdown-command "/opt/local/bin/pandoc")
 #+END_SRC
+*** Anmutete
+
+[[https://github.com/bastibe/annotate.el][Anmerkungen]] ohne die Datei zu ändern.
+
+#+begin_src emacs-lisp
+  (use-package annotate
+    :ensure t)
+#+end_src
 
 *** Dashboard
 #+BEGIN_SRC emacs-lisp
@@ -1510,6 +1624,7 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
   (define-key mb-map (kbd "c") 'multiple-cursors-hydra/body)
   (define-key mb-map (kbd "s") 'flyspell-correct-word-before-point)
   (define-key  mb-map "\C-i" #'endless/ispell-word-then-abbrev)
+  (define-key mb-map "n" #'narrow-or-widen-dwim)
 
   (defun my-org ()
     "A short-cut function to open my main org file."
@@ -1528,8 +1643,6 @@ Auch wenn ich nicht viel HTML-Dokumente bearbeite, möchte ich [[http://web-mode
 #+BEGIN_SRC emacs-lisp
   (fset 'new-problem
      (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([134217837 67108896 5 134217847 return 25 2 2 backspace backspace] 0 "%d")) arg)))
-
-  (global-set-key "\C-c\C-nP" 'new-problem)
 
   (fset 'dkb-import
      [?\C-  ?\C-n ?\C-n ?\C-n ?\C-n ?\C-n ?\C-n ?\C-w ?\M-% ?\; return tab return ?! ?\M-< ?\M-% ?\" return return ?!])
