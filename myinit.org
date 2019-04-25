@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-04-13 17:42:15 Martin>
+# Time-stamp: <2019-04-25 20:26:36 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -644,6 +644,12 @@ Das braucht keine weitere Erläuterung. Das Netz ist voll von [[http://irreal.or
     (setq ivy-use-selectable-prompt t)
     (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
 
+  (use-package ivy-rich
+    :ensure t
+    :config
+    (ivy-rich-mode 1)
+    (setq ivy-format-function #'ivy-format-function-line))
+
   (use-package ivy-prescient
     :ensure t
     :config
@@ -1081,7 +1087,7 @@ Bessere [[https://github.com/vermiculus/magithub/][Integration]] von github.
 #+begin_src emacs-lisp
   (use-package magithub
     :ensure t
-    :disabled t
+    :disabled nil
     :after magit
     :config
     (magithub-feature-autoinject t)
@@ -1126,7 +1132,21 @@ Bessere [[https://github.com/vermiculus/magithub/][Integration]] von github.
 #+END_SRC
 
 ** Erscheinung
+*** Theme
 
+Ich mag das [[https://github.com/bbatsov/zenburn-emacs][zenburn]]-Theme.
+
+#+begin_src emacs-lisp
+(load-theme 'zenburn t)
+;; use variable-pitch fonts for some headings and titles
+(setq zenburn-use-variable-pitch t)
+
+;; scale headings in org-mode
+(setq zenburn-scale-org-headlines t)
+
+;; scale headings in outline-mode
+(setq zenburn-scale-outline-headlines t)
+#+end_src
 *** Windows und Frames
 #+BEGIN_SRC emacs-lisp
   (when window-system
