@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: package definition
+# key: pacdef
+# --
+;; * The package definition

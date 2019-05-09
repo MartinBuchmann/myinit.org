@@ -2,7 +2,7 @@
 #+AUTHOR: Martin Buchmann
 #+STARTUP: content
 #+OPTIONS: toc:nil
-# Time-stamp: <2019-04-25 20:26:36 Martin>
+# Time-stamp: <2019-04-27 19:51:56 Martin>
 
 * Allgemeine Einstellungen
 ** Überprüfe, ob obsolete Pakete geladen werden
@@ -485,6 +485,18 @@ Ich werde [[https://github.com/jojojames/dired-sidebar][das]] einmal probieren..
   (setq dired-sidebar-use-custom-font t))
 #+end_src
 
+**** dired-rsync
+
+[[https://github.com/stsquad/dired-rsync][rsync]] direkt aus dired.
+
+#+begin_src emacs-lisp
+  (use-package dired-rsync
+    :ensure t
+    :custom
+    (dired-rsync-command "/opt/local/bin/rsync")
+    :config
+    (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
+#+end_src
 *** pdf-tools
 
 Darstellung von pdfs direkt in =Emacs= 
