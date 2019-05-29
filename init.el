@@ -1,5 +1,5 @@
 ;;;; init.el
-;; Time-stamp: <2019-05-20 21:31:33 Martin>
+;; Time-stamp: <2019-05-29 15:41:50 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -96,7 +96,6 @@
 ;;----------------------------------------------------------------------------
 ;;; Outshine
 (use-package outshine
-  
   :diminish 'outshine-mode
   :init
   (defvar outline-minor-mode-prefix "\M-#")
@@ -112,7 +111,8 @@
               (append '("~/.emacs.d/elisp"
                         "~/.emacs.d/elisp/slime-repl-ansi-color"
                         "~/.emacs.d/elisp/commoji.el"
-                        "~/.emacs.d/elisp/move-lines")
+                        "~/.emacs.d/elisp/move-lines"
+                        "~/.emacs.d/elisp/prettify-utils.el")
                       load-path)))
 
 (setenv "INFOPATH"
@@ -278,7 +278,7 @@ abort completely with `C-g'."
 
 (use-package dash)
 
-(use-package diminish)
+;; (use-package diminish)
 
 ;;;; Beginnend
 (use-package beginend
@@ -295,61 +295,25 @@ abort completely with `C-g'."
 
 ;;;; Alert
 (use-package alert
-  
   :config
   (setq alert-default-style 'osx-notifier))
 
 ;;;; Which-key?
 (use-package which-key
-      
-      :diminish which-key-mode
-      :config
-      (which-key-mode))
+  :diminish which-key-mode
+  :config
+  (which-key-mode))
 
 ;;;; Expand region
 (use-package expand-region
-  
   :bind
-  ("C-*" . er/expand-region))
-
-;;;; Narrow/Widen
-;;
-;; Bei Mike gefunden
-;; https://github.com/zamansky/using-emacs/blob/master/myinit.org
-;;
-(defun narrow-or-widen-dwim (p)
-"If the buffer is narrowed, it widens. Otherwise, it narrows intelligently.
-Intelligently means: region, org-src-block, org-subtree, or
-defun, whichever applies first.  Narrowing to org-src-block
-actually calls `org-edit-src-code'.
-
-With prefix P, don't widen, just narrow even if buffer is already
-narrowed."
- (interactive "P")
- (declare (interactive-only))
- (cond ((and (buffer-narrowed-p) (not p)) (widen))
- ((region-active-p)
- ((derived-mode-p 'org-mode)
- ;; `org-edit-src-code' is not a real narrowing command.
- ;; Remove this first conditional if you don't want it.
- (cond ((ignore-errors (org-edit-src-code))
- (delete-other-windows))
- ((org-at-block-p)
- (org-narrow-to-block))
- (t (org-narrow-to-subtree))))
- (t (narrow-to-defun))))
- (narrow-to-region (region-beginning) (region-end)))
-
-;;;; Shift numbers
-(use-package shift-number
-  
+  ("C-*" . er/expand-region)  
   :config
   (global-set-key (kbd "M-+") 'shift-number-up)
   (global-set-key (kbd "M-_") 'shift-number-down))
 
 ;;;; Undo tree
 (use-package undo-tree
-  
   :diminish undo-tree-mode
   :init
   (global-undo-tree-mode)
@@ -360,8 +324,7 @@ narrowed."
 
 ;;;; Autovervollständigung
 (use-package auto-complete
-  
-  :diminish ac-mode
+  :diminish auto-complete-mode
   :config
   (ac-config-default)
   (global-auto-complete-mode t)
@@ -370,7 +333,6 @@ narrowed."
   (setq ac-use-menu-map t))
 
 (use-package ac-emoji
-  
   :config
   (add-hook 'markdown-mode-hook 'ac-emoji-setup)
   (add-hook 'git-commit-mode-hook 'ac-emoji-setup)
@@ -406,15 +368,13 @@ narrowed."
 
 ;;;; Dired narrow
 (use-package dired-narrow
-  
   :config
   (bind-key "C-c C-n" #'dired-narrow)
-  (bind-key "C-c C-f" #'dired-narrow-fuzzy)
   (bind-key "C-x C-N" #'dired-narrow-regexp))
+  (bind-key "C-c C-f" #'dired-narrow-fuzzy)
 
 ;;;; Dired subtree
 (use-package dired-subtree
-  
   :after dired
   :config
   (bind-key "<tab>" #'dired-subtree-toggle dired-mode-map)
@@ -422,8 +382,7 @@ narrowed."
 
 ;;;; Dired sidebar
 (use-package dired-sidebar
-  :bind (("C-x C-n" . dired-sidebar-toggle-sidebar))
-  
+  :bind ("C-x C-n" . dired-sidebar-toggle-sidebar)
   :commands (dired-sidebar-toggle-sidebar)
   :init
   (add-hook 'dired-sidebar-mode-hook
@@ -441,7 +400,6 @@ narrowed."
 
 ;;;; Dired rysnc
 (use-package dired-rsync
-  
   :custom
   (dired-rsync-command "/opt/local/bin/rsync")
   :config
@@ -449,13 +407,11 @@ narrowed."
 
 ;;; PDF tools
 (use-package pdf-tools
-  
   :init
   (pdf-tools-install))
 
 ;;; Define word
-(use-package define-word
-  )
+(use-package define-word)
 
 ;; https://github.com/abo-abo/define-word/issues/16
 ;; TODO: Umlaute komplett dekodieren
@@ -512,7 +468,6 @@ narrowed."
 
 ;;; Multiple cursors
 (use-package multiple-cursors
-  
   :bind
   ("C->" . mc/mark-next-like-this)
   ("C-<" . mc/mark-previous-like-this)
@@ -543,7 +498,6 @@ narrowed."
     ("<drag-mouse-1>" ignore)))
 
 (use-package ace-mc
-  
   :bind
   (("C-ß" . ace-mc-add-multiple-cursors)
    ("C-M-ß" . ace-mc-add-single-cursor)))
@@ -552,7 +506,6 @@ narrowed."
 ;;----------------------------------------------------------------------------
 ;;; Counsel
 (use-package counsel
-  
   :bind
   (("M-x" . counsel-M-x)
    ("M-y" . counsel-yank-pop)
@@ -576,7 +529,6 @@ narrowed."
 
 ;;; Ivy
 (use-package ivy
-  
   :diminish ivy-mode
   :bind
   (("C-c C-r" . ivy-resume)
@@ -590,13 +542,13 @@ narrowed."
   (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
 
 (use-package ivy-rich
-  
+  :demand t
   :config
   (ivy-rich-mode 1)
   (setq ivy-format-function #'ivy-format-function-line))
 
 (use-package ivy-prescient
-  
+  :demand t
   :config
   (ivy-prescient-mode t)
   (prescient-persist-mode t)
@@ -607,7 +559,6 @@ narrowed."
           (t      . ivy-prescient-re-builder))))
 
 (use-package ivy-hydra
-  
   :init 
   (global-set-key
    (kbd "C-x t")
@@ -636,11 +587,11 @@ narrowed."
      ("p" (lambda () (interactive) (forward-line -1))  "up")
      ("g" goto-line "goto-line")
      )))
-  (mb/sections)
+
+(mb/sections)
 
 ;;; Avy
 (use-package avy
-  
   :config
   (avy-setup-default)
   :bind
@@ -651,26 +602,17 @@ narrowed."
 
 ;;; Ace window
 (use-package ace-window
-    
-    :config
-    (global-set-key (kbd "M-o") 'ace-window))
-
-;;; Ace link
-(use-package ace-link
-  
-  :config
-  (ace-link-setup-default))
+  :bind
+  ("M-o" . ace-window))
 
 ;;; Ace jump zap
 (use-package ace-jump-zap
-  
   :bind
   ("M-Z" . ace-jump-zap-to-char)
   ("M-z" . ace-jump-zap-up-to-char))
 
 ;;; Readline completion
 (use-package readline-complete
-  
   :config
   (progn
    (setq explicit-shell-file-name "bash")
@@ -732,6 +674,14 @@ narrowed."
 (add-to-list 'org-structure-template-alist
              '("el" . "src emacs-lisp"))
 
+;;;; Eisenhower-Matrix
+;; https://www.tompurl.com/2015-12-29-emacs-eisenhower-matrix.html
+
+(setq org-tag-alist '(("@Arbeit" . ?a) ("@Zuhause" . ?z)
+                      ("Hobby" . ?h) ("Reichardtstieg" . ?r) ("Anrufe" . ?A)
+                      ("Wichtig" . ?w) ("Dringend" . ?d)))
+
+
 ;;;; Meine eigenen Agenda-Ansichten
 (setq org-agenda-custom-commands
         '(("h" "Was liegt heute an?"
@@ -754,7 +704,11 @@ narrowed."
                          (org-agenda-sorting-stragety '(time-up priority-down))))))
           ("c" "Einfache Agenda"
            ((agenda "")
-            (alltodo "")))))
+            (alltodo "")))
+          ("1" "Q1" tags-todo "+Wichtig+Dringend")
+          ("2" "Q2" tags-todo "+Wichtig-Dringend")
+          ("3" "Q3" tags-todo "-Wichtig+Dringend")
+          ("4" "Q4" tags-todo "-Wichtig-Dringend")))
 
 (setq org-show-notification-handler 'alert)
 
@@ -778,15 +732,11 @@ RECURRENCES occasions."
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
-(use-package htmlize
-  )
+(use-package htmlize)
 
 (setq org-todo-keywords
       '((sequence "TODO(t@/!)" "Nächstes(n)" "Warten(w@/!)" "Projekt(p)" "Irgendwann(i)"
                   "|" "DONE(d@/!)" "Gestoppt(g/!)")))
-
-(setq org-tag-alist '(("@Arbeit" . ?a) ("@Zuhause" . ?z)
-                      ("Hobby" . ?h) ("Reichardtstieg" . ?r) ("Anrufe" . ?A) ("Dringend" . ?d)))
 
 (setq org-enforce-todo-dependencies t)
 (setq org-enforce-checkbox-dependencies t)
@@ -813,13 +763,33 @@ RECURRENCES occasions."
 
 ;;;; Org bullets
 (use-package org-bullets
-  
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
+;;;; Prettify symbols
+;; https://github.com/Ilazki/prettify-utils.el/blob/b4c9b50d4812f7c48d4a34a2280fdded2122bfbd/prettify-utils.el
+(load "prettify-utils.elc")
+(add-hook 'org-mode-hook (lambda ()
+   "Beautify Org Checkbox Symbol"
+   (setq prettify-symbols-alist
+         (prettify-utils-generate
+          ("[ ]" "☐")
+          ("[X]" "☑")
+          ("[-]" "❍")))
+   (prettify-symbols-mode)))
+ 
+(defface org-checkbox-done-text
+  '((t (:foreground "#71696A" :strike-through t)))
+  "Face for the text part of a checked org-mode checkbox.")
+ 
+(font-lock-add-keywords
+'org-mode
+`(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+    1 'org-checkbox-done-text prepend))
+'append)
+
 ;;;; Org autocomplete
 (use-package org-ac
-  
   :init 
   (org-ac/config-default))
 
@@ -864,8 +834,7 @@ RECURRENCES occasions."
   (if (equal "capture" (frame-parameter nil 'name))
       (delete-frame)))
 
-(use-package noflet
-  )
+(use-package noflet)
 
 (defun make-capture-frame ()
   "Create a new frame and run org-capture."
@@ -879,11 +848,11 @@ RECURRENCES occasions."
 ;;----------------------------------------------------------------------------
 ;;; Magit
 (use-package magit
-  :demand t
   :config
   (global-magit-file-mode t)
-  (global-set-key (kbd "C-x g") 'magit-status)
-  (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256"))))
+  (setq magit-log-arguments (quote ("--graph" "--color" "--decorate" "-n256")))
+  :bind
+  ("C-x g" . magit-status))
 
 ;;;; Gist
 (use-package gist)
@@ -939,14 +908,11 @@ Git gutter:
 
 ;;;; Magit todos
 (use-package magit-todos
-  
   :config
   (magit-todos-mode 1))
 
 ;;;; Magithub
 (use-package magithub
-  
-  :disabled nil
   :after magit
   :config
   (magithub-feature-autoinject t)
@@ -957,14 +923,13 @@ Git gutter:
 ;;----------------------------------------------------------------------------
 ;;; Projectile
 (use-package projectile
-  
   :init
   (projectile-mode)
+  :diminish projectile-mode
   :config
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 
 (use-package counsel-projectile
-  
   :init
   (counsel-projectile-mode t))
 
@@ -972,12 +937,10 @@ Git gutter:
   :bind (("C-c n p" . org-projectile-project-todo-completing-read)
          ("C-c c" . org-capture))
   :config
-  (progn
-    (setq org-projectile-projects-file
-          "~/Documents/src/lisp/Project Euler/ToDo.org")
-    (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
-    (push (org-projectile-project-todo-entry) org-capture-templates))
-  )
+  (setq org-projectile-projects-file
+        "~/Documents/src/lisp/Project Euler/ToDo.org")
+  (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+  (push (org-projectile-project-todo-entry) org-capture-templates))
 
 (mb/sections)
 ;;----------------------------------------------------------------------------
@@ -986,8 +949,13 @@ Git gutter:
 (when window-system
   (set-frame-size (selected-frame) 220 70)
   (set-frame-position (selected-frame) 165 35)
+  ;; (set-default-font                    
+  ;;  "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
+  ;; https://github.com/tonsky/FiraCode/wiki/Emacs-instructions
   (set-default-font                    
-   "-*-Source Code Pro-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
+   "-*-Fira Code-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
+  (load "~/.emacs.d/elisp/fira-code-mode.el")
+  (add-hook 'prog-mode-hook #'fira-code-mode)
   (setq auto-window-vscroll nil)
 
   ;; Fancy titlebar for MacOS
@@ -1061,12 +1029,10 @@ Git gutter:
 (global-set-key (kbd "C-M-S-v") #'vl/smart-scroll-up-other-window)
 
 ;;;; All the icons
-(use-package all-the-icons 
-  
-  :defer 0.5)
+(use-package all-the-icons)
 
 (use-package all-the-icons-ivy
-  
+  :demand t
   :after (all-the-icons ivy)
   :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
   :config
@@ -1075,44 +1041,42 @@ Git gutter:
   (all-the-icons-ivy-setup))
 
 (use-package all-the-icons-dired
-  
+  :diminish
   :hook
   (dired-mode . all-the-icons-dired-mode))
 
 ;;;; Mein Lieblingstheme
 (load-theme 'zenburn nil nil)
 ;; use variable-pitch fonts for some headings and titles
-(setq zenburn-use-variable-pitch nil)
+(setq zenburn-use-variable-pitch t)
 
 ;; scale headings in org-mode
-(setq zenburn-scale-org-headlines nil)
+(setq zenburn-scale-org-headlines t)
 
 ;; scale headings in outline-mode
-(setq zenburn-scale-outline-headlines nil)
+(setq zenburn-scale-outline-headlines t)
 
 ;;;; Mode icons
 (use-package mode-icons
-       
-      :config
-      (mode-icons-mode t))
+  :demand t
+  :config
+  (mode-icons-mode t))
 
 ;;;; Powerline
 (use-package powerline
-    
-    :config
-    (powerline-default-theme))
+  :demand t
+  :config
+  (powerline-default-theme))
 
 (setq line-number-mode t)
 (setq column-number-mode t)
 
 ;;;; Beacon
 (use-package beacon
-  
   :config
-  (progn 
-    (beacon-mode 1)
-    (setq beacon-push-mark 35)
-    (setq beacon-color "#666600")))
+  (beacon-mode 1)
+  (setq beacon-push-mark 35
+        beacon-color "#666600"))
 
 ;;;; List buffers
 (defalias 'list-buffers 'ibuffer-other-window)
@@ -1160,11 +1124,12 @@ Git gutter:
 (set-selection-coding-system 'utf-8)
 
 (setq-default indent-tabs-mode nil)
-;;;; Enableing flyspell
+;;;; Enabeling flyspell
 (dolist (hook '(text-mode-hook org-mode-hook))
   (add-hook hook (lambda () (flyspell-mode 1))))
 (dolist (hook '(lisp-mode-hook emacs-lisp-mode-hook))
   (add-hook hook (lambda () (flyspell-prog-mode))))
+(diminish 'flyspell-mode)
 
 ;; Making flyspell work with my trackpad
 (eval-after-load "flyspell"
@@ -1254,11 +1219,11 @@ Git gutter:
 
 (defun config-visit ()
   (interactive)
-  (find-file "~/.emacs.d/myinit.org"))
+  (find-file "~/.emacs.d/init.el"))
 
 (defun config-reload ()
   (interactive)
-  (org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org")))
+  (load-file (expand-file-name "~/.emacs.d/init.el")))
 
 (mb/sections)
 
@@ -1266,7 +1231,6 @@ Git gutter:
 ;;; Spezielle Modi
 ;;;; Yasnippet
 (use-package yasnippet
-  
   :diminish yas-minor-mode
   :config
   (yas-global-mode 1)
@@ -1274,19 +1238,17 @@ Git gutter:
     (setq warning-suppress-types nil))
   (add-to-list 'warning-suppress-types '(yasnippet backquote-change)))
 
-(use-package yasnippet-snippets
-             )
+(use-package yasnippet-snippets)
 
 ;;;; Gnuplot
 (use-package gnuplot
-  
   :config
-  (progn
-    (autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
-    (autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot-mode" t)
-    (setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode))
-                                  auto-mode-alist))
-    (global-set-key [(f9)] 'gnuplot-make-buffer)))
+  (autoload 'gnuplot-mode "gnuplot" "gnuplot major mode" t)
+  (autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot-mode" t)
+  (setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode))
+                                auto-mode-alist))
+  :bind
+  ([f9] . gnuplot-make-buffer))
 
 ;;;; Meine Lisp-Umgebung
 ;;;;; Slime
@@ -1322,6 +1284,7 @@ Git gutter:
 
 ;;;;; paredit
 (use-package paredit
+  :demand t
   :diminish paredit-mode
   :config
   (add-hook 'lisp-mode-hook #'enable-paredit-mode)
@@ -1373,7 +1336,8 @@ Git gutter:
 ;;;;; Rainbow mode
 (use-package rainbow-mode
   :init
-  (rainbow-mode 1))
+  (rainbow-mode 1)
+  :diminish rainbow-mode)
 
 ;;;;; lass mode
 ;; Der Pfad muss angepasst werden, bei einem Update von lass

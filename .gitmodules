@@ -10,3 +10,6 @@
 [submodule "elisp/move-lines"]
 	path = elisp/move-lines
 	url = https://github.com/targzeta/move-lines.git
+[submodule "elisp/prettify-utils.el"]
+	path = elisp/prettify-utils.el
+	url = https://github.com/Ilazki/prettify-utils.el.git

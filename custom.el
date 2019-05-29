@@ -5,6 +5,7 @@
  ;; If there is more than one, they won't work right.
  '(ac-ispell-fuzzy-limit 4)
  '(ac-ispell-requires 4)
+ '(all-the-icons-ivy-buffer-commands (quote (ivy-switch-buffer-other-window ivy-switch-buffer)) t)
  '(ansi-color-names-vector
    ["#3F3F3F" "#CC9393" "#7F9F7F" "#F0DFAF" "#8CD0D3" "#DC8CC3" "#93E0E3" "#DCDCCC"])
  '(custom-enabled-themes (quote (zenburn)))
@@ -35,7 +36,7 @@
  '(osxb-import-with-timer nil)
  '(package-selected-packages
    (quote
-    (web-mode yasnippet-snippets dired-rsync ivy-rich dired-sidebar all-the-icons-dired dired-subtree dired-narrow dired+ lv annotate swiper AUCTeX focus counsel-projectile all-the-icons-ivy all-the-icons magit-popup mwim org-tree-slide demo-it magithub outshine magit-todos git-commit zenburn-theme projectile ace-jump-zap mu4e-conversation ivy-prescient auto-complete-auctex yasnippet ac-slime ac-ispell ace-link mic-paren define-word helpful ac-emoji cdlatex poporg shift-number org-projectile dashboard linum-relative diminish git-gutter ace-window ace-mc gnuplot dired-details multiple-cursors pdf-tools wc-mode beginend finder+ wgrep f git-timemachine rainbow-mode rainbow-delimiters dired-quick-sort gist osx-dictionary osx-org-clock-menubar mu4e-maildirs-extension mu4e mu4e-alert lorem-ipsum auctex smart-comment org-beautify-theme ac-math org-wunderlist osx-bbdb osx-lib alert readline-complete htmlize org-ac bbdb-handy bbdb org-gcal noflet use-package undo-tree try powerline paredit org-bullets mode-icons markdown-mode magit ivy-hydra expand-region exec-path-from-shell counsel beacon avy)))
+    (smart-mode-line-powerline-theme sml web-mode yasnippet-snippets dired-rsync ivy-rich dired-sidebar all-the-icons-dired dired-subtree dired-narrow dired+ lv annotate swiper AUCTeX focus counsel-projectile all-the-icons-ivy all-the-icons magit-popup mwim org-tree-slide demo-it magithub outshine magit-todos git-commit zenburn-theme projectile ace-jump-zap mu4e-conversation ivy-prescient auto-complete-auctex yasnippet ac-slime ac-ispell ace-link mic-paren define-word helpful ac-emoji cdlatex poporg shift-number org-projectile dashboard linum-relative diminish git-gutter ace-window ace-mc gnuplot dired-details multiple-cursors pdf-tools wc-mode beginend finder+ wgrep f git-timemachine rainbow-mode rainbow-delimiters dired-quick-sort gist osx-dictionary osx-org-clock-menubar mu4e-maildirs-extension mu4e mu4e-alert lorem-ipsum auctex smart-comment org-beautify-theme ac-math org-wunderlist osx-bbdb osx-lib alert readline-complete htmlize org-ac bbdb-handy bbdb org-gcal noflet use-package undo-tree try powerline paredit org-bullets markdown-mode ivy-hydra expand-region exec-path-from-shell counsel beacon avy)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(recentf-exclude
    (quote
