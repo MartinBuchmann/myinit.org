@@ -1,5 +1,5 @@
 ;;;; init.el
-;; Time-stamp: <2019-05-29 15:41:50 Martin>
+;; Time-stamp: <2019-05-31 21:28:08 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -307,10 +307,13 @@ abort completely with `C-g'."
 ;;;; Expand region
 (use-package expand-region
   :bind
-  ("C-*" . er/expand-region)  
-  :config
-  (global-set-key (kbd "M-+") 'shift-number-up)
-  (global-set-key (kbd "M-_") 'shift-number-down))
+  ("C-*" . er/expand-region))
+
+;;; Shift numbers
+(use-package shift-number
+  :bind
+  ("M-+" . shift-number-up)
+  ("M--" . shift-number-down))
 
 ;;;; Undo tree
 (use-package undo-tree
