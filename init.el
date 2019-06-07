@@ -1,5 +1,5 @@
 ;;;; init.el
-;; Time-stamp: <2019-05-31 21:28:08 Martin>
+;; Time-stamp: <2019-06-07 13:44:01 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -958,6 +958,7 @@ Git gutter:
   (set-default-font                    
    "-*-Fira Code-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
   (load "~/.emacs.d/elisp/fira-code-mode.el")
+  (diminish 'fira-code-mode)
   (add-hook 'prog-mode-hook #'fira-code-mode)
   (setq auto-window-vscroll nil)
 
@@ -1257,25 +1258,32 @@ Git gutter:
 ;;;;; Slime
 (load (expand-file-name "~/quicklisp/slime-helper.el"))
 
-(setq inferior-lisp-program "/opt/local/bin/sbcl --no-inform --no-linedit")
-(setq slime-lisp-implementations
+(setq inferior-lisp-program "/opt/local/bin/sbcl --no-inform"
+      slime-lisp-implementations
       '((sbcl  ("/opt/local/bin/sbcl" "--no-inform --no-linedit"))
         (clisp ("/opt/local/bin/clisp"))
-        (ccl   ("/opt/local/bin/ccl64") :coding-system utf-8-unix)))
-(setq slime-net-coding-system 'utf-8-unix)
-(slime-setup
- '(slime-repl-ansi-color slime-fancy slime-banner slime-indentation slime-asdf slime-tramp slime-fuzzy))
+        (ccl   ("/opt/local/bin/ccl64") :coding-system utf-8-unix))
+      slime-net-coding-system 'utf-8-unix
+      slime-contribs '(slime-fancy slime-fuzzy slime-tramp slime-repl-ansi-color slime-asdf slime-banner))
 (slime-require 'swank-listener-hooks)
-;; Hyperspec within Emacs
+
+(define-key slime-mode-map (kbd "C-c s") 'slime-selector)
+(define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
+
+;;;;;; Hyperspec within Emacs
 (setq browse-url-browser-function
       '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser)))
-;; slime-annot
+
+;;;;;; slime-annot
 (load (expand-file-name
        "~/quicklisp/dists/quicklisp/software/cl-annot-20150608-git/misc/slime-annot.el"))
 (require 'slime-annot)
 
-(define-key slime-mode-map (kbd "C-c s") 'slime-selector)
-(define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
+;;;;; log4cl
+;; Disabled because it breaks slime's startup animation
+(defvar log4slime-mode t) ; Simple work-around?!
+(load "~/quicklisp/log4slime-setup.el")
+(global-log4slime-mode 1)
 
 ;;;;; ac-slime
 (use-package ac-slime
@@ -1287,12 +1295,29 @@ Git gutter:
 
 ;;;;; paredit
 (use-package paredit
-  :demand t
+  :demand
   :diminish paredit-mode
   :config
   (add-hook 'lisp-mode-hook #'enable-paredit-mode)
   (add-hook 'slime-repl-mode-hook #'enable-paredit-mode)
   (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode))
+
+;;;;; parinf
+(use-package parinfer
+  :disabled
+  :bind
+  ("C-'" . parinfer-toggle-mode)
+  :init
+  (setq parinfer-extensions
+        '(defaults        ; should be included.
+           pretty-parens  ; different paren styles for different modes.
+           paredit        ; Introduce some paredit commands.
+           smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
+           smart-yank)    ; Yank behavior depend on mode.
+        parinfer-auto-switch-indent-mode t
+        parinfer-auto-switch-indent-mode-when-closing t)
+  :hook
+  ((emacs-lisp-mode scheme-mode lisp-mode slime-repl-mode slime-mode) . parinfer-mode))
 
 ;;;;; Sonstiges
 (use-package rainbow-delimiters
@@ -1301,11 +1326,6 @@ Git gutter:
 
 ;; The global-prettify-symbols-mode causes a bug with log4slime!
 (add-hook 'prog-mode-hook #'prettify-symbols-mode)
-
-;;;;; log4cl
-(defvar log4slime-mode t) ; Simple work-around?!
-(load "~/quicklisp/log4slime-setup.el")
-(global-log4slime-mode 1)
 
 ;;;; AUCTeX
 (use-package tex
