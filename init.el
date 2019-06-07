@@ -1,5 +1,5 @@
 ;;;; init.el
-;; Time-stamp: <2019-06-07 13:44:01 Martin>
+;; Time-stamp: <2019-06-07 14:01:34 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -793,6 +793,7 @@ RECURRENCES occasions."
 
 ;;;; Org autocomplete
 (use-package org-ac
+  :disabled
   :init 
   (org-ac/config-default))
 
@@ -1281,9 +1282,9 @@ Git gutter:
 
 ;;;;; log4cl
 ;; Disabled because it breaks slime's startup animation
-(defvar log4slime-mode t) ; Simple work-around?!
-(load "~/quicklisp/log4slime-setup.el")
-(global-log4slime-mode 1)
+;; (defvar log4slime-mode t) ; Simple work-around?!
+;; (load "~/quicklisp/log4slime-setup.el")
+;; (global-log4slime-mode 1)
 
 ;;;;; ac-slime
 (use-package ac-slime
@@ -1295,29 +1296,9 @@ Git gutter:
 
 ;;;;; paredit
 (use-package paredit
-  :demand
   :diminish paredit-mode
-  :config
-  (add-hook 'lisp-mode-hook #'enable-paredit-mode)
-  (add-hook 'slime-repl-mode-hook #'enable-paredit-mode)
-  (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode))
-
-;;;;; parinf
-(use-package parinfer
-  :disabled
-  :bind
-  ("C-'" . parinfer-toggle-mode)
-  :init
-  (setq parinfer-extensions
-        '(defaults        ; should be included.
-           pretty-parens  ; different paren styles for different modes.
-           paredit        ; Introduce some paredit commands.
-           smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
-           smart-yank)    ; Yank behavior depend on mode.
-        parinfer-auto-switch-indent-mode t
-        parinfer-auto-switch-indent-mode-when-closing t)
   :hook
-  ((emacs-lisp-mode scheme-mode lisp-mode slime-repl-mode slime-mode) . parinfer-mode))
+  ((lisp-mode slime-repl-mode emacs-lisp-mode) . enable-paredit-mode))
 
 ;;;;; Sonstiges
 (use-package rainbow-delimiters
