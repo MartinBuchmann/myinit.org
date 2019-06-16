@@ -1,5 +1,5 @@
 ;;;; init.el
-;; Time-stamp: <2019-06-07 14:01:34 Martin>
+;; Time-stamp: <2019-06-16 17:09:56 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -544,12 +544,14 @@ abort completely with `C-g'."
   (setq ivy-use-selectable-prompt t)
   (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
 
+;;;; ivy-rich
 (use-package ivy-rich
   :demand t
   :config
   (ivy-rich-mode 1)
   (setq ivy-format-function #'ivy-format-function-line))
 
+;;;; ivy-prescient
 (use-package ivy-prescient
   :demand t
   :config
@@ -561,6 +563,7 @@ abort completely with `C-g'."
           (counsel-rg . ivy--regex-plus)
           (t      . ivy-prescient-re-builder))))
 
+;;;; ivy-hydra
 (use-package ivy-hydra
   :init 
   (global-set-key
@@ -590,6 +593,13 @@ abort completely with `C-g'."
      ("p" (lambda () (interactive) (forward-line -1))  "up")
      ("g" goto-line "goto-line")
      )))
+
+;;;; ivy-youtube
+(use-package ivy-youtube
+  :bind
+  ("C-c y" . ivy-youtube)
+  :custom
+  ivy-youtube-key "AIzaSyDsFR3QqGF1GaXuOLoBOIywoRgWvrXCIHY")
 
 (mb/sections)
 
@@ -1272,8 +1282,11 @@ Git gutter:
 (define-key slime-repl-mode-map (kbd "C-c s") 'slime-selector)
 
 ;;;;;; Hyperspec within Emacs
-(setq browse-url-browser-function
-      '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser)))
+
+(use-package w3m
+  :config
+  (setq browse-url-browser-function
+       '((".*lispworks.*" . w3m-goto-url-new-session) ("." . browse-url-default-browser))))
 
 ;;;;;; slime-annot
 (load (expand-file-name

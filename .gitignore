@@ -45,3 +45,4 @@ emms/*
 /.#recentf
 /bookmarks
 /transient/history.el
+/ivy-youtube-history
