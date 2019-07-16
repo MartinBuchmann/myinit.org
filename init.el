@@ -1,6 +1,6 @@
 ;; -*- lexical-binding: t -*-
 ;;;; init.el
-;; Time-stamp: <2019-07-12 18:12:07 Martin>
+;; Time-stamp: <2019-07-16 10:56:59 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -636,9 +636,9 @@ abort completely with `C-g'."
 ;;;; ivy-youtube
 (use-package ivy-youtube
   :bind
-  ("C-c y" . ivy-youtube)
-  :custom
-  ivy-youtube-key "AIzaSyDsFR3QqGF1GaXuOLoBOIywoRgWvrXCIHY")
+  ("C-c y" . ivy-youtube))
+
+(load "~/.emacs.d/secrets/youtube.el.gpg")
 
 (mb/sections)
 
