@@ -1,5 +1,6 @@
+;; -*- lexical-binding: t -*-
 ;;;; init.el
-;; Time-stamp: <2019-06-16 17:09:56 Martin>
+;; Time-stamp: <2019-07-12 18:12:07 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -278,7 +279,9 @@ abort completely with `C-g'."
 
 (use-package dash)
 
-;; (use-package diminish)
+(use-package s)
+
+(require 'timer)
 
 ;;;; Beginnend
 (use-package beginend
@@ -309,7 +312,7 @@ abort completely with `C-g'."
   :bind
   ("C-*" . er/expand-region))
 
-;;; Shift numbers
+;;;;xs Shift numbers
 (use-package shift-number
   :bind
   ("M-+" . shift-number-up)
@@ -343,7 +346,7 @@ abort completely with `C-g'."
    t 'symbol
    (font-spec :family "Apple Color Emoji") nil 'prepend))
 
-;;;; Die zuletzt verwendeten Dateien
+;;;; Zuletzt verwendeten Dateien
 (use-package recentf
   :init
   (setq recentf-max-menu-items 25
@@ -354,6 +357,28 @@ abort completely with `C-g'."
   (add-to-list 'recentf-exclude (format "%s/\\.emacs\\.d/elpa/.*" (getenv "HOME")))
   (add-to-list 'recentf-exclude "/var/.*")
   :bind ("C-c f f" . recentf-open-files))
+
+;;;; Memento Mori
+;; http://manuel-uberti.github.io//emacs/2019/07/06/memento-mori/
+(use-package memento-mori
+  :after s
+  :config
+  (setq memento-mori-birth-date "1977-08-03")
+  (memento-mori-mode)
+
+  (defun mu-display-memento-mori ()
+    "Display my current age by leveraging `memento-mori-age-string'."
+    (interactive)
+    (let ((first-name (car (s-split-words user-full-name)))
+          (age (s-trim memento-mori-age-string))
+          (msg "%s, you are %s, don't waste your time!"))
+      (run-with-timer 2 nil
+                      (lambda ()
+                        (message msg first-name age)
+                        (run-with-timer 3 nil
+                                        (lambda ()
+                                          (message nil)))))))
+   :hook (after-init . mu-display-memento-mori))
 
 ;;; Dired
 (setq insert-directory-program "/opt/local/bin/gls")
@@ -521,10 +546,11 @@ abort completely with `C-g'."
    ("C-c K" . counsel-ag)
    ("C-x l" . counsel-locate)
    :map ivy-minibuffer-map
-   ("M-y" . ivy-next-line))
+   ("M-y" . ivy-next-line)
+   ("M-J" . ivy-yank-complete-symbol-at-point))
   :config
-  (setq counsel-git-cmd "rg --files")
-  (setq counsel-rg-base-command
+  (setq counsel-git-cmd "rg --files"
+	counsel-rg-base-command
         "rg -i -M 120 --no-heading --line-number --color never %s ."))
 
 ;;; Swiper
@@ -540,9 +566,22 @@ abort completely with `C-g'."
    ("C-x b" . ivy-switch-buffer))
   :config
   (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-use-selectable-prompt t)
+  (setq ivy-use-virtual-buffers t
+	ivy-use-selectable-prompt t)
   (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
+
+;;;; ivy hacks
+;;; https://www.reddit.com/r/emacs/comments/baby94/some_ivy_hacks/
+(defun ivy-yank-complete-symbol-at-point (&optional arg)
+  "inserts whole symbol from buffer to ivy prompt. Prefix args allowed"
+  (interactive "p")
+  (unless (fboundp 'forward-symbol)
+    (require 'thingatpt))
+  (let ((text (with-ivy-window
+      		(forward-thing 'symbol (or arg 1))
+      		(thing-at-point 'symbol 'no-props))))
+    (when text
+      (insert (replace-regexp-in-string " +" " " text t t)))))
 
 ;;;; ivy-rich
 (use-package ivy-rich
@@ -624,7 +663,18 @@ abort completely with `C-g'."
   ("M-Z" . ace-jump-zap-to-char)
   ("M-z" . ace-jump-zap-up-to-char))
 
-;;; Readline completion
+;;; Symbol overlay
+;; https://github.com/wolray/symbol-overlay
+(use-package symbol-overlay
+  :bind
+  (("M-i" . symbol-overlay-put)
+   ("M-n" . symbol-overlay-switch-forward)
+   ("M-p" . symbol-overlay-switch-backward)
+   ("<f7>" . symbol-overlay-mode)
+   ("<f8>" . symbol-overlay-remove-all))
+  :hook (prog-mode . symbol-overlay-mode))
+
+ ;;; Readline completion
 (use-package readline-complete
   :config
   (progn
@@ -922,6 +972,7 @@ Git gutter:
 
 ;;;; Magit todos
 (use-package magit-todos
+  :demand t
   :config
   (magit-todos-mode 1))
 
@@ -1183,7 +1234,10 @@ Git gutter:
 (setq markdown-command "/opt/local/bin/pandoc")
 
 ;;; Bemerkungen
-(use-package annotate)
+(use-package annotate
+  :diminish
+  :hook
+  (prog-mode . annotate-mode))
 
 ;;; Dashboard
 (use-package dashboard
