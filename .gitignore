@@ -47,3 +47,4 @@ emms/*
 /transient/history.el
 /ivy-youtube-history
 /annotations
+/secrets/youtube.el

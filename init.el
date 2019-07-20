@@ -1,6 +1,6 @@
 ;; -*- lexical-binding: t -*-
 ;;;; init.el
-;; Time-stamp: <2019-07-16 10:56:59 Martin>
+;; Time-stamp: <2019-07-18 21:00:06 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -638,7 +638,7 @@ abort completely with `C-g'."
   :bind
   ("C-c y" . ivy-youtube))
 
-(load "~/.emacs.d/secrets/youtube.el.gpg")
+(load "~/.emacs.d/secrets/youtube.el")
 
 (mb/sections)
 
