@@ -1,6 +1,6 @@
 ;; -*- lexical-binding: t -*-
 ;;;; init.el
-;; Time-stamp: <2019-07-18 21:00:06 Martin>
+;; Time-stamp: <2019-10-19 14:52:17 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -18,6 +18,10 @@
              (setq gc-cons-threshold 800000
                    gc-cons-percentage 0.1)
              (garbage-collect)) t)
+
+;; https://irreal.org/blog/?p=8243
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
 ;;----------------------------------------------------------------------------
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
@@ -25,8 +29,7 @@
 ;; You may delete these explanatory comments.
 (require 'package)
 (setq package-enable-at-startup nil)
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")))
 
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 
@@ -156,6 +159,9 @@
 
 ;; auto refresh dired when file changes
 (add-hook 'dired-mode-hook 'auto-revert-mode)
+
+;; https://www.emacswiki.org/emacs/TrampMode#toc1
+(setq tramp-default-method "ssh")
 (mb/sections)
 
 (setq initial-major-mode 'emacs-lisp-mode)     ; *scratch* shows up in emacs-lisp-mode
@@ -312,7 +318,7 @@ abort completely with `C-g'."
   :bind
   ("C-*" . er/expand-region))
 
-;;;;xs Shift numbers
+;;;; Shift numbers
 (use-package shift-number
   :bind
   ("M-+" . shift-number-up)
@@ -381,8 +387,8 @@ abort completely with `C-g'."
    :hook (after-init . mu-display-memento-mori))
 
 ;;; Dired
-(setq insert-directory-program "/opt/local/bin/gls")
-(setq dired-listing-switches "-aBhl --group-directories-first")
+;; (setq insert-directory-program "/opt/local/bin/gls")
+;; (setq dired-listing-switches "-aBhl --group-directories-first")
 (setq dired-dwim-target t)
 
 (setq diredp-hide-details-initially-flag nil)
@@ -390,9 +396,9 @@ abort completely with `C-g'."
 (toggle-diredp-find-file-reuse-dir 1)
 
 ;;;; Dired quick sort 
-(use-package dired-quick-sort
-  :config
-  (dired-quick-sort-setup))
+;; (use-package dired-quick-sort
+;;   :config
+;;   (dired-quick-sort-setup))
 
 ;;;; Dired narrow
 (use-package dired-narrow
@@ -1112,15 +1118,18 @@ Git gutter:
   (dired-mode . all-the-icons-dired-mode))
 
 ;;;; Mein Lieblingstheme
-(load-theme 'zenburn nil nil)
-;; use variable-pitch fonts for some headings and titles
-(setq zenburn-use-variable-pitch t)
+(use-package zenburn-theme
+  :ensure t
+  :config
+  (load-theme 'zenburn nil nil)
+  ;; use variable-pitch fonts for some headings and titles
+  (setq zenburn-use-variable-pitch t)
 
-;; scale headings in org-mode
-(setq zenburn-scale-org-headlines t)
+  ;; scale headings in org-mode
+  (setq zenburn-scale-org-headlines t)
 
-;; scale headings in outline-mode
-(setq zenburn-scale-outline-headlines t)
+  ;; scale headings in outline-mode
+  (setq zenburn-scale-outline-headlines t))
 
 ;;;; Mode icons
 (use-package mode-icons
@@ -1258,7 +1267,9 @@ Git gutter:
                           (projects . 5)
                           (agenda . 5)
                           ; (registers . 5)
-                          )))
+                          ))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t))
 
 (mb/sections)
 
@@ -1374,6 +1385,18 @@ Git gutter:
 
 ;; The global-prettify-symbols-mode causes a bug with log4slime!
 (add-hook 'prog-mode-hook #'prettify-symbols-mode)
+
+;;;;; Geiser for Scheme :-(
+(use-package geiser
+  :config
+  (setq geiser-active-implementations '(mit)))
+
+(use-package ac-geiser
+  :config
+  (add-hook 'geiser-mode-hook 'ac-geiser-setup)
+  (add-hook 'geiser-repl-mode-hook 'ac-geiser-setup)
+  (eval-after-load "auto-complete"
+    '(add-to-list 'ac-modes 'geiser-repl-mode)))
 
 ;;;; AUCTeX
 (use-package tex
