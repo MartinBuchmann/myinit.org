@@ -1,6 +1,6 @@
 ;; -*- lexical-binding: t -*-
 ;;;; init.el
-;; Time-stamp: <2019-10-19 14:52:17 Martin>
+;; Time-stamp: <2019-11-20 17:37:25 Martin>
 ;;
 ;; Inspiriert von:
 ;;
@@ -123,6 +123,16 @@
         (concat (getenv "INFOPATH") ":"
                 (expand-file-name "/opt/local/share/info/")))
 
+(setenv "PATH"
+        (concat (getenv "PATH") ":"
+                (expand-file-name "/usr/local/texlive/2019/bin/x86_64-darwin") ":"
+                (expand-file-name "/Users/Martin/bin") ":"
+                (expand-file-name "/opt/local/bin") ":"
+                (expand-file-name "/opt/local/sbin") ":"
+                (expand-file-name "/usr/local/bin")))
+
+(setq exec-path (append exec-path '("/opt/local/bin")))
+
 ;;----------------------------------------------------------------------------
 ;;; Sicherheit
 (setq epa-file-cache-passphrase-for-symmetric-encryption t)
@@ -175,6 +185,8 @@
 ;;----------------------------------------------------------------------------
 ;;; Abkürzungen einschalten
 (setq-default abbrev-mode t)
+(use-package diminish)
+
 (diminish 'abbrev-mode)
 (setq save-abbrevs t)
 (setq abbrev-file-name "~/.emacs.d/abbrev_defs")
@@ -242,7 +254,9 @@ abort completely with `C-g'."
 
 ;; https://github.com/purcell/exec-path-from-shell
 (when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize)
+  (use-package exec-path-from-shell
+    :config
+    (exec-path-from-shell-initialize))
 
   (setq ns-command-modifier 'meta         ; Apple/Command key is Meta
         ns-alternate-modifier nil         ; Option is the Mac Option key
@@ -253,7 +267,8 @@ abort completely with `C-g'."
 
   ;; https://github.com/chrisbarrett/osx-bbdb
   (when (equal system-type 'darwin)
-    (require 'osx-bbdb)))
+    (use-package osx-bbdb
+   )))
 
 (setq delete-by-moving-to-trash t
       trash-directory "~/.Trash/emacs")
@@ -354,12 +369,11 @@ abort completely with `C-g'."
 
 ;;;; Zuletzt verwendeten Dateien
 (use-package recentf
-  :init
+  :config
   (setq recentf-max-menu-items 25
         recentf-auto-cleanup 'never
         recentf-keep '(file-remote-p file-readable-p))
   (recentf-mode 1)
-  :config
   (add-to-list 'recentf-exclude (format "%s/\\.emacs\\.d/elpa/.*" (getenv "HOME")))
   (add-to-list 'recentf-exclude "/var/.*")
   :bind ("C-c f f" . recentf-open-files))
@@ -500,42 +514,6 @@ abort completely with `C-g'."
           (setq results (cl-subseq results 0 define-word-limit)))
         (mapconcat #'de-escape results "\n")))))
 
-;;; Multiple cursors
-(use-package multiple-cursors
-  :bind
-  ("C->" . mc/mark-next-like-this)
-  ("C-<" . mc/mark-previous-like-this)
-  ("C-c C-<" . mc/mark-all-like-this)
-  :init
-  (defhydra multiple-cursors-hydra (:hint nil)
-    "
-       ^Up^            ^Down^        ^Other^
-  ----------------------------------------------
-  [_p_]   Previous    [_n_]   Next    [_l_] Edit lines
-  [_P_]   Skip        [_N_]   Skip    [_a_] Mark all
-  [_M-p_] Unmark      [_M-n_] Unmark  [_r_] Mark by regexp
-  ^ ^                 ^ ^             [_q_] Quit
-  "
-    ("l" mc/edit-lines :exit t)
-    ("a" mc/mark-all-like-this :exit t)
-    ("n" mc/mark-next-like-this)
-    ("N" mc/skip-to-next-like-this)
-    ("M-n" mc/unmark-next-like-this)
-    ("p" mc/mark-previous-like-this)
-    ("P" mc/skip-to-previous-like-this)
-    ("M-p" mc/unmark-previous-like-this)
-    ("r" mc/mark-all-in-region-regexp :exit t)
-    ("q" nil)
-
-    ("<mouse-1>" mc/add-cursor-on-click)
-    ("<down-mouse-1>" ignore)
-    ("<drag-mouse-1>" ignore)))
-
-(use-package ace-mc
-  :bind
-  (("C-ß" . ace-mc-add-multiple-cursors)
-   ("C-M-ß" . ace-mc-add-single-cursor)))
-
 (mb/sections)
 ;;----------------------------------------------------------------------------
 ;;; Counsel
@@ -610,7 +588,7 @@ abort completely with `C-g'."
 
 ;;;; ivy-hydra
 (use-package ivy-hydra
-  :init 
+  :config 
   (global-set-key
    (kbd "C-x t")
    (defhydra toggle (:color blue)
@@ -639,14 +617,43 @@ abort completely with `C-g'."
      ("g" goto-line "goto-line")
      )))
 
-;;;; ivy-youtube
-(use-package ivy-youtube
-  :bind
-  ("C-c y" . ivy-youtube))
-
-(load "~/.emacs.d/secrets/youtube.el")
-
 (mb/sections)
+
+;;; Multiple cursors
+(use-package multiple-cursors
+  :bind
+  ("C->" . mc/mark-next-like-this)
+  ("C-<" . mc/mark-previous-like-this)
+  ("C-c C-<" . mc/mark-all-like-this)
+  :config
+  (defhydra multiple-cursors-hydra (:hint nil)
+    "
+       ^Up^            ^Down^        ^Other^
+  ----------------------------------------------
+  [_p_]   Previous    [_n_]   Next    [_l_] Edit lines
+  [_P_]   Skip        [_N_]   Skip    [_a_] Mark all
+  [_M-p_] Unmark      [_M-n_] Unmark  [_r_] Mark by regexp
+  ^ ^                 ^ ^             [_q_] Quit
+  "
+    ("l" mc/edit-lines :exit t)
+    ("a" mc/mark-all-like-this :exit t)
+    ("n" mc/mark-next-like-this)
+    ("N" mc/skip-to-next-like-this)
+    ("M-n" mc/unmark-next-like-this)
+    ("p" mc/mark-previous-like-this)
+    ("P" mc/skip-to-previous-like-this)
+    ("M-p" mc/unmark-previous-like-this)
+    ("r" mc/mark-all-in-region-regexp :exit t)
+    ("q" nil)
+
+    ("<mouse-1>" mc/add-cursor-on-click)
+    ("<down-mouse-1>" ignore)
+    ("<drag-mouse-1>" ignore)))
+
+(use-package ace-mc
+  :bind
+  (("C-ß" . ace-mc-add-multiple-cursors)
+   ("C-M-ß" . ace-mc-add-single-cursor)))
 
 ;;; Avy
 (use-package avy
@@ -683,12 +690,11 @@ abort completely with `C-g'."
  ;;; Readline completion
 (use-package readline-complete
   :config
-  (progn
-   (setq explicit-shell-file-name "bash")
-   (setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
-   (setq comint-process-echoes t)
-   (add-to-list 'ac-modes 'shell-mode)
-   (add-hook 'shell-mode-hook 'ac-rlc-setup-sources)))
+  (setq explicit-shell-file-name "bash")
+  (setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
+  (setq comint-process-echoes t)
+  (add-to-list 'ac-modes 'shell-mode)
+  (add-hook 'shell-mode-hook 'ac-rlc-setup-sources))
 
 ;;----------------------------------------------------------------------------
 ;;; Org mode
@@ -733,6 +739,9 @@ abort completely with `C-g'."
 (setq org-display-inline-images t)
 (setq org-redisplay-inline-images t)
 (setq org-startup-with-inline-images "inlineimages")
+
+(setq org-hide-emphasis-markers t)
+(setq org-special-ctrl-a/e t)
 
 (setq org-startup-folded (quote overview))
 (setq org-startup-indented t)
@@ -832,8 +841,8 @@ RECURRENCES occasions."
 
 ;;;; Org bullets
 (use-package org-bullets
-  :config
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+  :hook
+  (org-mode . (lambda () (org-bullets-mode 1))))
 
 ;;;; Prettify symbols
 ;; https://github.com/Ilazki/prettify-utils.el/blob/b4c9b50d4812f7c48d4a34a2280fdded2122bfbd/prettify-utils.el
@@ -1119,7 +1128,6 @@ Git gutter:
 
 ;;;; Mein Lieblingstheme
 (use-package zenburn-theme
-  :ensure t
   :config
   (load-theme 'zenburn nil nil)
   ;; use variable-pitch fonts for some headings and titles
@@ -1211,7 +1219,8 @@ Git gutter:
   '(progn
      (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
      (define-key flyspell-mouse-map [mouse-3] #'undefined)))
-;; Using a english dictionary as standard.
+;; Using a german dictionary as standard.
+(setq ispell-program-name "/opt/local/bin/aspell")
 (setq ispell-dictionary "de_DE")
 
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
@@ -1220,7 +1229,6 @@ Git gutter:
 
 ;;;; Vervollständigung von Wörtern
 (use-package ac-ispell
-  
   :config
   (custom-set-variables
    '(ac-ispell-requires 4)
@@ -1385,18 +1393,6 @@ Git gutter:
 
 ;; The global-prettify-symbols-mode causes a bug with log4slime!
 (add-hook 'prog-mode-hook #'prettify-symbols-mode)
-
-;;;;; Geiser for Scheme :-(
-(use-package geiser
-  :config
-  (setq geiser-active-implementations '(mit)))
-
-(use-package ac-geiser
-  :config
-  (add-hook 'geiser-mode-hook 'ac-geiser-setup)
-  (add-hook 'geiser-repl-mode-hook 'ac-geiser-setup)
-  (eval-after-load "auto-complete"
-    '(add-to-list 'ac-modes 'geiser-repl-mode)))
 
 ;;;; AUCTeX
 (use-package tex
